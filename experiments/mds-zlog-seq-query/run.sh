@@ -1,7 +1,7 @@
 #!/bin/bash
 
 name=single_client
-runtime=120
+runtime=600
 
 logdir=$PWD/results.${name}.$(hostname --short).$(date +"%m-%d-%Y_%H-%M-%S")
 mkdir $logdir
