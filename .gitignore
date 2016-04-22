@@ -1,0 +1,6 @@
+.DS_Store
+paper/build.log
+*.retry
+*.sw?
+.ropeproject/
+.ipynb_checkpoints/
