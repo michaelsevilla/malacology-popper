@@ -172,7 +172,7 @@ wide-variety of object interfaces that have been co-designed with applications
 that run on top of Ceph and Figure~\ref{fig:obj-int-dev-growth} shows a
 dramatic growth in the use of co-designed interfaces since 2010.
 Figure~\ref{fig:obj-int-dev-churn} examines this growth in interfaces further
-by showing the lines of code that are changed ({\it y} axis) over time ({\it x}
+by showing the lines of code that are changed (_y_ axis) over time (_x_
 axis). The prevalence of blue dots indicates that users frequently update their
 interfaces. This interface churn reflects both the popularity of object
 interfaces and the complexity of the processing being done by the OSDs. While
@@ -181,8 +181,17 @@ separates our proposal from previous work is the observation that so much
 \emph{more} of the storage system can be reused to construct advanced,
 domain-specific interfaces. 
 
-<!-- Problems that can be solved with programmability -->
-The popularity of object interfaces hints at there trends in the Ceph community: (1) increasingly, the default algorithms/tunables of the storage system are insufficient for the application's performance goals, (2) programmers are becoming more aware of their application's behavior, and (3) programmers know how to manage resources to improve performance. Programmers gravitate towards object interfaces because it gives them ability to tell the storage system about their application: if it is CPU or IO bound, if it has locality, if its size has the potential to overload a single proxy node, etc. The programmers know what the problem is and how to solve it, but until object interfaces, had no way to tell the storage system how to handle their data.
+<!-- Problems that can be solved with programmability --> The popularity of
+object interfaces hints at there trends in the Ceph community: (1)
+increasingly, the default algorithms/tunables of the storage system are
+insufficient for the application's performance goals, (2) programmers are
+becoming more aware of their application's behavior, and (3) programmers know
+how to manage resources to improve performance. Programmers gravitate towards
+object interfaces because it gives them ability to tell the storage system
+about their application: if it is CPU or IO bound, if it has locality, if its
+size has the potential to overload a single proxy node, etc. The programmers
+know what the problem is and how to solve it, but until object interfaces, had
+no way to tell the storage system how to handle their data.
 
 <!-- PICTURE: figures/obj-int-dev-growth.png
 
@@ -211,6 +220,24 @@ The popularity of object interfaces hints at there trends in the Ceph community:
     interfaces to applications. \# is the number of methods that uses these
     categories.  
   --> 
+
+As an example, ZLog, a research prototype built on Ceph, needs to store
+metadata information with each object. For each operation, it checks the epoch
+value and write capability (2 metadata reads) and writes the index (metadata
+write). Figure 1 shows the throughput (_y_ axis) over time (_x_ axis) of two
+object class implementations for storing metadata: in the header of the byte
+stream (data) vs. in the object extended attributes (XATTR). The speed for
+appending data without any metadata operations (data raw) is also shown as a
+baseline for comparison. For append-heavy workloads storing metadata as a
+header in the data performs about 1.5x better than storing metadata as an
+extended attribute. This evaluation and resulting implementation would have
+been a burden without object classes.
+
+![When appending data to objects, the object class that stores metadata in a
+header in the data byte stream (data) performs 1.5x better than the object
+class that stores metdata in the extended attributes of the object (XATTR); it
+is almost as fast as appending data without updating metadata (data
+raw).](figures/cls_xattr-vs-data.png)
 
 # Ceph is a Production-Quality Distribute System
 
