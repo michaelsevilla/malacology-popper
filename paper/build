@@ -1,3 +1,9 @@
+#!/bin/bash
+
+# Copy figures to the right place
+cp ../experiments/figure1/cls_xattr-vs-data.png figures/
+
+# Build the paper
 docker run \
   --rm \
   --workdir="/root" \
