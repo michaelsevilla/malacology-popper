@@ -1,5 +1,5 @@
 ---
-title: "Malacology: A Programmable Storage\\ System Built on Ceph"
+title: "Malacology: A Programmable Storage System Built on Ceph"
 author:
 - name: "Carlos Maltzahn, Michael Sevilla, Noah Watkins, Ivo Jimenez"
   affiliation: "_UC Santa Cruz_"
@@ -104,10 +104,10 @@ so called ``bolt-on'' services that introduce a 3rd party system (e.g. a
 metadata service), or expanded application responsibility in the form of data
 management (e.g. a new data layout).
 
-*Extra Services* "Bolt-on" services are designed to improve overall application
-performance, but come at the expensive of additional sub-systems and
-dependencies that the application must manage, as well as trust. For example,
-it is well understood that MapReduce performs poorly for iterative and
+\textbf{Extra Services}: "Bolt-on" services are designed to improve overall
+application performance, but come at the expensive of additional sub-systems
+and dependencies that the application must manage, as well as trust. For
+example, it is well understood that MapReduce performs poorly for iterative and
 interactive computation due to its failure model that heavily relies on on-disk
 storage of intermediate data. Many have added services to Hadoop to keep more
 data in the runtime (e.g., HaLoop~\cite{bu:vldb2010-haloop},
@@ -118,16 +118,16 @@ improves, it comes at a cost: "bolt-on" services frequently result in overly
 complex systems that re-implement functionality and re-execute redundant code,
 unnecessarily increasing the likelihood of bugs.
 
-*Application Changes* The second approach to adapting to a storage system
-deficiency is to change the application itself by adding more data management
-intelligence, often into the application itself, or as domain-specific
-middleware. For instance, an application may change to exploit data locality or
-I/O parallelism in a distributed storage system. This is not a bad proposition,
-but creates a coupling that is highly tied to the underlying physical
-properties of the system, making it difficult to adapt to future changes at the
-storage system level.
+\textbf{Application Changes}: The second approach to adapting to a storage
+system deficiency is to change the application itself by adding more data
+management intelligence, often into the application itself, or as
+domain-specific middleware. For instance, an application may change to exploit
+data locality or I/O parallelism in a distributed storage system. This is not a
+bad proposition, but creates a coupling that is highly tied to the underlying
+physical properties of the system, making it difficult to adapt to future
+changes at the storage system level.
 
-*Storage Changes* When these two approaches fail to meet the needs of the
+\textbf{Storage Changes}: When these two approaches fail to meet the needs of the
 application, developers turn their attention to the storage system itself. For
 example, HDFS has been the focus of scalability concerns, especially for
 metadata-intensive workloads~\cite{shvachko:login2012-hdfs-scalability}. This
@@ -152,74 +152,88 @@ without sacrificing the correctness of the underlying system.
      (libcls\_md5.so) to execute.
 -->
 
-<!-- What are object storage interfaces? --> Active storage is a hybrid
-approach to changing the application and storage system. Pushing computation
-closer to the data is not a new idea. Active storage techniques are used in
-production Ceph environments to have object storage devices (OSDs) process data
-before sending over the network or storing it. The code that does the
-processing in the OSD is called an ``object storage interface`` and it can be
-loaded at runtime and customized with user-defined functionality. The basic
-idea is shown in Figure~\ref{fig:object-interfaces}, where the
-\texttt{libcls\_md5.so} shared library performs the MD5 hash on an object at
-the oSD instead of transferring data over the network. This ability to carry
-out arbitrary operations on objects stored on OSDs helps applications improve
-performance by optimizing things like network round trips, data movement, and
-remote resources which may be idle. 
+<!-- What are object storage interfaces? --> 
 
-<!-- People use object storage interfaces --> Developers and users actively
-develop new object storage interfaces. Table~\ref{tab:objclasses} shows the
-wide-variety of object interfaces that have been co-designed with applications
-that run on top of Ceph and Figure~\ref{fig:obj-int-dev-growth} shows a
-dramatic growth in the use of co-designed interfaces since 2010.
-Figure~\ref{fig:obj-int-dev-churn} examines this growth in interfaces further
-by showing the lines of code that are changed (_y_ axis) over time (_x_
-axis). The prevalence of blue dots indicates that users frequently update their
-interfaces. This interface churn reflects both the popularity of object
-interfaces and the complexity of the processing being done by the OSDs. While
-we consider active storage to be an excellent example of programmability, what
-separates our proposal from previous work is the observation that so much
-\emph{more} of the storage system can be reused to construct advanced,
-domain-specific interfaces. 
+Active storage is a hybrid approach to changing the application and storage
+system. Pushing computation closer to the data is not a new idea. Active
+storage techniques are used in production Ceph environments to have object
+storage devices (OSDs) process data before sending over the network or storing
+it. The code that does the processing in the OSD is called an ``object storage
+interface`` and it can be loaded at runtime and customized with user-defined
+functionality. The basic idea is shown in Figure~\ref{fig:object-interfaces},
+where the \texttt{libcls\_md5.so} shared library performs the MD5 hash on an
+object at the oSD instead of transferring data over the network. This ability
+to carry out arbitrary operations on objects stored on OSDs helps applications
+improve performance by optimizing things like network round trips, data
+movement, and remote resources which may be idle. 
 
-<!-- Problems that can be solved with programmability --> The popularity of
-object interfaces hints at there trends in the Ceph community: (1)
-increasingly, the default algorithms/tunables of the storage system are
-insufficient for the application's performance goals, (2) programmers are
-becoming more aware of their application's behavior, and (3) programmers know
-how to manage resources to improve performance. Programmers gravitate towards
-object interfaces because it gives them ability to tell the storage system
-about their application: if it is CPU or IO bound, if it has locality, if its
-size has the potential to overload a single proxy node, etc. The programmers
-know what the problem is and how to solve it, but until object interfaces, had
-no way to tell the storage system how to handle their data.
+<!-- People use object storage interfaces --> 
 
-<!-- PICTURE: figures/obj-int-dev-growth.png
+Developers and users actively develop new object storage interfaces.
+Figure \ref{fig:obj-int-dev-growth} shows a dramatic growth in the use of
+co-designed interfaces in the Ceph community since 2010.
+Figure \ref{fig:obj-int-dev-churn} examines this growth in interfaces further
+by showing the lines of code that are changed (_y_ axis) over time (_x_ axis).
+The prevalence of blue dots indicates that users frequently update their
+interfaces close to release cycles and that massive changes come in bunches.
+This interface churn reflects both the popularity of object interfaces and the
+complexity of the processing being done by the OSDs. What is most remarkable
+about Figure \ref{fig:obj-int-dev-churn} is that this trend contradicts the
+notion that API changes are a burden for users. The types of object interfaces,
+which are enumerated in Table \ref{table:objclasses}, show that this active
+storage development is present throughough the Ceph software stack.
 
-     Since 2010, the growth in the number of co-designed object storage
-     interfaces in Ceph has been accelerating. This plot is the number of
-     object classes (a group of interfaces), and the total number of methods
-     (the actual API end-points).
+While we consider active storage to be an excellent example of programmability,
+what separates our proposal from previous work is the observation that so much
+_more_ of the storage system can be reused to construct advanced,
+domain-specific interfaces.
 
-     PICTURE: figures/obj-int-dev-churn.png
-     Source code changes over time indicate the dynamic interface development
-     will need to support a high frequency of interface churn. Each dot
-     represents a Ceph commit with a corresponding number of lines of code
-     changed.  
-  -->
+<!-- Problems that can be solved with programmability --> 
 
-<!-- TABLE
+The popularity of object interfaces hints at three trends in the Ceph
+community: (1) increasingly, the default algorithms/tunables of the storage
+system are insufficient for the application's performance goals, (2)
+programmers are becoming more aware of their application's behavior, and (3)
+programmers know how to manage resources to improve performance. Programmers
+gravitate towards object interfaces because it gives them ability to tell the
+storage system about their application: if it is CPU or IO bound, if it has
+locality, if its size has the potential to overload a single proxy node, etc.
+The programmers know what the problem is and how to solve it, but until object
+interfaces, had no way to tell the storage system how to handle their data.
 
-    Category & Specialization & \# \\ \hline \multirow{2}{*}{Locking} & Shared
-    & \multirow{2}{*}{6} \\ & Exclusive & \\ \hline \multirow{3}{*}{Logging} &
-    Replica & 3 \\ & State & 4 \\ & Timestamped & 4 \\ \hline Garbage
-    Collection & Reference Counting & 4 \\ \hline \multirow{4}{*}{Metadata
-    Management} & RBD & 37 \\ & RGW & 27 \\ & User & 5 \\ & Version & 5 \\
-    \hline
+![Since 2010, the growth in the number of co-designed object storage interfaces
+in Ceph has been accelerating. This plot is the number of object classes (a
+group of interfaces), and the total number of methods (the actual API
+end-points).\label{fig:obj-int-dev-churn}](figures/obj-int-dev-growth.png)
 
-    A variety of RADOS object storage classes exist that expose reusable
-    interfaces to applications. \# is the number of methods that uses these
-    categories.  
-  --> 
+![Source code changes over time indicate the dynamic interface development will
+need to support a high frequency of interface churn. Each dot represents a Ceph
+commit with a corresponding number of lines of code changed.
+\label{fig:obj-int-dev-churn}](figures/obj-int-dev-churn.png)
+
+
+\begin{table}[ht]
+\caption{
+    A variety of RADOS object storage classes exist to expose interfaces
+    to applications. \# is the number of methods that use these categories.
+    \label{table:objclasses}}
+  \begin{center}
+  \begin{tabular}{l|l|l}
+    Category & Specialization& \# \\ \hline
+    \multirow{2}{*}{Locking} & Shared & \multirow{2}{*}{6} \\
+                             & Exclusive & \\ \hdashline
+    \multirow{3}{*}{Logging} & Replica & 3 \\
+                             & State & 4 \\
+                             & Timestamped & 4 \\ \hdashline
+    \multirow{4}{*}{Metadata Management} 
+                             & RADOS Block Device (RBD) & 37 \\
+                             & RADOS Gatway (RGW)& 27 \\
+                             & User & 5 \\
+                             & Version & 5 \\ \hdashline
+    Garbage Collection       & Reference Counting & 4 \\
+\end{tabular}
+\end{center}
+\end{table}
 
 As an example, ZLog, a research prototype built on Ceph, needs to store
 metadata information with each object. For each operation, it checks the epoch
@@ -259,10 +273,10 @@ library, so the developer must account for different target architectures.
 Second, C/C++ provides more functionality than is necessary since the snippets
 of interface code mainly set policies and perform simple operations. Finally,
 developing these interfaces in C/C++ has high overhead. The developer must
-learn how the OSD dynamically loads the shared libraries ({\it e.g.}, OSDs rely
+learn how the OSD dynamically loads the shared libraries (_e.g._, OSDs rely
 on a strict naming convention to find shared libraries), how to get their
-interfaces compiled using Ceph's \texttt{make} system, and how to debug issues
-that are not related to their specific interface ({\it e.g.} the OSD cannot
+interfaces compiled using the Ceph \texttt{make} system, and how to debug issues
+that are not related to their specific interface (_e.g._, the OSD cannot
 find the shared library) - this learning curve is unacceptable for non-Ceph
 developers, especially since most interfaces are one-off solutions specific to
 their applications. 
@@ -272,7 +286,7 @@ Ceph has a whole infrastructure for getting dynamic code into the OSD. The
 defined by the shared library, and fails gracefully with helpful errors if
 anything goes wrong. Instead of injecting strings directly into Ceph (like we
 did with the original Mantle implementation), the \texttt{ClassHandler} class
-safely opens shared code, even code with dependencies that aren't in Ceph
+safely opens shared code, even code with dependencies that are not in Ceph
 itself (e.g., Lua). With the \texttt{ClassHandler}, we get the safety and
 robustness of loading dynamic code, the ease of transferring state between
 object interfaces and the oSD internals, integration with testing and
@@ -280,7 +294,7 @@ correctness suites, and \texttt{struct}s for interface data and handlers.
 
 ## Durability
 
-Ceph provides storage by striping and replicating data across RADOS, Ceph's
+Ceph provides storage by striping and replicating data across RADOS, the
 reliable distributed object store. RADOS uses many techniques to ensure that
 data is not corrupted or lost, such as erasure coding, replication, and data
 scrubbing. Furthermore, many of these techniques try to be autonomous so that
@@ -288,7 +302,7 @@ work is distributed across the cluster. For example, when placement groups
 change the OSDs rebalance and re-shard data in the background in a process
 called placement group splitting.
 
-## Consistency and Versioning
+## Consistency and Versioning of Cluster State
 
 Ceph needs to keep track of cluster state and it does this with separate
 "services": client authentication, logging, metadata server (MDS) maps, monitor
@@ -318,9 +332,13 @@ cluster is.
 -->
 
 We present a framework for managing Lua object classes comprised of 3 parts:
-\begin{enumerate} \item general and customizable shared libraries for the OSDs
-and MDSs using Lua \item storing Lua object classes as RADOS objects \item
-monitor command for specifying the Lua class \end{enumerate}
+
+1. general and customizable shared libraries for the OSDs
+and MDSs using Lua 
+
+2. storing Lua object classes as RADOS objects 
+
+3. monitor command for specifying the Lua class
 
 ## Distributing Work with Customizable Interfaces
 
@@ -341,7 +359,7 @@ performance~\cite{grawinkel:pdsw2012-lua}. Lua is frequently used in game
 engines to set policies but we use it here because most of the user-defined
 classes in Ceph are policies as well! We do not want to provide specific
 implementations, like pulling data from objects or transferring them over the
-network, but instead strive to say {\it what to do} with the data once we have
+network, but instead strive to say _what to do_ with the data once we have
 it. Separating policy from mechanism is a driving factor in using Lua.
 
 <!-- Lua is portable (script shipping) -->
@@ -386,8 +404,8 @@ symbols, and functions, need to run the Lua VM. Some of these functions include
 Dependencies, symbols, and functions specific to the object or balancer
 interface are put in the \texttt{cls} or \texttt{bal} directories,
 respectively. For example, the Lua object interface uses functions that have
-placement group filters, cryptography functions, and object metadata ({\it
-i.e.} \texttt{cxx\_omap\_getvals()}, object data, object extended attributes,
+placement group filters, cryptography functions, and object metadata (_it
+i.e._ \texttt{cxx\_omap\_getvals()}, object data, object extended attributes,
 and object versions -- all these are dependencies, symbols, and functions are
 part of the OSD process but not the MDS process. As a result, we put interface
 code that uses these in \texttt{cls} directory. With this scheme, The OSD will
@@ -471,8 +489,8 @@ leveraging the monitor daemons, we get the consistency from the monitors'
 version management, the distribution from the monitors' data structures (which
 are already distributed), and the durability from the robustness of the
 monitors and persistence with Paxos. The implementation uses the placement
-group pool data structure which maintains the policies ({\it e.g.}, erasure
-coding) and organization details ({\it e.g.}, snapshots) for each pool. While
+group pool data structure which maintains the policies (_e.g._, erasure
+coding) and organization details (_e.g._, snapshots) for each pool. While
 stuffing the information into the monitor map, the structure that describes the
 the monitor topology, was an option, the placement group pool allows finer
 grainer control over different typoes of data. In regards to the consistency,
