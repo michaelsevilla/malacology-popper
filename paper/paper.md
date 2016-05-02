@@ -6,18 +6,21 @@ author:
   email: "`{carlosm,msevilla,jayhawk,ivo}@soe.ucsc.edu`"
 number-of-authors: 4
 abstract: |
-  Ceph is a distributed storage system with many code-hardened components, yet
-  many of these subsystems are never re-used or re-purposed for other tasks.
-  Monitor processes (MONs) maintain systems in the cluster using consensus,
-  versioning, and consistency protocols. Object Storage Daemons (OSDs) store
-  data on disk using sophisticated peer-to-peer techniques like replication,
-  load balancing, and consensus. Metadata daemons (MDSs) act as gateways for
-  file-based storage using protocols for consistency, balancing load, and
-  mediating shared data. In this work, we take a "programmable storage"
-  approach to building systems that emphasizes the re-use and re-purposement of
-  different Ceph subsystems. Using this framework, we build two services, a POSIX metadata load balancer and a distributed shared commit-log, that re-use
-  load balancing, recovery, cache coherence/capabilites, and object class
-  functionality already present in Ceph.
+
+  We explore how existing abstractions of common services found in storage
+  systems can be leveraged to address new data processing systems and the
+  increasing speed of storage devices. This approach allows unprecedented
+  flexibility for storage systems to evolve without sacrificing the robustness
+  of its code-hardened subsystems.  Ceph is a distributed storage system with
+  monitor processes that maintain cluster state using consensus, versioning,
+  and consistency protocols; object storage daemons that store data on disk
+  using peer-to-peer techniques like replication, load balancing, and
+  consensus; and metadata daemons that act as gateways for file-based storage
+  using protocols for consistency, balancing load, and mediating shared access.
+  In this work, we take a "programmable storage" approach to leveraging these
+  subsystems to build two services, a POSIX metadata load balancer and a
+  distributed shared commit-log. 
+
 documentclass: ieeetran
 classoption: conference
 ieeetran: true
@@ -37,21 +40,40 @@ keywords:
  - systems-evaluation
 linkcolor: black
 ---
-
-# Introductions
+  
+# Introduction
 
 <!-- What is the general problem? -->
 
+<!--   disruptors for storage and data management
+  1. new scale requirements for data processing architectures
+  2. increasing speed of storage devices
+      
+  Consequences
+  - old layers become obselete
+  - code paths are too long
+  - evolution can affect the robustness of code-hardened storage systems
+  --> 
+
 Large distributed systems tackle difficult distributed systems problems with
-code-hardened subsystems. For example, Ceph~\cite{weil:osdi06} addresses
-_durability_ with its RADOS object store (e.g., replication, erasure coding,
-and data scrubbing), _consistent versioning_ by having daemons exchange "maps"
-of the cluster configuration, and _consensus_ by having monitor daemons (MONs)
-use PAXOS. We contend that re-using and re-purposing these code-hardened
-subsystems is paramount to (1) improving the longevity and community uptake of
-"research quality" code and (2) avoiding duplication of the same protocols and
-algorithms throughout the system. Unfortunately, many internal subsystems are
-not exposed to other parts of the systems.
+code-hardened subsystem, but many of these components are never re-used or
+re-purposed. New scale requirements for data processing architectures and the
+increasing speed of storage devices are disruptors for storage and data
+management. As a consequence, layers of the software stack become obselete and
+code paths grow longer and more obfuscated. Evolution of the storage system can
+affect the robustness of code-hardened subsystems, yet there needs to be an
+equally flexible storage system to address the diverse performance requirements of the
+application. 
+
+For example, Ceph~\cite{weil:osdi06} addresses _durability_ with
+its RADOS object store (e.g., replication, erasure coding, and data scrubbing),
+_consistent versioning_ by having daemons exchange "maps" of the cluster
+configuration, and _consensus_ by having monitor daemons (MONs) use PAXOS. We
+contend that re-using and re-purposing these code-hardened subsystems is
+paramount to (1) improving the longevity and community uptake of "research
+quality" code and (2) avoiding duplication of the same protocols and algorithms
+throughout the system. Unfortunately, many internal subsystems are not exposed
+to other parts of the systems.
 
 <!-- Introduce Ceph -->
 
@@ -67,13 +89,12 @@ baked into Ceph, we can build large research-quality systems.
 <!-- Our solution: programmable storage -->
 
 We present Malacology, a programmable storage system capable of incorporating
-new functionality and re-purposing existing subsystems. Administraotrs inject
-functionlity into system as Lua scripts. We build the framework on
-Ceph~\cite{weil:osdi06} by adding a command to the monitor daemons (MON) and a
-Lua interpreter to the object storage daemon (OSD) and metadata server daemon
-(MDS). As shown in Figure~\ref{fig:overview}, this framework is expressive
-enough to provide the functionality necessary for implementing other
-research-quality systems and services. Our contributions are:
+new functionality and re-purposing existing subsystems. We build the framework
+on Ceph~\cite{weil:osdi06} by leveraging the subsystems in the monitor daemons
+(MONs), object storage daemons (OSDs), and metadata server daemon(MDSs). As
+shown in Figure~\ref{fig:overview}, this framework is expressive enough to
+provide the functionality necessary for implementing other research-quality
+systems and services. Our contributions are:
 
 - a programmable storage system implementation
 - re-using code-hardened systems: sandboxed and vetted
@@ -98,53 +119,153 @@ balancer (\S\ref{a-programmable-metadata-load-balancer}).
 
 # Highly Tailored and Application-Specifc Storage Systems
 
-When application goals are not met by a storage system the most common reaction
-is to design a workaround. Workarounds roughly fall into one of two categories:
-so called ``bolt-on'' services that introduce a 3rd party system (e.g. a
-metadata service), or expanded application responsibility in the form of data
-management (e.g. a new data layout).
+A consequence of complicated data management frameworks and faster devices
+is that the storage system cannot meet the needs of the general-purpose storage
+system. Workarounds for helping the application meet its performance goals
+roughly fall into one of three categories: "bolt-on" services, application
+changes, and storage changes. In this section we touch on each subject using
+examples from both the Ceph and Hadoop communities to show the breadth and extent of the problem. 
 
-\textbf{Extra Services}: "Bolt-on" services are designed to improve overall
-application performance, but come at the expensive of additional sub-systems
-and dependencies that the application must manage, as well as trust. For
-example, it is well understood that MapReduce performs poorly for iterative and
-interactive computation due to its failure model that heavily relies on on-disk
-storage of intermediate data. Many have added services to Hadoop to keep more
-data in the runtime (e.g., HaLoop~\cite{bu:vldb2010-haloop},
+##"Bolt-on" services 
+
+So called "bolt-on" services are 3rd party systems that are integrated into the
+targeted software stack to accomodate data management and faster devices.  But
+these extra services come at the expense of additional sub-systems,
+dependencies, and data layouts that the application must manage, as well as
+trust. For example, MapReduce performs poorly for iterative and interactive
+computation because of its failure model that relies on on-disk storage of
+intermediate data. Many have added services to Hadoop to keep more data in the
+runtime (e.g., HaLoop~\cite{bu:vldb2010-haloop},
 Twister~\cite{ekanayake:hpdc2010-twister},
 CGL-MapReduce~\cite{ekanayake:escience2008-eglmapreduce},
 MixApart~\cite{mihailescu:hotstorage2012-mixapart}). While performance
-improves, it comes at a cost: "bolt-on" services frequently result in overly
-complex systems that re-implement functionality and re-execute redundant code,
-unnecessarily increasing the likelihood of bugs.
+improves, it comes at the cost of simplicity. 
 
-\textbf{Application Changes}: The second approach to adapting to a storage
-system deficiency is to change the application itself by adding more data
-management intelligence, often into the application itself, or as
-domain-specific middleware. For instance, an application may change to exploit
-data locality or I/O parallelism in a distributed storage system. This is not a
-bad proposition, but creates a coupling that is highly tied to the underlying
-physical properties of the system, making it difficult to adapt to future
-changes at the storage system level.
+Furthermore, "bolt-on" services often duplicate functionality and execute
+redundant code, unnecessarily increasing the likelihood of bugs or worse,
+introducing unpredictable performance problems. For example, we are developing
+a distributed shared-commit log on Ceph called ZLog. ZLog uses a "sequencer" to
+distribute tokens to clients that want to append to the end of the log. When
+designing the sequencer, we considered bolting on Zookeeper \cite{} as a
+service. Zookeeper would satisfy our requirements by proiding a network and
+transaction stack but it would perform poorly because Zookeeper persists its
+data and the sequencer can be in-memory and volatile. A Zookeeper sequencer
+would adhere to the pre-conceived notions of storage, namely that data in
+storage systems should be safe from data loss, but would introduce unecessary
+scalability limits \cite{Neha HDFS namenode example}.
 
-\textbf{Storage Changes}: When these two approaches fail to meet the needs of the
-application, developers turn their attention to the storage system itself. For
-example, HDFS has been the focus of scalability concerns, especially for
+## Application Changes
+
+The second approach to adapting to a storage system deficiency is to extend the
+responsibility of the application. This means changing the application itself
+by adding more data management intelligence or domain-specific middleware.  For
+instance, an application may change itself to exploit data locality or I/O
+parallelism in a distributed storage system. 
+
+For example, SciHadoop~\cite{} changes both the Hadoop application and the
+Hadoop framework itself to leverage the structure of scientific (3D array-based
+data, more specifically) to increase performance, locality, and the number of
+early results. This is not a bad proposition, but creates a coupling that is
+highly tied to the underlying physical properties of the system, making it
+difficult to adapt to future changes at the storage system level.
+
+## Storage Changes
+
+When these two approaches fail to meet the needs of the application, developers
+turn their attention to the storage system itself. Traditionally, storage
+system behaviour can be altered using two techniques: tuning the system or
+introducing changes to the system. The difficulty of both of these approaches
+has given rise to a third technique called active storage. 
+
+### Tuning 
+
+Tuning the system usually refers to setting parameters about the system. For
+large complicated systems this can be near impossible because the systems have
+so many knobs (xxxx tunables in Hadoop \cite{sevilla-discs}) and sometimes the
+knobs are difficult to understand or quantify (xx tunable in Ceph
+\cite{sevilla-sc}). To succesfully tune the system, the developer must have
+domain and system specific knowledge. Without this intimate knowledge, the
+tuning turns into somewhat of a black art, where the only way to figure out the
+best settings is trial and error. 
+
+Auto-tuning techniques attempt to find a good solution among a huge space of
+available system configurations.  However, in practice auto-tuning is limited
+to only the configuration "knobs" that the storage system exposes (e.g. block
+size) and can be overwhelmed with too many parameters. Starfish \cite{} made an
+attempt of this for Hadoop but this technique would need to severely limit the
+space of parameters in order to feasible, similar to the approach used in
+\cite{babak autotuning using genetic algorithms}. For instance, auto-tuning may
+be capable of identifying instances in which new data layouts would benefit a
+workload, but unless the system can provide such a transformation, the option
+is left off the table.
+
+As an alternative, developers have started using the active storage component
+of Ceph, which is called object interface classes (or \texttt{cls}). Figure
+\ref{fig:obj-int-dev-growth} shows a dramatic growth in the use of co-designed
+interfaces in the Ceph community since 2010.  Figure
+\ref{fig:obj-int-dev-churn} examines this growth in interfaces further by
+showing the lines of code that are changed (_y_ axis) over time (_x_ axis).
+The prevalence of blue dots indicates that users frequently update their
+interfaces close to release cycles and that massive changes come in bunches.
+This interface churn reflects both the popularity of object interfaces and the
+complexity of the processing being done by the OSDs. What is most remarkable
+about Figure \ref{fig:obj-int-dev-churn} is that this trend contradicts the
+notion that API changes are a burden for users. The types of object interfaces,
+which are enumerated in Table \ref{table:objclasses}, show that this active
+storage development is present throughough the Ceph software stack.
+
+The popularity of the active storage component of Ceph, which is called object
+interfaces, hints at three trends in the Ceph community: (1) increasingly, the
+default algorithms/tunables of the storage system are insufficient for the
+application's performance goals, (2) programmers are becoming more aware of
+their application's behavior, and (3) programmers know how to manage resources
+to improve performance. Programmers gravitate towards object interfaces because
+it gives them ability to tell the storage system about their application: if it
+is CPU or IO bound, if it has locality, if its size has the potential to
+overload a single proxy node, etc.  The programmers know what the problem is
+and how to solve it, but until object interfaces, had no way to tell the
+storage system how to handle their data.
+
+### Software changes 
+
+As a last resort, the application developer can introduce changes to the
+storage system itself. This endeavour is especially difficult because the
+developer must first familiarate themselves with the storage system, and even
+if they manage to make the necessary changes, they must get their changes
+upstream for that specific project or become mantainer for their in-house
+version. Being a maintainer means they re-base their versions against new
+versions of the storage system and address any bugs for their branched code.  A
+successful example of this is the work that focused on HDFS scalability for
 metadata-intensive workloads~\cite{shvachko:login2012-hdfs-scalability}. This
 has lead to modifications to its architecture or
-API~\cite{balmin:sigmod2012-clydesdale} to improve performance. Yet another
-approach is to "modify"  a storage system using auto-tuning techniques that
-attempt to find a good solution among a huge space of available system
-configurations. However, in practice auto-tuning is limited to only the
-configuration "knobs" that the storage system exposes (e.g. block size). For
-instance, auto-tuning may be capable of identifying instances in which new data
-layouts would benefit a workload, but unless the system can provide such a
-transformation, the option is left off the table.
+API~\cite{balmin:sigmod2012-clydesdale} to improve performance. 
 
-We advocate a new approach that we refer to as _storage programmability_
-which is a method by which an application communicates its requirements to the
-storage system in a way that allows the application to realize a new behavior
-without sacrificing the correctness of the underlying system. 
+As an example, ZLog needs to store metadata information with each object. For
+each operation, it checks the epoch value and write capability (2 metadata
+reads) and writes the index (metadata write). Figure 1 shows the throughput
+(_y_ axis) over time (_x_ axis) of two OSD implementations for storing
+metadata: in the header of the byte stream (data) vs. in the object extended
+attributes (XATTR). The speed for appending data without any metadata
+operations (data raw) is also shown as a baseline for comparison. For
+append-heavy workloads storing metadata as a header in the data performs about
+1.5x better than storing metadata as an extended attribute. 
+
+[src-cls_xattr-vs-data]:https://github.com/michaelsevilla/malacology-popper/blob/master/experiments/figure1/visualize.ipynb
+
+![\[[source][src-cls_xattr-vs-data]\] When appending data to objects, the
+object class that stores metadata in a header in the data byte stream (data)
+performs 1.5x better than the object class that stores metdata in the extended
+attributes of the object (XATTR); it is almost as fast as appending data
+without updating metadata (data raw).](figures/cls_xattr-vs-data.png)
+
+<!-- Problems that can be solved with programmability --> 
+
+These implementations use the active storage interfaces in Ceph. We
+refer to this as _storage programmability_ which is a method by which an
+application communicates its requirements to the storage system in a way that
+allows the application to realize a new behavior without sacrificing the
+correctness of the underlying system.  This evaluation and resulting
+implementation would have been a burden without object classes.
 
 <!-- PICTURE: figures/object-interfaces.png 
      Ceph object storage interfaces. Left: data transferred over network
@@ -152,6 +273,7 @@ without sacrificing the correctness of the underlying system.
      (libcls\_md5.so) to execute.
 -->
 
+### Active Storage
 <!-- What are object storage interfaces? --> 
 
 Active storage is a hybrid approach to changing the application and storage
@@ -170,41 +292,15 @@ movement, and remote resources which may be idle.
 <!-- People use object storage interfaces --> 
 
 Developers and users actively develop new object storage interfaces.
-Figure \ref{fig:obj-int-dev-growth} shows a dramatic growth in the use of
-co-designed interfaces in the Ceph community since 2010.
-Figure \ref{fig:obj-int-dev-churn} examines this growth in interfaces further
-by showing the lines of code that are changed (_y_ axis) over time (_x_ axis).
-The prevalence of blue dots indicates that users frequently update their
-interfaces close to release cycles and that massive changes come in bunches.
-This interface churn reflects both the popularity of object interfaces and the
-complexity of the processing being done by the OSDs. What is most remarkable
-about Figure \ref{fig:obj-int-dev-churn} is that this trend contradicts the
-notion that API changes are a burden for users. The types of object interfaces,
-which are enumerated in Table \ref{table:objclasses}, show that this active
-storage development is present throughough the Ceph software stack.
-
 While we consider active storage to be an excellent example of programmability,
 what separates our proposal from previous work is the observation that so much
 _more_ of the storage system can be reused to construct advanced,
 domain-specific interfaces.
 
-<!-- Problems that can be solved with programmability --> 
-
-The popularity of object interfaces hints at three trends in the Ceph
-community: (1) increasingly, the default algorithms/tunables of the storage
-system are insufficient for the application's performance goals, (2)
-programmers are becoming more aware of their application's behavior, and (3)
-programmers know how to manage resources to improve performance. Programmers
-gravitate towards object interfaces because it gives them ability to tell the
-storage system about their application: if it is CPU or IO bound, if it has
-locality, if its size has the potential to overload a single proxy node, etc.
-The programmers know what the problem is and how to solve it, but until object
-interfaces, had no way to tell the storage system how to handle their data.
-
 ![Since 2010, the growth in the number of co-designed object storage interfaces
 in Ceph has been accelerating. This plot is the number of object classes (a
 group of interfaces), and the total number of methods (the actual API
-end-points).\label{fig:obj-int-dev-churn}](figures/obj-int-dev-growth.png)
+end-points).\label{fig:obj-int-dev-growth}](figures/obj-int-dev-growth.png)
 
 ![Source code changes over time indicate the dynamic interface development will
 need to support a high frequency of interface churn. Each dot represents a Ceph
@@ -235,25 +331,12 @@ commit with a corresponding number of lines of code changed.
 \end{center}
 \end{table}
 
-As an example, ZLog, a research prototype built on Ceph, needs to store
-metadata information with each object. For each operation, it checks the epoch
-value and write capability (2 metadata reads) and writes the index (metadata
-write). Figure 1 shows the throughput (_y_ axis) over time (_x_ axis) of two
-object class implementations for storing metadata: in the header of the byte
-stream (data) vs. in the object extended attributes (XATTR). The speed for
-appending data without any metadata operations (data raw) is also shown as a
-baseline for comparison. For append-heavy workloads storing metadata as a
-header in the data performs about 1.5x better than storing metadata as an
-extended attribute. This evaluation and resulting implementation would have
-been a burden without object classes.
+# Re-Usable Components in Ceph
 
-![When appending data to objects, the object class that stores metadata in a
-header in the data byte stream (data) performs 1.5x better than the object
-class that stores metdata in the extended attributes of the object (XATTR); it
-is almost as fast as appending data without updating metadata (data
-raw).](figures/cls_xattr-vs-data.png)
-
-# Ceph is a Production-Quality Distribute System
+Ceph is a production-quality distributed system and in this section we touch on
+some of the subsystems it uses to provide a general-purpose storage system. In
+the next section, we describe how we leverage these subsystems to build new
+services.
 
 ## Active Storage
 <!-- What is active storage? -->
@@ -315,11 +398,7 @@ cluster is.
 
 <!-- % https://ceph.com/dev-notes/cephs-new-monitor-changes/ -->
 
-# Programmable Storage
-
-<!-- BEGIN UNMERGED -->
-
-## Implementation
+# Implementation
 
 <!-- PICTURE figures/programmability-framework.png
 
@@ -370,7 +449,6 @@ Lua is also portable. The object interfaces are
 
 Lua is secure (sandboxing).
 
-<!-- How it works: OSD -->
 
 For object interfaces, clients send Lua classes to the OSD and then they can
 invoke operations in that class remotely on the OSD. In reality, this feature
@@ -387,6 +465,19 @@ since they need to be recompiled to use the \texttt{exec()} function.
 For balancer interfaces, clients put balancers into RADOS and the CephFS
 metadata balancer invokes the operations in the user-defined class remotely on
 the MDS.
+
+<!-- Lua is interprated -->
+
+Finally, Lua is an interpreted language so object class interfaces written in
+Lua are more portable. Traditionally, intefaces are written in C/C++, so they
+must be compiled into shared libraries before being injected into the daemon at
+runtime. Shared libraries need to be compiled on the host they will be run on
+to accomodate different architectures and dependendencies. Embedding the Lua
+interpretator, on the other hand, gives us the flexbility to store the actual
+Lua code in other places, like RADOS, so we can enjoy all the other properties
+provided by that particular back-end.
+
+<!-- How it works: OSD -->
 
 ### Generalizing the Lua VM
 
@@ -520,7 +611,7 @@ Maintain versions and consistency
 - lua-rados: talk to RADOS with Lua
 - cls-client: use lua-rados + cls-lua branch to send Lua object classes to OSDs equipped with LuaJIT VM
 
-# Research Quality Systems Built on Malacology}
+# Services Built on Malacology
 
 ## Mantle: A Programmable Metadata Load Balancer
 
@@ -562,13 +653,24 @@ different balancers. Unfortunately, this research quality system is not as
 robust as Ceph and the Ceph team wants more safety, durability, and consistency
 for the new functionality. 
 						
-					
 <!-- For example, the original Mantle API is fragile: the API is not enforced
 by the runtime, the system allows injectable strings through the admin daemon,
 constructing the Lua script in C++ is clunky, and the administrator can inject
 really bad policies (e.g., while 1) that brings the whole system down. -->
 
-# ZLog: Exploring Consistency, Tiering, and Striping Strategies}
+### Quantifying Metrics
+
+### Load Balancing
+
+### Auto-tuning
+
+## ZLog: A Distributed Shared Commit Log
+
+### Consistency
+
+### Striping Strategies
+
+### Tiering
 
 <!-- Active and Typed Storage: DataMods, DataMod references -->
 
