@@ -65,7 +65,7 @@ affect the robustness of code-hardened subsystems, yet there needs to be an
 equally flexible storage system to address the diverse performance requirements of the
 application. 
 
-For example, Ceph~\cite{weil:osdi06} addresses _durability_ with
+For example, Ceph [@weil_ceph_2006] addresses _durability_ with
 its RADOS object store (e.g., replication, erasure coding, and data scrubbing),
 _consistent versioning_ by having daemons exchange "maps" of the cluster
 configuration, and _consensus_ by having monitor daemons (MONs) use PAXOS. We
@@ -90,7 +90,7 @@ baked into Ceph, we can build large research-quality systems.
 
 We present Malacology, a programmable storage system capable of incorporating
 new functionality and re-purposing existing subsystems. We build the framework
-on Ceph~\cite{weil:osdi06} by leveraging the subsystems in the monitor daemons
+on Ceph [@weil_ceph_2006] by leveraging the subsystems in the monitor daemons
 (MONs), object storage daemons (OSDs), and metadata server daemon(MDSs). As
 shown in Figure~\ref{fig:overview}, this framework is expressive enough to
 provide the functionality necessary for implementing other research-quality
@@ -99,8 +99,8 @@ systems and services. Our contributions are:
 - a programmable storage system implementation
 - re-using code-hardened systems: sandboxed and vetted
 - example systems that use this framework 
- 1. shared log service based on CORFU~\cite{balakrishnan:nsdi12}
- 2. metadata load balancer based on Mantle~\cite{sevilla:sc15-mantle}
+ 1. shared log service based on CORFU [@balakrishnan_corfu_2012]
+ 2. metadata load balancer based on Mantle [@sevilla_mantle_2015]
 
 <!-- PICTURE: figures/overview.png
      Ceph provides object, block, file and library client APIs; with Malacology
@@ -135,7 +135,7 @@ dependencies, and data layouts that the application must manage, as well as
 trust. For example, MapReduce performs poorly for iterative and interactive
 computation because of its failure model that relies on on-disk storage of
 intermediate data. Many have added services to Hadoop to keep more data in the
-runtime (e.g., HaLoop~\cite{bu:vldb2010-haloop},
+runtime (e.g., HaLoop [@bu_haloop_2010],
 Twister~\cite{ekanayake:hpdc2010-twister},
 CGL-MapReduce~\cite{ekanayake:escience2008-eglmapreduce},
 MixApart~\cite{mihailescu:hotstorage2012-mixapart}). While performance
@@ -162,7 +162,7 @@ by adding more data management intelligence or domain-specific middleware.  For
 instance, an application may change itself to exploit data locality or I/O
 parallelism in a distributed storage system. 
 
-For example, SciHadoop~\cite{} changes both the Hadoop application and the
+For example, SciHadoop [@buck_scihadoop_2011] changes both the Hadoop application and the
 Hadoop framework itself to leverage the structure of scientific (3D array-based
 data, more specifically) to increase performance, locality, and the number of
 early results. This is not a bad proposition, but creates a coupling that is
@@ -183,7 +183,7 @@ Tuning the system usually refers to setting parameters about the system. For
 large complicated systems this can be near impossible because the systems have
 so many knobs (xxxx tunables in Hadoop \cite{sevilla-discs}) and sometimes the
 knobs are difficult to understand or quantify (xx tunable in Ceph
-\cite{sevilla-sc}). To succesfully tune the system, the developer must have
+[@sevilla_mantle_2015]). To succesfully tune the system, the developer must have
 domain and system specific knowledge. Without this intimate knowledge, the
 tuning turns into somewhat of a black art, where the only way to figure out the
 best settings is trial and error. 
@@ -191,7 +191,8 @@ best settings is trial and error.
 Auto-tuning techniques attempt to find a good solution among a huge space of
 available system configurations.  However, in practice auto-tuning is limited
 to only the configuration "knobs" that the storage system exposes (e.g. block
-size) and can be overwhelmed with too many parameters. Starfish \cite{} made an
+size) and can be overwhelmed with too many parameters. Starfish
+[@herodotou_starfish_2011] made an
 attempt of this for Hadoop but this technique would need to severely limit the
 space of parameters in order to feasible, similar to the approach used in
 \cite{babak autotuning using genetic algorithms}. For instance, auto-tuning may
@@ -236,7 +237,7 @@ upstream for that specific project or become mantainer for their in-house
 version. Being a maintainer means they re-base their versions against new
 versions of the storage system and address any bugs for their branched code.  A
 successful example of this is the work that focused on HDFS scalability for
-metadata-intensive workloads~\cite{shvachko:login2012-hdfs-scalability}. This
+metadata-intensive workloads [@shvachko_hdfs_2010]. This
 has lead to modifications to its architecture or
 API~\cite{balmin:sigmod2012-clydesdale} to improve performance. 
 
@@ -434,7 +435,7 @@ security.
 
 Lua is a fast scripting language. It was designed to be an embedded language
 and the LuaJIT virtual machines boasts near-native
-performance~\cite{grawinkel:pdsw2012-lua}. Lua is frequently used in game
+performance [@grawinkel_pdsw12]. Lua is frequently used in game
 engines to set policies but we use it here because most of the user-defined
 classes in Ceph are policies as well! We do not want to provide specific
 implementations, like pulling data from objects or transferring them over the
@@ -689,7 +690,7 @@ really bad policies (e.g., while 1) that brings the whole system down. -->
 <!-- Active and Typed Storage: DataMods, DataMod references -->
 
 Malacology uses the same Active and Typed Storage module presented in
-DataMods~\cite{}; Asynchronous Service and File Manifolds can be implemented
+DataMods [@watkins_datamods_2012]; Asynchronous Service and File Manifolds can be implemented
 with small changes to the Malacology framework, namely asynchronous object
 calls and Lua stubs in the inode, respectively.
 
