@@ -77,14 +77,13 @@ to other parts of the systems.
 
 <!-- Introduce Ceph -->
 
-In this paper, we examine the programmability of Ceph, the open-source storage
-system solution backed by Red Hat. Ceph is known as the swiss army knife of
-storage, offering file, object, and block APIs for applications. The main draw
-of Ceph is the flexibility to use all three layers on the same storage system.
-While Ceph is one of the most flexible distributed systems out there, we
-contend that the system could be *even more programmable*. With minimal
-changes to the architecture, and building on many of the subsytems already
-baked into Ceph, we can build large research-quality systems.
+In this paper we examine the programmability of Ceph, the increasingly
+popular open-source distributed storage system. Something of a storage swiss
+army knife, Ceph supports file, block, and object interfaces simultaneously in
+a single cluster. While Ceph is well-regarded as software-defined storage,
+this label largely refers to the flexibility of a fixed, narrow set of APIs.
+By introducing programmability concepts into Ceph, research-quality systems
+can be built by carefully exposing internal storage services to applications.
 
 <!-- Our solution: programmable storage -->
 
