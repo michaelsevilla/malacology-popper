@@ -19,7 +19,7 @@ abstract: |
   using protocols for consistency, balancing load, and mediating shared access.
   In this work, we take a "programmable storage" approach to leveraging these
   subsystems to build two services, a POSIX metadata load balancer and a
-  distributed shared commit-log. 
+  high-performance distributed shared-log.
 
 documentclass: ieeetran
 classoption: conference
