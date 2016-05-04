@@ -613,6 +613,20 @@ Maintain versions and consistency
 
 # Services Built on Malacology
 
+\begin{table}
+\begin{tabular}{ | l | l | l | l | l |}
+\hline
+Cap Owner & Failure & ZLog Recovery \\ \hline
+mds & mds & mds \\ \hline
+client & mds & xfer client cap \\ \hline
+mds & client & n/a \\ \hline
+client & client & mds \\
+\hline
+\end{tabular}
+\caption{Failure and recovery scenarios.}
+\label{t:mds-zlog-fail}
+\end{table}
+
 ## Mantle: A Programmable Metadata Load Balancer
 
 <!-- problem: well-defined workloads -> one technique -> lock-in -->
