@@ -1,0 +1,8 @@
+- name: Get the status of the new Ceph cluster
+  hosts: mons
+  tasks:
+    - command:  docker exec {{ ansible_hostname }} ceph -s
+      register: result
+      until:    result.stdout.find("HEALTH_OK") != -1
+      retries:  120
+    - debug:    var=result.stdout_lines
