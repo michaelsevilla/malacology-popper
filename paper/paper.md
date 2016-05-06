@@ -50,9 +50,10 @@ linkcolor: black
 
 <!-- What is the general problem? -->
 
-Large distributed systems tackle difficult distributed systems problems with
+<!-- Large distributed systems tackle difficult distributed systems problems with
 code-hardened subsystem, but many of these components are never re-used or
-re-purposed. New scale requirements for data processing architectures and the
+re-purposed. -->
+New scale requirements for data processing architectures and the
 increasing speed of storage devices are disruptors for storage and data
 management. As a consequence, layers of the software stack become obselete and
 code paths grow longer and more obfuscated. Evolution of the storage system can
@@ -65,26 +66,26 @@ its RADOS object store (e.g., replication, erasure coding, and data scrubbing),
 _consistent versioning_ by having daemons exchange "maps" of the cluster
 configuration, and _consensus_ by having monitor daemons (MONs) use PAXOS. We
 contend that re-using and re-purposing these code-hardened subsystems is
-paramount to (1) improving the longevity and community uptake of "research
+paramount to successfully adapting storage systems to new APIs and new storage devices without losing the benefits from years of code-hardening work. <!-->(1) improving the longevity and community uptake of "research
 quality" code and (2) avoiding duplication of the same protocols and algorithms
 throughout the system. Unfortunately, many internal subsystems are not exposed
-to other parts of the systems.
+to other parts of the systems.-->
 
 <!-- Introduce Ceph -->
 
 In this paper we examine the programmability of Ceph, the increasingly
-popular open-source distributed storage system. Something of a storage swiss
+popular, production-level open-source distributed storage system. Something of a storage swiss
 army knife, Ceph supports file, block, and object interfaces simultaneously in
 a single cluster. While Ceph is well-regarded as software-defined storage,
 this label largely refers to the flexibility of a fixed, narrow set of APIs.
-By introducing programmability concepts into Ceph, research-quality systems
-can be built by carefully exposing internal storage services to applications.
+By introducing programmability concepts into Ceph, we can build new services
+by carefully exposing internal storage services to applications.
 
 ![Ceph provides object, block, file and library client APIs; with Malacology we
 can implement 2 new services on Ceph: Zlog, Mantle. Malacology re-uses MON,
 OSD, and MDS subsystems.  \label{fig:overview} ](figures/overview.png)
 
-For example, Ceph addresses _durability_ with its RADOS object store (e.g.,
+<!-- For example, Ceph addresses _durability_ with its RADOS object store (e.g.,
 replication, erasure coding, and data scrubbing), _consistent versioning_ by
 having daemons exchange "maps" of the cluster configuration, and _consensus_ by
 having monitor daemons use PAXOS. We contend that re-using and
@@ -92,42 +93,42 @@ re-purposing these code-hardened subsystems is paramount to (1) improving the
 longevity and community uptake of "research quality" code and (2) avoiding
 duplication of the same protocols and algorithms throughout the system.
 Unfortunately, as it stands, many of the internal Ceph subsystems are not
-exposed to other parts of the systems.
+exposed to other parts of the systems.-->
 
 <!-- Our solution: programmable storage -->
 
 We present Malacology, a programmable storage system capable of incorporating
 new functionality and re-purposing existing subsystems. We build the framework
 on Ceph by leveraging the subsystems in the monitor daemons (MONs), object
-storage daemons (OSDs), and metadata server daemon(MDSs). As shown in Figure
+storage daemons (OSDs), and metadata server daemons (MDSs). As shown in Figure
 \ref{fig:overview}, this framework is expressive enough to provide the
-functionality necessary for implementing other research-quality systems and
+functionality necessary for implementing new
 services. Our contributions are:
 
 - a programmable storage system implementation
 - sandboxed/vetted re-use of Ceph subsystems
 - example systems that use this framework 
  1. shared log service based on CORFU [@balakrishnan_corfu_2012]
- 2. metadata load balancer based on Mantle [@sevilla_mantle_2015]
  2. metadata load balancer based on Mantle [@sevilla:sc15-mantle]
 
-In the remainder of this paper we demonstrate the power of programmable
-storage. First we describe programmable storage in more depth
+<!-- XXX Update the following paragraph!-->
+In the remainder of this paper we first describe in more depth the
 programmable storage framework that exposes and re-uses many structures in Ceph
 (\S\ref{implementation}). We conclude with descriptions and evaluations of
 these ideas by synthesizing entirely new storage services on an existing system
 through configuration and small changes: a distributed shared log
 (\S\ref{a-distributed-shared-log-service}) and a programmable metadata load
-balancer (\S\ref{a-programmable-metadata-load-balancer}).
+balancer (\S\ref{a-programmable-metadata-load-balancer}). 
 
 # Highly Tailored and Application-Specifc Storage Systems
 
+<!-- Complete this section -->
 A consequence of complicated data management frameworks and faster devices
 is that the storage system cannot meet the needs of the general-purpose storage
 system. Workarounds for helping the application meet its performance goals
-roughly fall into one of three categories: "bolt-on" services, application
-# we touch on each subject usin
-examples from both the Ceph and Hadoop communities to show the breadth and extent of the problem. 
+roughly fall into one of three categories: "bolt-on" services, application, ...
+<!-- we touch on each subject usin
+examples from both the Ceph and Hadoop communities to show the breadth and extent of the problem. -->
 
 ## "Bolt-on" services 
 
