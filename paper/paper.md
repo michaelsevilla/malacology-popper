@@ -2,18 +2,21 @@
 title:  "Malacology: A Programmable Storage System Built on Ceph"
 abstract: 
 
-  We explore how existing abstractions of common services found in storage
-  systems can be leveraged to address new data processing systems and the
-  increasing speed of storage devices. This approach allows unprecedented
-  flexibility for storage systems to evolve without sacrificing the robustness
-  of its code-hardened subsystems.  Ceph is a distributed storage system with
-  monitor processes that maintain cluster state using consensus, versioning,
-  and consistency protocols; object storage daemons that store data on disk
-  consensus; and metadata daemons that act as gateways for file-based storage
-  using protocols for consistency, balancing load, and mediating shared access.
-  In this work, we take a "programmable storage" approach to leveraging these
-  subsystems to build two services, a POSIX metadata load balancer and a
-  high-performance distributed shared-log.
+Storage systems are caught between rapidly changing data processing systems and the increasing speed of storage devices. This puts tremendous pressure on storage systems to adapt both in terms of their interfaces and their performance. But adapting storage systems can be difficult because unprincipled changes might jeopardize years of code-hardening and performance optimization efforts that were necessary for users to entrust their data to the storage system.
+<!--In the last few years traditional relational databases are now competing with Map/Reduce systems which introduced a a scalabe failure model, with "NoSQL" systems replacing SQL with lower-level key/value-based access methods and relaxed consistency semantics, and now with "NewSQL" systems which re-introduce SQL and tighter consistency semantics at scale.-->
+We introduce Malacology, a prototype programmable storage system to explore how existing abstractions of common services found in storage
+systems can be leveraged to address new data processing systems and the
+increasing speed of storage devices. This approach allows unprecedented
+flexibility for storage systems to evolve without sacrificing the robustness
+of its code-hardened subsystems.  
+<!-- Ceph is a distributed storage system with
+monitor processes that maintain cluster state using consensus, versioning,
+and consistency protocols; object storage daemons that store data on disk
+consensus; and metadata daemons that act as gateways for file-based storage
+using protocols for consistency, balancing load, and mediating shared access. -->
+We illustrate the advantages and challenges of programmability by constructing two new services out of existing abstractions: a POSIX metadata load balancer and a
+high-performance distributed shared-log that leverages flash devices.
+<!-- Results -->
 
 documentclass: article
 classoption: twocolumn, 10pt
