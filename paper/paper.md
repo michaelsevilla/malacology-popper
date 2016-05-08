@@ -173,12 +173,16 @@ exposed to other parts of the systems.-->
 
 <!--To illustrate the benefits and challenges of this approach we have designed and evaluated Malacology, a system that generalizes the following resources/services/abstractions in Ceph: (1) MDS load balancing, (2) storage objects, (3) cluster maps, (4) inodes, and (5) capabilities.-->
 
-To illustrate the benefits and challenges of this approach we have designed and evaluated Malacology, a programmable storage system capable of incorporating
-new functionality and re-purposing existing subsystems of Ceph. We build the framework
-on Ceph by leveraging powerful subsystem abstractions used by the monitor daemons (MONs), object
-storage daemons (OSDs), and metadata server daemons (MDSs). As shown in Figure
-\ref{fig:overview}, this framework is expressive enough to provide the
-functionality necessary for implementing new services. Our contributions are:
+To illustrate the benefits and challenges of this approach we have designed
+and evaluated Malacology, a programmable storage system for constructing new
+functionality by re-purposing existing subsystem abstractions contained in
+Ceph. We build the framework on Ceph by leveraging a broad spectrum of
+existing services, including distributed locking and caching services provides
+by MDSs, durability and logical storage devices provides by RADOS, and
+propogation of consistent cluster state provided by the monitoring service. As
+shown in Figure \ref{fig:overview}, this framework is expressive enough to
+provide the functionality necessary for implementing new services. Our
+contributions are:
 
 - a programmable storage system implementation that re-uses and
   extends existing abstractions. It includes:
