@@ -20,7 +20,6 @@ abstract:
 
 documentclass: article
 classoption: twocolumn, 10pt
-monofont-size: scriptsize
 numbersections: true
 substitute-hyperref: true
 csl: "ieee.csl"
@@ -36,7 +35,6 @@ keywords:
  - systems-evaluation
 linkcolor: black
 ---
- 
 
 # Introduction
 
@@ -622,7 +620,7 @@ lua_toboolean(lua, 1);
 
 ### Generalizing the Class Handler
 
-<--!
+<!--
 - Re-Used Components: Class Handler, Lua Class
 - Durability with RADOS
 - Send functionality with request
@@ -840,13 +838,11 @@ We are intend to pursue this work towards the goal of constructing a set of
 customization points that allow a wide variety of storage system services to be
 configured on-the-fly in existing systems. This work is one point along that
 path in which we have looked an a target special-purpose storage system.
-Ultimately we want to utilize declarative methods for expressing new services.
+Ultimately we want to utilize declarative methods for expressing new 
+services.
 
 In conclusion, this paper should be accepted.
 
-```sql
-    not sure why ./build fails without this
-```
 # Bibliography
 
 <!-- hanged biblio -->
