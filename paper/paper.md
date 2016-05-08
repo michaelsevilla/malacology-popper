@@ -41,7 +41,7 @@ linkcolor: black
 
 # Introduction
 
-  <!-- Ceph is a distributed storage system with monitor processes that maintain
+<!-- Ceph is a distributed storage system with monitor processes that maintain
   cluster state using consensus, versioning, and consistency protocols; object
   storage daemons that store data on disk consensus; and metadata daemons that
   act as gateways for file-based storage using protocols for consistency,
@@ -71,13 +71,30 @@ linkcolor: black
 code-hardened subsystem, but many of these components are never re-used or
 re-purposed. -->
 
-New scale requirements for data processing architectures and the increasing
+A storage system implements abstractions designed to persistently store data and must exhibit a  high level of correctness to prevent data loss. Storage systems have evolved around storage devices that often were orders of magnitude slower than CPU and memory and therefore can dominate overall performance if not used carefully. Over the last few decades members of the storage systems community have developed ingenious strategies to meet correctness requirements while somewhat hiding the latency of traditional storage media. To avoid lock-in by a particular vendor, users of storage systems have preferred systems with highly standardized APIs and lowest common denominator abstract data types such as blocks of bytes and byte stream files. 
+
+A number of recent developments are disrupting traditional storage systems: (1) the falling prices of flash storage and the availability of new types of non-volatile memory that are orders of magnitude faster than traditional spinning media are moving overall performance bottlenecks away from storage devices to CPUs and networking, and pressure storage systems to shorten their code paths and incorporate new optimizations; (2) demand for managing structured data and flexible consistency semantics at scale pressure big data processing systems to use storage abstractions that can meet these demands; and (3) production-quality scalable storage systems available as open source software have established and are continuing to establish new, _de facto_ API standards at a faster pace than traditional standards bodies. 
+
+These three trends put evolutionary pressure on storage systems and raise the question whether there are principles that storage systems designers can follow to evolve storage systems efficiently and without jeopardizing years of code-hardening and performance optimization efforts that are important for users to continue to entrust their data to the storage system. 
+
+In this paper we investigate an approach that focusses on generalizing existing storage system resources, services, and abstractions that in generalized form can be used to _program_ new services. By doing so one can reuse subsystems and their optimizations and leverage their established correctness, robustness, and efficiency. We will refer to this programmability as _programmable storage_, which differs from _active storage_ (the execution of arbitrary code in a storage system) and _software-defined storage_ (the control of thin-provisining of storage). 
+
+To illustrate the benefits and challenges of this approach we examine the programmability of Ceph, the increasingly popular,
+production-level open-source distributed storage system. Something of a storage
+swiss army knife, Ceph supports file, block, and object interfaces
+simultaneously in a single cluster. While Ceph is well-regarded as
+software-defined storage, this label largely refers to the flexibility of a
+fixed, narrow set of APIs.  By introducing programmability concepts into Ceph,
+we can build new services by carefully exposing internal storage services to
+applications.
+
+<!--New scale requirements for data processing architectures and the increasing
 speed of storage devices are disruptors for storage and data management. As a
 consequence, layers of the software stack become obselete and code paths grow
 longer and more obfuscated. Evolution of the storage system can affect the
 robustness of code-hardened subsystems, yet there needs to be an equally
 flexible storage system to address the diverse performance requirements of the
-application. 
+application. -->
 
 ![Ceph provides object, block, file and library client APIs; with Malacology we
 can implement 2 new services on Ceph: Zlog, Mantle. Malacology re-uses MON,
@@ -98,15 +115,6 @@ to other parts of the systems.-->
 
 <!-- Introduce Ceph -->
 
-In this paper we examine the programmability of Ceph, the increasingly popular,
-production-level open-source distributed storage system. Something of a storage
-swiss army knife, Ceph supports file, block, and object interfaces
-simultaneously in a single cluster. While Ceph is well-regarded as
-software-defined storage, this label largely refers to the flexibility of a
-fixed, narrow set of APIs.  By introducing programmability concepts into Ceph,
-we can build new services by carefully exposing internal storage services to
-applications.
-
 <!-- For example, Ceph addresses _durability_ with its RADOS object store (e.g.,
 replication, erasure coding, and data scrubbing), _consistent versioning_ by
 having daemons exchange "maps" of the cluster configuration, and _consensus_ by
@@ -119,14 +127,16 @@ exposed to other parts of the systems.-->
 
 <!-- Our solution: programmable storage -->
 
-We present Malacology, a programmable storage system capable of incorporating
-new functionality and re-purposing existing subsystems. We build the framework
+<!--To illustrate the benefits and challenges of this approach we have designed and evaluated Malacology, a system that generalizes the following resources/services/abstractions in Ceph: (1) MDS load balancing, (2) storage objects, (3) cluster maps, (4) inodes, and (5) capabilities.-->
+
+To illustrate the benefits and challenges of this approach we have designed and evaluated Malacology, a programmable storage system capable of incorporating
+new functionality and re-purposing existing subsystems of Ceph. We build the framework
 on Ceph by leveraging the subsystems in the monitor daemons (MONs), object
 storage daemons (OSDs), and metadata server daemons (MDSs). As shown in Figure
 \ref{fig:overview}, this framework is expressive enough to provide the
 functionality necessary for implementing new services. Our contributions are:
 
-- a programmable storage system implementation that re-uses existing and
+- a programmable storage system implementation that re-uses and
   extends existing abstractions. It includes:
     1. inode abstractions for sequencer services
     2. consensus abstractions for policy versioning
@@ -374,15 +384,44 @@ objects stored on OSDs helps applications improve performance by optimizing
 things like network round trips, data movement, and remote resources which may
 be idle. 
 
+Object storage interfaces are compiled into shared libraries and loaded into a
+running OSD daemon using \texttt{dlopen()}. Because the shared library has to
+link against symbols found in the running executable, the interfaces are stored
+on the local file systems of each OSD so they can be versioned and distributed
+alongside the same Ceph binaries. This policy is for safety, since the OSDs
+could be on different distros that provide different versioning capabilities.
+Also, this approach allows bug fixes to co-evolve with the rest of the Ceph
+installation.
+
+Although customizable OSD interfaces are powerful, the current implementation
+has drawbacks. OSD interfaces are written in C/C++ and compiled into a shared
+library, so the developer must account for different target architectures.
+Second, C/C++ provides more functionality than is necessary since the snippets
+of interface code mainly set policies and perform simple operations. Finally,
+developing these interfaces in C/C++ has high overhead. The developer must
+learn how the OSD dynamically loads the shared libraries (_e.g._, OSDs rely
+on a strict naming convention to find shared libraries), how to get their
+interfaces compiled using the Ceph \texttt{make} system, and how to debug issues
+that are not related to their specific interface (_e.g._, the OSD cannot
+find the shared library) - this learning curve is unacceptable for non-Ceph
+developers, especially since most interfaces are one-off solutions specific to
+their applications. 
+
+Ceph has a whole infrastructure for getting dynamic code into the OSD. The
+\texttt{ClassHandler} class safely opens object interfaces, executes commands
+defined by the shared library, and fails gracefully with helpful errors if
+anything goes wrong. Instead of injecting strings directly into Ceph (like we
+did with the original Mantle implementation), the \texttt{ClassHandler} class
+safely opens shared code, even code with dependencies that are not in Ceph
+itself (e.g., Lua). With the \texttt{ClassHandler}, we get the safety and
+robustness of loading dynamic code, the ease of transferring state between
+object interfaces and the oSD internals, integration with testing and
+correctness suites, and \texttt{struct}s for interface data and handlers.
+
 While we consider active storage to be an excellent example of programmability,
 what separates our proposal from previous work is the observation that so much
 _more_ of the storage system can be reused to construct advanced,
 domain-specific interfaces.
-
-![Malacology re-uses Ceph subsystems to manage interface classes. 
-command. After the proposal is accepted by the cluster of monitors, the script
-is redundantly and consistently distributed to OSDs.
-\label{fig:implementation} ](figures/implementation.png)
 
 # Malacology Implementation
 \label{implementation}
@@ -398,12 +437,10 @@ Ceph \texttt{cls} infrastructure
 
 3. versioned and consistent interfaces using the Ceph MONs
 
-Figure \ref{implementation} shows how interfaces can be loaded into either the
-MDS or OSD (1), how interfaces are persisted to object storage (2), and how they
-are versioned by the MONs (3). In the following section, we will discuss the
-existing Ceph infrastructure and the changes necessary for Malacology. We
-emphasize here that these implementations are not necessarily optimized but
-they help demonstrate the power of programmability.
+In the following section, we will discuss the existing Ceph infrastructure and
+the changes necessary for Malacology. We wish to emphasize here that these
+implementations are not necessarily optimized but they help demonstrate the
+power of programmability.
 
 <!--
 zlog: interface is critical; as important as data
@@ -413,10 +450,40 @@ the policy, then it would just lose performance
 - how did you implement the policies
 -->
 
-## Additional Interface Frameworks
-
 <!-- Background: making Lua class loading similar to C/C++ shared lib loading
 -->
+
+## Additional Interface Hooks and Classes
+
+<!-- Background: Lua object interfaces -->
+
+Malacology adds new hooks to Ceph and a new Lua interface class for both the
+MDS and OSD. Our framework has added a mechanism for defining and running object
+and metadata balancer classes using Lua. Our Lua bindings expose functions and
+symbols both ways; the host program can call functions defined in Lua and the
+Lua scripts can call functions defined in native C++. These bindings are merged
+upstream.  We choose Lua for 4 reasons: performance, portabability, size, and
+and security. 
+
+<!-- Lua is fast and embeddable -->
+
+Lua is a fast scripting language. It was designed to be an embedded language
+and the LuaJIT virtual machines boasts near-native
+performance [@grawinkel_pdsw12]. Lua is frequently used in game
+engines to set policies but we use it here because most of the user-defined
+classes in Ceph are policies as well! We do not want to provide specific
+implementations, like pulling data from objects or transferring them over the
+network, but instead strive to say _what to do_ with the data once we have
+it. Separating policy from mechanism is a driving factor in using Lua.
+
+<!-- Lua is small -->
+
+![Clients add functionality by injecting Lua scripts with a new monitor (M)
+command. After the proposal is accepted by the cluster of monitors, the script
+is redundantly and consistently distributed to OSDs.
+\label{fig:programmability-framework} ](figures/programmability-framework.png)
+
+<!-- Before -->
 
 For object interfaces, clients send Lua classes to the OSD and then they can
 invoke operations in that class remotely on the OSD. In reality, this feature
@@ -428,57 +495,50 @@ bandwidth and difficult to organize at the application level. Also, while the
 execute wrapper simplifies the implementation, it burdens the applications,
 since they need to be recompiled to use the \texttt{exec()} function.
 
-Although these OSD interfaces are powerful, the current implementation
-has drawbacks. OSD interfaces are written in C/C++ and compiled into a shared
-library, so the developer must account for different target architectures.
-Second, C/C++ provides more functionality than is necessary since the snippets
-of interface code mainly set policies and perform simple operations. Finally,
-developing these interfaces in C/C++ has high overhead. The developer must
-learn how the OSD dynamically loads the shared libraries (_e.g._, OSDs rely
-on a strict naming convention to find shared libraries), how to get their
-interfaces compiled using the Ceph \texttt{make} system, and how to debug issues
-that are not related to their specific interface (_e.g._, the OSD cannot
-find the shared library) - this learning curve is unacceptable for non-Ceph
-developers, especially since most interfaces are one-off solutions specific to
-their applications. 
-
-### New Interface Classes
-
 <!-- Background: Lua object interfaces -->
 
-Our framework has added a mechanism for defining and running object
-and metadata balancer classes using the Lua scripting language. Scripting is useful in large systems for 3 reasons:
-
+Our framework has a mechanism for defining and running object and metadata
+balancer classes with scripting. Scripting is useful in large systems for 3 reasons:
 - accelerates deployment: tweaking policies, like changing a threshold or
 metric calculation, does not require a full recompile or system start-up.
-
 - transparency: if the bindings carefully expose the correct metrics and
 functions, the user does not need to learn the internal functions,
 variables, or types of the system.
-
 - portability: scripts can be exchanged across platforms and system
 versions without compatibility issues.
 
-Our Lua bindings expose functions and symbols both ways; the host program can
-call functions defined in Lua and the Lua scripts can call functions defined in
-native C++. These bindings are merged upstream. Lua is frequently used in game
-engines to set policies but we use it here because most of the user-defined
-classes in Ceph are policies as well! We do not want to provide specific
-implementations, like pulling data from objects or transferring them over the
-network, but instead strive to say _what to do_ with the data once we have it.
-Separating policy from mechanism is a driving factor in using Lua. We choose
-Lua for 4 reasons: performance, portabability, size, and security. 
+This effectively decouples policy from mechanism, which helps future designers
+explore trade-offs and isolates policy development from code-hardened systems.
+Decoupling policy mechanism is not a new technique but designing the storage
+system with programmability as a first-class citizen is <!-- For example,
+McKusick--> credits policy/mechanism separation as the biggest reason for the
+success of the block allocation mechanisms in the Fast File
+System~\cite{mckusick:fast2015-FFS} yet there are no mechanisms for
+transparently exposing and modifying the underlying logic in modern file
+systems.
+
+Malacology has Lua bindings that expose functions and symbols both
+ways; the host program can call functions defined in Lua and the Lua scripts
+can call functions defined in native C++. These bindings are merged upstream.
+We choose Lua for 4 reasons: performance, portabability, size, and security. 
+
+### Using Lua
 
 <!-- Lua is fast and embeddable -->
 
-Lua performs well as an embeddable scripting language. Although it is an
+Lua is a performs well as an embeddable scripting language. Although it is an
 interpreted language, the bindings are designed to make the exchange of
 variables and functions amongst languages straightforward. The LuaJIT virtual
 machine boasts near-native performance, making it a logical choice for
 scriptability frameworks in systems research [@neto:dls14-luaos]. In storage
 systems, it has been effectively used both on [@grawinkel:pdsw2012-lua ;
 @watkins2013:bdmc13-in-vivo] and off [@sevilla:sc15-mantle] the critical path,
-where performance is important.  
+where performance is important.  Lua is frequently used in game engines to set
+policies but we use it here because most of the user-defined classes in Ceph
+are policies as well! We do not want to provide specific implementations, like
+pulling data from objects or transferring them over the network, but instead
+strive to say _what to do_ with the data once we have it. Separating policy
+from mechanism is a driving factor in using Lua.
 
 <!-- Lua is portable (script shipping) -->
 
@@ -494,32 +554,16 @@ properties provided by that particular back-end.
 
 <!-- Lua is small --> 
 
-The other two advantages, that Lua leaves a small memory footprint and that it
+The other two advantages, that Lua leaves a small memory footprint and that is
 is secure, are discussed at length in [@ierusalimschy_programming_2006 ;
 @neto:dls14-luaos]. In short, Lua provides relatively robust sandbox
 capabilities for protecting the system against some malicious cases, but does
 not protect the system from poor policies. Since Malacology does not use these
 features (yet), we will avoid discussion here.
 
-## New Interface Hooks
+### Generalizing the Lua VM
 
-Malacogy adds interface hooks to the MDS in the load balancing and capability
-subsystems. In contrast to the Mantle implementation, which had a large
-function hard-coded into the balancer subsystem, Malacology embeds code in
-the MDS using OSD subsystems. Ceph has a whole infrastructure for getting
-dynamic code into the OSD. The \texttt{ClassHandler} class safely opens object
-interfaces, executes commands defined by the shared library, and fails
-gracefully with helpful errors if anything goes wrong. Instead of injecting
-strings directly into Ceph (like we did with the original Mantle
-implementation), the \texttt{ClassHandler} class safely opens shared code, even
-code with dependencies that are not in Ceph itself (e.g., Lua). 
-
-With the \texttt{ClassHandler}, the MDS gets the safety and robustness of loading
-dynamic code, the ease of transferring state between object interfaces and the
-OSD internals, integration with testing and correctness suites, and
-\texttt{struct}s for interface data and handlers. Using the OSD class handler
-hooks also gives the MDS the ability to load interfaces from the local file
-system.
+<!-- Lua core -->
 
 We generalize the Lua VM since it will be used in both the OSD and MDS. We put
 the core sandbox wrapper for the Lua object interface in a common directory in
@@ -544,18 +588,14 @@ library; both shared libraries will the Lua core.
 
 <!--Attaching functions -->
 
-![To generalize the LuaVM for use in both the OSD and MDS, Malacology detaches
-the core functionality into a Lua core module. The VM is dynamically loaded
-first (1) and then interfaces can execute (2).
-\label{fig:cls-osd-mds}](figures/cls-osd-mds.png)
-
 Both the object and balancer interfaces define functions and attach them to the
 core Lua sandbox. For example, the Lua object storage interface class attaches
-data, extended attribute, object map, and object version functions, to the Lua
-core functions, as shown in Figure \ref{fig:cls-osd-mds}. The advantages of
-this is that we avoid duplicating code, we provide a framework for putting Lua
-code in other parts of the system, and we remove components and APIs that are
-too integrated with the OSD.  
+data, extended attribute, object map, and object version functions, to the the
+Lua core functions; the exact functions are shown in
+Listing~\ref{lst:attach_functions}. The advantages of this is that we avoid
+duplicating code, we provide a framework for putting Lua code in other parts of
+the system, and we remove components and APIs that are too integrated with the
+OSD.  
 
 <!--
   \begin{minted}[frame=lines]{C++} #include
@@ -581,23 +621,38 @@ lua_toboolean(lua, 1);
 -->
 
 
+### Generalizing the Class Handler
+
+<--!
+- Re-Used Components: Class Handler, Lua Class
+- Durability with RADOS
+- Send functionality with request
+- Loading from the file system
+-->
+
+Our framework can also load Lua interfaces from the local file system -- the
+same technique as the C/C++ object interfaces. First, the OSD looks for C/C++
+shared library. If the OSD cannot find the file, it looks for a Lua script of
+the same name. The script is read into a string of the C++ object class; this
+string is later forwarded to the native Lua class. When a requests comes in,
+the method name is passed with the \texttt{exec()} function and the
+corresponding function in the Lua class is called. Now clients need to only
+send their Lua object class once and the OSDs will store them locally. Also,
+clients can execute any Lua handler they want.
 
 ## Storing Interfaces in RADOS
 
-Traditionally, object storage interfaces are compiled into shared libraries and
-loaded into a running OSD daemon using \texttt{dlopen()}. Because the shared
-library has to link against symbols found in the running executable, the
-interfaces are stored on the local file systems of each OSD so they can be
-versioned and distributed alongside the same Ceph binaries. This policy is for
-safety, since the OSDs could be on different distros that provide different
-versioning capabilities.  Also, this approach allows bug fixes to co-evolve
-with the rest of the Ceph installation.
+For balancer interfaces, clients put balancers into RADOS and the CephFS
+metadata balancer invokes the operations in the user-defined class remotely on
+the MDS.
 
-Because of the portability of Lua and because the Lua virtual machine is
-compiled and loaded as a shared library, the MDS/OSD can store the balancers
-in a more redundant location. For our implementation, we store balancers in
-RADOS and the daemons first search RADOS, then the local file system for their
-interface classes.
+[7:31] Nothing would stop C++ from being stashed in objects and recompiled on
+whatever platform they are being loaded on dynamically (like a DB compiles each
+query). There just hasn't been a need for such a feature.  The next blog post,
+which I didn't at all allude to in the one you are reading, shows how the Lua
+scripts can be put into the OSD map and then monitors manage and version the
+script, distributing them to each OSD.  Stored in objects vs stored in the OSD
+map is a debate, I guess. I am not sure which makes more sense.
 
 ## Versioning Interfaces with MONs
 
@@ -605,41 +660,42 @@ interface classes.
 
 <!-- Implementation -->
 
-We added two new commands to Ceph command line client so the user can inject
-interface versions into the cluster::
-
-\noindent `ceph osd pool set-class <pool> <class> <script>`
-
-\noindent `ceph mds set lua_balancer_class <version>`
-
-By leveraging the monitor daemons, our services get the consistency from the
-monitors version management, the distribution from the monitors data structures
-(which are already distributed), and the durability from the robustness of the
+We added a command, `ceph osd pool set-class <pool> <class> <script>`,
+that the user uses to inject the Lua object interface into the cluster. By
+leveraging the monitor daemons, we get the consistency from the monitors'
+version management, the distribution from the monitors' data structures (which
+are already distributed), and the durability from the robustness of the
 monitors and persistence with Paxos. The implementation uses the placement
-group pool data structure which maintains the policies (_e.g._, erasure coding)
-and organization details (_e.g._, snapshots) for each pool. While stuffing the
-information into the monitor map, the structure that describes the the monitor
-topology, was an option, the placement group pool allows finer grain control
-over different types of data. 
+group pool data structure which maintains the policies (_e.g._, erasure
+coding) and organization details (_e.g._, snapshots) for each pool. While
+stuffing the information into the monitor map, the structure that describes the
+the monitor topology, was an option, the placement group pool allows finer
+grainer control over different typoes of data. In regards to the consistency,
+each time the user injects a new Lua object class it enters the monitor quorum
+as a proposal; updates to the placement group pool need to wait until accepted,
+at which point the state will be propogated and versioned. We hooked up the
+monitor command to the \texttt{cls\_lua} class by having the OSD pull the
+script from the placement group instead of trying to dynamically load the
+shared library with \texttt{dlopen()} or the Lua script. 
 
-In regards to the consistency, each time the user injects a new Lua object
-class it enters the monitor quorum as a proposal; updates to the placement
-group pool need to wait until accepted, at which point the state will be
-propogated and versioned. We hooked up the monitor command to the
-\texttt{cls\_lua} class by having the OSD pull the script from the placement
-group instead of trying to dynamically load the shared library with
-\texttt{dlopen()} or the Lua script. 
+Advantages:
+
+- lets us store/manage interfaces
+- does most of the work (versioning, consistency, durabiltiy) for us
+- gives a new abstraction for dealing/mutating interfaces
 
 The cls-lua branch lets users write object classes in Lua, the lua-rados client
 library lets users write applications that talk to RADOS with Lua, and the
 cls-client uses the lua-rados library to send Lua object classes to the OSDs
 equipped with the LuaJIT VM.
 
-<!--
+## Specifying the Lua Class
+
+Maintain versions and consistency
+
 - cls-lua branch: write object classes in Lua
 - lua-rados: talk to RADOS with Lua
-- cls-client: use lua-rados + cls-lua branch to send Lua object classes to OSDs
-  equipped with LuaJIT VM -->
+- cls-client: use lua-rados + cls-lua branch to send Lua object classes to OSDs equipped with LuaJIT VM
 
 # Services Built on Malacology
 \label{services}
@@ -694,11 +750,6 @@ API is not enforced by the runtime, the system allows injectable strings
 through the admin daemon, constructing the Lua script in C++ is clunky, and the
 administrator can inject really bad policies (e.g., while 1) that brings the
 whole system down.
-
-## Code Reduction
-
-636 lines of code to embed the LuaVM, 37 lines to get the persistence via
-RADOS, and 17 lines of code to get the versioning/consistency of RADOS.
 
 ![This is Mantle. ](figures/overview-mantle.png)
 
