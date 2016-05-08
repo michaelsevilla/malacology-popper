@@ -1,22 +1,22 @@
 ---
 title:  "Malacology: A Programmable Storage System Built on Ceph"
-abstract: 
+abstract:
 
-Storage systems are caught between rapidly changing data processing systems and the increasing speed of storage devices. This puts tremendous pressure on storage systems to adapt both in terms of their interfaces and their performance. But adapting storage systems can be difficult because unprincipled changes might jeopardize years of code-hardening and performance optimization efforts that were necessary for users to entrust their data to the storage system.
-<!--In the last few years traditional relational databases are now competing with Map/Reduce systems which introduced a a scalabe failure model, with "NoSQL" systems replacing SQL with lower-level key/value-based access methods and relaxed consistency semantics, and now with "NewSQL" systems which re-introduce SQL and tighter consistency semantics at scale.-->
-We introduce Malacology, a prototype programmable storage system to explore how existing abstractions of common services found in storage
-systems can be leveraged to address new data processing systems and the
-increasing speed of storage devices. This approach allows unprecedented
-flexibility for storage systems to evolve without sacrificing the robustness
-of its code-hardened subsystems.  
-<!-- Ceph is a distributed storage system with
-monitor processes that maintain cluster state using consensus, versioning,
-and consistency protocols; object storage daemons that store data on disk
-consensus; and metadata daemons that act as gateways for file-based storage
-using protocols for consistency, balancing load, and mediating shared access. -->
-We illustrate the advantages and challenges of programmability by constructing two new services out of existing abstractions: a POSIX metadata load balancer and a
-high-performance distributed shared-log that leverages flash devices.
-<!-- Results -->
+  Storage systems are caught between rapidly changing data processing systems and
+  the increasing speed of storage devices. This puts tremendous pressure on
+  storage systems to adapt both in terms of their interfaces and their
+  performance. But adapting storage systems can be difficult because unprincipled
+  changes might jeopardize years of code-hardening and performance optimization
+  efforts that were necessary for users to entrust their data to the storage
+  system.  We introduce  Malacology, a prototype programmable storage system to
+  explore how existing abstractions of common services found in storage systems
+  can be leveraged to address new data processing systems and the increasing
+  speed of storage devices. This approach allows unprecedented flexibility for
+  storage systems to evolve without sacrificing the robustness of its
+  code-hardened subsystems.  We illustrate the advantages and challenges of
+  programmability by constructing two new services out of existing abstractions
+  POSIX metadata load balancer and a high-performance distributed shared-log
+  that leverages flash devices.  RESULTS
 
 documentclass: article
 classoption: twocolumn, 10pt
@@ -38,7 +38,21 @@ keywords:
 linkcolor: black
 ---
  
+
 # Introduction
+
+  <!-- Ceph is a distributed storage system with monitor processes that maintain
+  cluster state using consensus, versioning, and consistency protocols; object
+  storage daemons that store data on disk consensus; and metadata daemons that
+  act as gateways for file-based storage using protocols for consistency,
+  balancing load, and mediating shared access. --> 
+
+<!--In the last few years traditional relational databases are now
+  competing with Map/Reduce systems which introduced a a scalabe failure model,
+  with "NoSQL" systems replacing SQL with lower-level key/value-based access
+  methods and relaxed consistency semantics, and now with "NewSQL" systems which
+  re-introduce SQL and tighter consistency semantics at scale.--> 
+
 
 <!--
   disruptors for storage and data management
@@ -56,37 +70,42 @@ linkcolor: black
 <!-- Large distributed systems tackle difficult distributed systems problems with
 code-hardened subsystem, but many of these components are never re-used or
 re-purposed. -->
-New scale requirements for data processing architectures and the
-increasing speed of storage devices are disruptors for storage and data
-management. As a consequence, layers of the software stack become obselete and
-code paths grow longer and more obfuscated. Evolution of the storage system can
-affect the robustness of code-hardened subsystems, yet there needs to be an
-equally flexible storage system to address the diverse performance requirements of the
+
+New scale requirements for data processing architectures and the increasing
+speed of storage devices are disruptors for storage and data management. As a
+consequence, layers of the software stack become obselete and code paths grow
+longer and more obfuscated. Evolution of the storage system can affect the
+robustness of code-hardened subsystems, yet there needs to be an equally
+flexible storage system to address the diverse performance requirements of the
 application. 
 
-For example, Ceph [@weil_ceph_2006] addresses _durability_ with
-its RADOS object store (e.g., replication, erasure coding, and data scrubbing),
+![Ceph provides object, block, file and library client APIs; with Malacology we
+can implement 2 new services on Ceph: Zlog, Mantle. Malacology re-uses MON,
+OSD, and MDS subsystems.  \label{fig:overview} ](figures/overview.png)
+
+For example, Ceph [@weil_ceph_2006] addresses _durability_ with its RADOS
+object store (e.g., replication, erasure coding, and data scrubbing),
 _consistent versioning_ by having daemons exchange "maps" of the cluster
 configuration, and _consensus_ by having monitor daemons (MONs) use PAXOS. We
 contend that re-using and re-purposing these code-hardened subsystems is
-paramount to successfully adapting storage systems to new APIs and new storage devices without losing the benefits from years of code-hardening work. <!-->(1) improving the longevity and community uptake of "research
+paramount to successfully adapting storage systems to new APIs and new storage
+devices without losing the benefits from years of code-hardening work. 
+
+<!-- (1) improving the longevity and community uptake of "research
 quality" code and (2) avoiding duplication of the same protocols and algorithms
 throughout the system. Unfortunately, many internal subsystems are not exposed
 to other parts of the systems.-->
 
 <!-- Introduce Ceph -->
 
-In this paper we examine the programmability of Ceph, the increasingly
-popular, production-level open-source distributed storage system. Something of a storage swiss
-army knife, Ceph supports file, block, and object interfaces simultaneously in
-a single cluster. While Ceph is well-regarded as software-defined storage,
-this label largely refers to the flexibility of a fixed, narrow set of APIs.
-By introducing programmability concepts into Ceph, we can build new services
-by carefully exposing internal storage services to applications.
-
-![Ceph provides object, block, file and library client APIs; with Malacology we
-can implement 2 new services on Ceph: Zlog, Mantle. Malacology re-uses MON,
-OSD, and MDS subsystems.  \label{fig:overview} ](figures/overview.png)
+In this paper we examine the programmability of Ceph, the increasingly popular,
+production-level open-source distributed storage system. Something of a storage
+swiss army knife, Ceph supports file, block, and object interfaces
+simultaneously in a single cluster. While Ceph is well-regarded as
+software-defined storage, this label largely refers to the flexibility of a
+fixed, narrow set of APIs.  By introducing programmability concepts into Ceph,
+we can build new services by carefully exposing internal storage services to
+applications.
 
 <!-- For example, Ceph addresses _durability_ with its RADOS object store (e.g.,
 replication, erasure coding, and data scrubbing), _consistent versioning_ by
@@ -105,46 +124,49 @@ new functionality and re-purposing existing subsystems. We build the framework
 on Ceph by leveraging the subsystems in the monitor daemons (MONs), object
 storage daemons (OSDs), and metadata server daemons (MDSs). As shown in Figure
 \ref{fig:overview}, this framework is expressive enough to provide the
-functionality necessary for implementing new
-services. Our contributions are:
+functionality necessary for implementing new services. Our contributions are:
 
-- a programmable storage system implementation
-- sandboxed/vetted re-use of Ceph subsystems
+- a programmable storage system implementation that re-uses existing and
+  extends existing abstractions. It includes:
+    1. inode abstractions for sequencer services
+    2. consensus abstractions for policy versioning
+    3. storage objects for persisting policies
+    4. interface classes for new logical storage/metadata devices
+
 - example systems that use this framework 
- 1. shared log service based on CORFU [@balakrishnan_corfu_2012]
- 2. metadata load balancer based on Mantle [@sevilla:sc15-mantle]
+    1. shared log service based on CORFU [@balakrishnan_corfu_2012]
+    2. metadata load balancer based on Mantle [@sevilla:sc15-mantle]
 
-<!-- XXX Update the following paragraph!-->
-In the remainder of this paper we first describe in more depth the
-programmable storage framework that exposes and re-uses many structures in Ceph
-(\S\ref{implementation}). We conclude with descriptions and evaluations of
-these ideas by synthesizing entirely new storage services on an existing system
-through configuration and small changes: a distributed shared log
-(\S\ref{a-distributed-shared-log-service}) and a programmable metadata load
-balancer (\S\ref{a-programmable-metadata-load-balancer}). 
+First, we describe existing techniques for bridging the gap between the
+performance of storage systems and the requirements of applications
+(\S\ref{problem}). Next, we discuss the "distributed systems" inspired
+abstractions employed by Ceph (\S\ref{background}) and allude to their
+re-usability as components in other services. The next section enumerates the
+abstractions that Malacology exposes in the implementation section
+(\S\ref{implementation}). We then show how we use Malacology to synthesize
+entirely new storage services on an existing system through configuration and
+small changes (\S\ref{services}). We conclude by evaluating real-world use
+cases (\S\ref{evaluation}).
 
 # Highly Tailored and Application-Specifc Storage Systems
+\label{problem}
 
 <!-- Complete this section -->
 A consequence of complicated data management frameworks and faster devices
 is that the storage system cannot meet the needs of the general-purpose storage
 system. Workarounds for helping the application meet its performance goals
-roughly fall into one of three categories: "bolt-on" services, application, ...
-<!-- we touch on each subject usin
-examples from both the Ceph and Hadoop communities to show the breadth and extent of the problem. -->
+roughly fall into one of three categories: "bolt-on" services, application
+changes, and storage changes.
 
 ## "Bolt-on" services 
 
 So called "bolt-on" services are 3rd party systems that are integrated into the
-[@ekanayake:hpdc2010-twister], CGL-MapReduce
-[@ekanayake:escience2008-eglmapreduce], MixApart
-[@mihailescu:hotstorage2012-mixapart]). While performance improves, it comes at
-the cost of simplicity. 
-
-Furthermore, "bolt-on" services often duplicate functionality and execute
-redundant code, unnecessarily increasing the likelihood of bugs or worse,
-introducing unpredictable performance problems. For example, we are developing
-a distributed shared-commit log on Ceph called ZLog. ZLog uses a "sequencer" to
+system to provide functionality and improve performance for common use-cases
+(e.g. a metadata service). In addition to sacrificing simplicity, "bolt-on"
+services often duplicate functionality and execute redundant code,
+unnecessarily increasing the likelihood of bugs or worse, introducing
+unpredictable performance problems. For example, we are developing a
+distributed shared-commit log on Ceph called ZLog. ZLog uses a "sequencer" to
 distribute tokens to clients that want to append to the end of the log. When
 designing the sequencer, we considered bolting on Zookeeper \cite{} as a
 service. Zookeeper would satisfy our requirements by proiding a network and
@@ -158,9 +180,9 @@ scalability limits \cite{Neha HDFS namenode example}.
 
 The second approach to adapting to a storage system deficiency is to extend the
 responsibility of the application. This means changing the application itself
-by adding more data management intelligence or domain-specific middleware.  For
-instance, an application may change itself to exploit data locality or I/O
-parallelism in a distributed storage system. 
+by adding more data management intelligence or domain-specific middleware
+(e.g., a new data layout).  For instance, an application may change itself to
+exploit data locality or I/O parallelism in a distributed storage system. 
 
 For example, SciHadoop [@buck:hpc2011-scihadoop ; @buck:sc2013-scidr] changes
 both the Hadoop application and the Hadoop framework itself to leverage the
@@ -199,6 +221,20 @@ instance, auto-tuning may be capable of identifying instances in which new data
 layouts would benefit a workload, but unless the system can provide such a
 transformation, the option is left off the table.
 
+### Software Changes
+
+As a last resort, the application developer can introduce changes to the
+storage system itself. This endeavour is especially difficult because the
+developer must first familiarate themselves with the storage system, and even
+if they manage to make the necessary changes, they must get their changes
+upstream for that specific project or become mantainer for their in-house
+version. Being a maintainer means they re-base their versions against new
+versions of the storage system and address any bugs for their branched code.  A
+successful example of this is the work that focused on HDFS scalability for
+metadata-intensive workloads [@shvachko_hdfs_2010]. This has lead to
+modifications to its architecture or API [@balmin:sigmod2012-clydesdale] to
+improve performance. 
+
 \begin{table}[ht]
 \caption{
     A variety of RADOS object storage classes exist to expose interfaces
@@ -212,9 +248,9 @@ transformation, the option is left off the table.
     \multirow{3}{*}{Logging} & Replica & 3 \\
                              & State & 4 \\
                              & Timestamped & 4 \\ \hdashline
-    \multirow{4}{*}{Metadata Management} 
-                             & RADOS Block Device (RBD) & 37 \\
-                             & RADOS Gatway (RGW)& 27 \\
+    \multirow{4}{*}{Metadata Managment} 
+                             & RADOS Block Device  & 37 \\
+                             & RADOS Gatway & 27 \\
                              & User & 5 \\
                              & Version & 5 \\ \hdashline
     Garbage Collection       & Reference Counting & 4 \\
@@ -222,8 +258,32 @@ transformation, the option is left off the table.
 \end{center}
 \end{table}
 
-As an alternative, developers have started using the active storage component
-of Ceph, which is called object interface classes (or \texttt{cls}). Figure
+### Hybrid Approaches
+
+As an alternative, some systems allow developers to extend the interfaces of
+the storage devices to perform arbitrary operations on data stored on disk. In
+Ceph, object interfaces are C/C++ plugins that add new functionality to the
+OSDs. As an example use-case, ZLog needs to store metadata information with
+each object so for each operation, it checks the epoch value and write
+capability (2 metadata reads) and writes the index (metadata write). Figure 1
+shows the throughput (_y_ axis) over time (_x_ axis) of two OSD implementations
+for storing metadata: in the header of the byte stream (data) vs. in the object
+extended attributes (XATTR). The speed for appending data without any metadata
+operations (data raw) is also shown as a baseline for comparison. For
+append-heavy workloads storing metadata as a header in the data performs about
+1.5x better than storing metadata as an extended attribute. 
+
+[src-cls_xattr-vs-data]:https://github.com/michaelsevilla/malacology-popper/blob/master/experiments/figure1/visualize.ipynb
+
+![\[[source][src-cls_xattr-vs-data]\] When appending data to objects, the
+object class that stores metadata in a header in the data byte stream (data)
+performs 1.5x better than the object class that stores metdata in the extended
+attributes of the object (XATTR); it is almost as fast as appending data
+without updating metadata (data raw).](figures/cls_xattr-vs-data.png)
+
+<!-- People use object storage interfaces --> 
+
+Object interface classese are used in production Ceph environments; Figure
 \ref{fig:obj-int-dev-growth} shows a dramatic growth in the use of co-designed
 interfaces in the Ceph community since 2010.  Figure
 \ref{fig:obj-int-dev-churn} examines this growth in interfaces further by
@@ -247,49 +307,16 @@ need to support a high frequency of interface churn. Each dot represents a Ceph
 commit with a corresponding number of lines of code changed.
 \label{fig:obj-int-dev-churn}](figures/obj-int-dev-churn.png)
 
-The popularity of the active storage component of Ceph, which is called object
-interfaces, hints at three trends in the Ceph community: (1) increasingly, the
-default algorithms/tunables of the storage system are insufficient for the
-application's performance goals, (2) programmers are becoming more aware of
-their application's behavior, and (3) programmers know how to manage resources
-to improve performance. Programmers gravitate towards object interfaces because
-it gives them ability to tell the storage system about their application: if it
-is CPU or IO bound, if it has locality, if its size has the potential to
-overload a single proxy node, etc.  The programmers know what the problem is
-and how to solve it, but until object interfaces, had no way to tell the
-storage system how to handle their data.
-
-### Software changes 
-
-As a last resort, the application developer can introduce changes to the
-storage system itself. This endeavour is especially difficult because the
-developer must first familiarate themselves with the storage system, and even
-if they manage to make the necessary changes, they must get their changes
-upstream for that specific project or become mantainer for their in-house
-version. Being a maintainer means they re-base their versions against new
-versions of the storage system and address any bugs for their branched code.  A
-successful example of this is the work that focused on HDFS scalability for
-metadata-intensive workloads [@shvachko_hdfs_2010]. This
-has lead to modifications to its architecture or
-API~\cite{balmin:sigmod2012-clydesdale} to improve performance. 
-
-As an example, ZLog needs to store metadata information with each object. For
-each operation, it checks the epoch value and write capability (2 metadata
-reads) and writes the index (metadata write). Figure 1 shows the throughput
-(_y_ axis) over time (_x_ axis) of two OSD implementations for storing
-metadata: in the header of the byte stream (data) vs. in the object extended
-attributes (XATTR). The speed for appending data without any metadata
-operations (data raw) is also shown as a baseline for comparison. For
-append-heavy workloads storing metadata as a header in the data performs about
-1.5x better than storing metadata as an extended attribute. 
-
-[src-cls_xattr-vs-data]:https://github.com/michaelsevilla/malacology-popper/blob/master/experiments/figure1/visualize.ipynb
-
-![\[[source][src-cls_xattr-vs-data]\] When appending data to objects, the
-object class that stores metadata in a header in the data byte stream (data)
-performs 1.5x better than the object class that stores metdata in the extended
-attributes of the object (XATTR); it is almost as fast as appending data
-without updating metadata (data raw).](figures/cls_xattr-vs-data.png)
+The popularity of the active storage component of Ceph hint at three trends in
+the Ceph community: (1) increasingly, the default algorithms/tunables of the
+storage system are insufficient for the application's performance goals, (2)
+programmers are becoming more aware of their application's behavior, and (3)
+programmers know how to manage resources to improve performance. Programmers
+gravitate towards object interfaces because it gives them ability to tell the
+storage system about their application: if it is CPU or IO bound, if it has
+locality, if its size has the potential to overload a single proxy node, etc.
+The programmers know what the problem is and how to solve it, but until object
+interfaces, had no way to tell the storage system how to handle their data.
 
 <!-- Problems that can be solved with programmability --> 
 
@@ -300,44 +327,52 @@ allows the application to realize a new behavior without sacrificing the
 correctness of the underlying system.  This evaluation and resulting
 implementation would have been a burden without object classes.
 
-### Active Storage
-<!-- What are object storage interfaces? --> 
-
-![Ceph object storage interfaces. Left: data transferred over network(naiive
-approach). Right: clients send function in object interface to
-execute.\label{fig:object-interfaces}](figures/object-interfaces.png)
-
-Active storage is a hybrid approach to changing the application and storage
-system. Pushing computation closer to the data is not a new idea. Active
-storage techniques are used in production Ceph environments to have object
-storage devices (OSDs) process data before sending over the network or storing
-it. The code that does the processing in the OSD is called an ``object storage
-interface`` and it can be loaded at runtime and customized with user-defined
-functionality. The basic idea is shown in Figure~\ref{fig:object-interfaces},
-where the \texttt{libcls\_md5.so} shared library performs the MD5 hash on an
-object at the oSD instead of transferring data over the network. This ability
-to carry out arbitrary operations on objects stored on OSDs helps applications
-improve performance by optimizing things like network round trips, data
-movement, and remote resources which may be idle. 
-
-<!-- People use object storage interfaces --> 
-
-Developers and users actively develop new object storage interfaces.
-While we consider active storage to be an excellent example of programmability,
-what separates our proposal from previous work is the observation that so much
-_more_ of the storage system can be reused to construct advanced,
-domain-specific interfaces.
-
-
 # Re-Usable Components in Ceph
+\label{background}
 
 Ceph is a production-quality distributed system and in this section we touch on
 some of the subsystems it uses to provide a general-purpose storage system. In
 the next section, we describe how we leverage these subsystems to build new
 services.
 
+## Durability
+
+Ceph provides storage by striping and replicating data across RADOS
+[@weil_rados_2007], the reliable distributed object store. RADOS uses many
+techniques to ensure that data is not corrupted or lost, such as erasure
+coding, replication, and data scrubbing. Furthermore, many of these techniques
+try to be autonomous so that work is distributed across the cluster. For
+example, when placement groups change the OSDs rebalance and re-shard data in
+the background in a process called placement group splitting.
+
+## Consistency/Versioning of Cluster State
+
+Ceph needs to keep track of cluster state and it does this with separate
+"services": client authentication, logging, MDS maps, MON maps, OSD maps and
+placement group (PG) maps.  These services are all managed in the MONs and they
+all talk to a PAXOS instance; this PAXOS instance goes and talks to other PAXOS
+instances on other MONs so that they can all agree on the correct version of
+the service; essentially they reach an agreement about what the state of the
+cluster is.
+
+<!-- % https://ceph.com/dev-notes/cephs-new-monitor-changes/ -->
+
 ## Active Storage
-<!-- What is active storage? -->
+
+<!-- What are object storage interfaces? --> 
+
+Active storage attempts to push computation closer to the data by exposing
+interfaces to execute code remotely. For example, the storage server could
+process data before sending data over the network or sorting it. The active
+storage component in Ceph is called "object interface classes" (or \texttt{cls}
+for short).  The Ceph object interface classes can be loaded at runtime and
+customized with user-defined functionality. The basic idea is shown in
+Figure~\ref{fig:object-interfaces}, where the \texttt{libcls\_md5.so} shared
+library performs the MD5 hash on an object at the oSD instead of transferring
+data over the network. This ability to carry out arbitrary operations on
+objects stored on OSDs helps applications improve performance by optimizing
+things like network round trips, data movement, and remote resources which may
+be idle. 
 
 Object storage interfaces are compiled into shared libraries and loaded into a
 running OSD daemon using \texttt{dlopen()}. Because the shared library has to
@@ -373,46 +408,31 @@ robustness of loading dynamic code, the ease of transferring state between
 object interfaces and the oSD internals, integration with testing and
 correctness suites, and \texttt{struct}s for interface data and handlers.
 
-## Durability
+While we consider active storage to be an excellent example of programmability,
+what separates our proposal from previous work is the observation that so much
+_more_ of the storage system can be reused to construct advanced,
+domain-specific interfaces.
 
-Ceph provides storage by striping and replicating data across RADOS, the
-reliable distributed object store. RADOS uses many techniques to ensure that
-data is not corrupted or lost, such as erasure coding, replication, and data
-scrubbing. Furthermore, many of these techniques try to be autonomous so that
-work is distributed across the cluster. For example, when placement groups
-change the OSDs rebalance and re-shard data in the background in a process
-called placement group splitting.
+# Malacology Implementation
+\label{implementation}
 
-## Consistency and Versioning of Cluster State
+To enable the re-use of Ceph subsystems, Malacology relies heavily on interface
+classes for introducing new functionality into the MDSs and OSDs. Malacology
+introduces 3 components to manage object/metadata interfaces:
 
-Ceph needs to keep track of cluster state and it does this with separate
-"services": client authentication, logging, MDS maps, MON maps, OSD maps and
-placement group (PG) maps.  These services are all managed in the MONs and they
-all talk to a PAXOS instance; this PAXOS instance goes and talks to other PAXOS
-instances on other MONs so that they can all agree on the correct version of
-the service; essentially they reach an agreement about what the state of the
-cluster is.
+1. additional interface hooks and classes for OSDs and MDSs using the existing
+Ceph \texttt{cls} infrastructure
 
-<!-- % https://ceph.com/dev-notes/cephs-new-monitor-changes/ -->
+2. durable interface classes using the Ceph object store
 
-# Implementation
-
-Malacology is a framework that enables the re-use of Ceph subsystems. It
-relies heavily on interface classes for introducing new functionality in the
-MDSs and OSDs. Malacology introduces 3 components to help developers better
-manage object/metadata interfaces:
-
-1. interface classes: general and customizable shared libraries for the OSDs
-and MDSs using Lua 
-
-2. RADOS: stores interface classes as RADOS objects 
-
-3. MONs: adds a monitor command for specifying the version of the interface
+3. versioned and consistent interfaces using the Ceph MONs
 
 In the following section, we will discuss the existing Ceph infrastructure and
-the changes necessary for Malacology.
+the changes necessary for Malacology. We wish to emphasize here that these
+implementations are not necessarily optimized but they help demonstrate the
+power of programmability.
 
-<--
+<!--
 zlog: interface is critical; as important as data
 mantle: definitely want to save the policy somewhere; but if you happen to lose
 the policy, then it would just lose performance
@@ -423,14 +443,17 @@ the policy, then it would just lose performance
 <!-- Background: making Lua class loading similar to C/C++ shared lib loading
 -->
 
+## Additional Interface Hooks and Classes
+
 <!-- Background: Lua object interfaces -->
 
-Our framework has a mechanism for defining and running object and metadata
-balancer classes using Lua. Our Lua bindings expose functions and symbols both
-ways; the host program can call functions defined in Lua and the Lua scripts
-can call functions defined in native C++. These bindings are merged upstream.
-We choose Lua for 4 reasons: performance, portabability, size, and and
-security. 
+Malacology adds new hooks to Ceph and a new Lua interface class for both the
+MDS and OSD. Our framework has added a mechanism for defining and running object
+and metadata balancer classes using Lua. Our Lua bindings expose functions and
+symbols both ways; the host program can call functions defined in Lua and the
+Lua scripts can call functions defined in native C++. These bindings are merged
+upstream.  We choose Lua for 4 reasons: performance, portabability, size, and
+and security. 
 
 <!-- Lua is fast and embeddable -->
 
@@ -443,18 +466,12 @@ implementations, like pulling data from objects or transferring them over the
 network, but instead strive to say _what to do_ with the data once we have
 it. Separating policy from mechanism is a driving factor in using Lua.
 
-<!-- Lua is portable (script shipping) -->
-
-Lua is also portable. The object interfaces are 
-
 <!-- Lua is small -->
 
 ![Clients add functionality by injecting Lua scripts with a new monitor (M)
 command. After the proposal is accepted by the cluster of monitors, the script
 is redundantly and consistently distributed to OSDs.
 \label{fig:programmability-framework} ](figures/programmability-framework.png)
-
-## Distributing Work with Interfaces
 
 <!-- Before -->
 
@@ -596,10 +613,12 @@ lua_toboolean(lua, 1);
 
 ### Generalizing the Class Handler
 
+<--!
 - Re-Used Components: Class Handler, Lua Class
 - Durability with RADOS
 - Send functionality with request
 - Loading from the file system
+-->
 
 Our framework can also load Lua interfaces from the local file system -- the
 same technique as the C/C++ object interfaces. First, the OSD looks for C/C++
@@ -611,15 +630,11 @@ corresponding function in the Lua class is called. Now clients need to only
 send their Lua object class once and the OSDs will store them locally. Also,
 clients can execute any Lua handler they want.
 
-### Injecting Interfaces into the MDS
+## Storing Interfaces in RADOS
 
 For balancer interfaces, clients put balancers into RADOS and the CephFS
 metadata balancer invokes the operations in the user-defined class remotely on
 the MDS.
-
-<!-- Loading from RADOS -->
-
-## Storing Interfaces in RADOS
 
 [7:31] Nothing would stop C++ from being stashed in objects and recompiled on
 whatever platform they are being loaded on dynamically (like a DB compiles each
@@ -673,6 +688,7 @@ Maintain versions and consistency
 - cls-client: use lua-rados + cls-lua branch to send Lua object classes to OSDs equipped with LuaJIT VM
 
 # Services Built on Malacology
+\label{services}
 
 \begin{table}
 \begin{tabular}{ | l | l | l | l | l |}
@@ -693,53 +709,41 @@ client & client & mds \\
 <!-- problem: well-defined workloads -> one technique -> lock-in -->
 
 Many distributed file systems decouple metadata and data I/O so that these
-services can scale independently~\cite{alam:pdsw2011-metadata-scaling,
-ghemawat:sosp2003-gfs,
-hildebrand:msst2005-pnfs,weil:osdi06,welch:fast2008-panasas,shvachko:login2012-hdfs-scalability}.
-Despite this optimization, scaling the metadata services is still difficult
-because metadata accesses impose small and frequent requests on the underlying
-storage system~\cite{roselli:atec2000-FS-workloads}. Many techniques for
-designing the metadata services have been proposed to accommodate this
-workload: Lustre~\cite{konstantinos:pdsw2014-lustre-metadata},
-GFS~\cite{ghemawat:sosp2003-gfs}, and
-HDFS~\cite{shvachko:login2012-hdfs-scalability} keep all metadata on one
-server; GIGA+~\cite{patil:fast2011-giga+}, IndexFS~\cite{ren:sc2014-indexfs},
-Lazy Hybrid~\cite{brandt:msst2003-lh}, GPFS~\cite{schmuck:fast2002-gpfs}, and
-pNFS~\cite{hildebrand:supercomputing2006-pNFS} hash the file system namespace
-across a dedicated cluster and cache metadata;
-Panasas~\cite{welch:fast2008-panasas} and
-CephFS~\cite{weil:sc2004-dyn-metadata} partition the file system namespace into
+services can scale independently [@alam:pdsw2011-metadata-scaling ;
+@ghemawat:sosp2003-gfs ; @hildebrand:msst2005-pnfs ; @weil_ceph_2006 ;
+@welch:fast2008-panasas ; @shvachko:login2012-hdfs-scalability].  Despite this
+optimization, scaling the metadata services is still difficult because metadata
+accesses impose small and frequent requests on the underlying storage syste
+[@roselli:atec2000-FS-workloads]. Many techniques for designing the metadata
+services have been proposed to accommodate this workload: Lustre
+[@konstantinos:pdsw2014-lustre-metadata], GFS [@ghemawat:sosp2003-gfs], and
+HDFS [@shvachko:login2012-hdfs-scalability] keep all metadata on one server;
+GIGA+ [@patil:fast2011-giga], IndexFS [@ren:sc2014-indexfs], Lazy Hybrid
+[@brandt:msst2003-lh], GPFS [@schmuck:fast2002-gpfs], and pNFS
+[@hildebrand:supercomputing2006-pNFS] hash the file system namespace across a
+dedicated cluster and cache metadata; Panasas [@welch:fast2008-panasas] and
+CephFS [@weil:sc2004-dyn-metadata] partition the file system namespace into
 # d assign them to servers. These systems have novel mechanisms for
-Mantle~\cite{sevilla:sc15-mantle} is a programmable metadata balancer that
-
-<!-- separates the metadata balancing policies from their mechanisms.
-Admistrators -->
-
+Mantle [@sevilla:sc15-mantle] is a programmable metadata balancer that
+separates the metadata balancing policies from their mechanisms. Admistrators 
 inject code to change how the metadata cluster distributes metadata. In the
 paper, we showed how to implement a single node metadata service, a distributed
 metadata services with hashing, and a distributed metadata service with dynamic
-# titioning. 
+subtree partitioning. 
+
 The Ceph team wants to merge Mantle because the scriptability is useful for
-
-<!-- debugging, controlling the metadata balancer, and examining trade-offs for
--
-
+debugging, controlling the metadata balancer, and examining trade-offs for
 different balancers. Unfortunately, this research quality system is not as
 robust as Ceph and the Ceph team wants more safety, durability, and consistency
-for the new functionality. 
-						
-<!-- For example, the original Mantle API is fragile: the API is not enforced
-by the runtime, the system allows injectable strings through the admin daemon,
-constructing the Lua script in C++ is clunky, and the administrator can inject
-really bad policies (e.g., while 1) that brings the whole system down. -->
+for the new functionality. For example, the original Mantle API is fragile: the
+API is not enforced by the runtime, the system allows injectable strings
+through the admin daemon, constructing the Lua script in C++ is clunky, and the
+administrator can inject really bad policies (e.g., while 1) that brings the
+whole system down.
 
 ![This is Mantle. ](figures/overview-mantle.png)
 
-### Quantifying Metrics
-
-### Load Balancing
-
-### Auto-tuning
+<!-- Quantifying Metrics, Load Balancing, Auto-tuning -->
 
 ## ZLog: A Distributed Shared Commit Log
 
@@ -753,11 +757,66 @@ really bad policies (e.g., while 1) that brings the whole system down. -->
 
 <!-- Active and Typed Storage: DataMods, DataMod references -->
 
-Malacology uses the same Active and Typed Storage module presented in
-DataMods [@watkins_datamods_2012]; Asynchronous Service and File Manifolds can be implemented
-with small changes to the Malacology framework, namely asynchronous object
-calls and Lua stubs in the inode, respectively.
+Malacology uses the same Active and Typed Storage module presented in DataMods
+[@watkins_datamods_2012]; Asynchronous Service and File Manifolds can be
+implemented with small changes to the Malacology framework, namely asynchronous
+object calls and Lua stubs in the inode, respectively.
 
+## MDS as a sequencer
+
+### Sequencer recovery with MDS 
+
+### MDS Policy for Revoking Capability
+
+The MDS has a queue of locks that it uses to revoke capabilities from the
+clients. If we put a Mantle-style hook here, we can control when those revoke
+messages go out.
+
+### Mantle Balancing Policies to Migrate Sequencers
+
+# Evaluation
+
+  1 Experiments:
+  2 
+  3 1. mdtest separate directories
+  4   - just based on default traffic
+  5   - kill one of the MDSs
+  6 
+  7 2. filebench profiles
+  8   - adaptable vs. greedy vs. fill&spill
+  9 
+ 10 3. sequencer balancer
+ 11   - just based on default traffic
+ 12 
+ 13 3. OpenSSL compile
+~                               
+\label{evaluation}
+
+## Mantle
+
+### Experiment: FileBench
+
+### Experiment: OpenSSL Compile
+
+## MDS as ZLog Sequencer
+
+### Experiment: Object Class Programmability
+
+Add quote from CORFU paper that talks about what they had to hack
+
+
+
+### Experiment: Multi-Client Burstiness
+
+![Forcing the client to drop their capabilities later (delay) improves
+throughput](figures/caps-delay-thruput.png)
+
+![But if the clients hold their capabilities longer, it hurts latency for
+everyone.](figures/caps-delay-latency.png)
+
+### CUT THIS Experiment: Client v. MDS caps + Failures
+
+### Experiment: Mantle Sequencer Balancer
 
 # Conclusion and Future Work
 
