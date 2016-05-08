@@ -1,7 +1,7 @@
 ---
 title:  "Malacology: A Programmable Storage System Built on Ceph"
 abstract:
-
+>
   Storage systems are caught between rapidly changing data processing systems and
   the increasing speed of storage devices. This puts tremendous pressure on
   storage systems to adapt both in terms of their interfaces and their
@@ -14,8 +14,8 @@ abstract:
   speed of storage devices. This approach allows unprecedented flexibility for
   storage systems to evolve without sacrificing the robustness of its
   code-hardened subsystems.  We illustrate the advantages and challenges of
-  programmability by constructing two new services out of existing abstractions
-  POSIX metadata load balancer and a high-performance distributed shared-log
+  programmability by constructing two services out of existing abstractions: a
+  file system metadata load balancer and a high-performance distributed shared-log
   that leverages flash devices.  RESULTS
 
 documentclass: article
@@ -71,20 +71,48 @@ linkcolor: black
 code-hardened subsystem, but many of these components are never re-used or
 re-purposed. -->
 
-A storage system implements abstractions designed to persistently store data and must exhibit a  high level of correctness to prevent data loss. Storage systems have evolved around storage devices that often were orders of magnitude slower than CPU and memory and therefore can dominate overall performance if not used carefully. Over the last few decades members of the storage systems community have developed ingenious strategies to meet correctness requirements while somewhat hiding the latency of traditional storage media. To avoid lock-in by a particular vendor, users of storage systems have preferred systems with highly standardized APIs and lowest common denominator abstract data types such as blocks of bytes and byte stream files. 
+A storage system implements abstractions designed to persistently store data and must
+exhibit a high level of correctness to prevent data loss. Storage systems have
+evolved around storage devices that often were orders of magnitude slower than CPU
+and memory and therefore can dominate overall performance if not used carefully. Over
+the last few decades members of the storage systems community have developed
+ingenious strategies to meet correctness requirements while somewhat hiding the
+latency of traditional storage media. To avoid lock-in by a particular vendor, users
+of storage systems have preferred systems with highly standardized APIs and lowest
+common denominator abstract data types such as blocks of bytes and byte stream files.
 
-A number of recent developments are disrupting traditional storage systems: (1) the falling prices of flash storage and the availability of new types of non-volatile memory that are orders of magnitude faster than traditional spinning media are moving overall performance bottlenecks away from storage devices to CPUs and networking, and pressure storage systems to shorten their code paths and incorporate new optimizations; (2) demand for managing structured data and flexible consistency semantics at scale pressure big data processing systems to use storage abstractions that can meet these demands; and (3) production-quality scalable storage systems available as open source software have established and are continuing to establish new, _de facto_ API standards at a faster pace than traditional standards bodies. 
+A number of recent developments are disrupting traditional storage systems: (1) the
+falling prices of flash storage and the availability of new types of non-volatile
+memory that are orders of magnitude faster than traditional spinning media are moving
+overall performance bottlenecks away from storage devices to CPUs and networking, and
+pressure storage systems to shorten their code paths and incorporate new
+optimizations; (2) demand for managing structured data and flexible consistency
+semantics at scale pressure big data processing systems to use storage abstractions
+that can meet these demands; and (3) production-quality scalable storage systems
+available as open source software have established and are continuing to establish
+new, _de facto_ API standards at a faster pace than traditional standards bodies.
 
-These three trends put evolutionary pressure on storage systems and raise the question whether there are principles that storage systems designers can follow to evolve storage systems efficiently and without jeopardizing years of code-hardening and performance optimization efforts that are important for users to continue to entrust their data to the storage system. 
+These three trends put evolutionary pressure on storage systems and raise the
+question whether there are principles that storage systems designers can follow to
+evolve storage systems efficiently and without jeopardizing years of code-hardening
+and performance optimization efforts that are important for users to continue to
+entrust their data to the storage system.
 
-In this paper we investigate an approach that focusses on generalizing existing storage system resources, services, and abstractions that in generalized form can be used to _program_ new services. By doing so one can reuse subsystems and their optimizations and leverage their established correctness, robustness, and efficiency. We will refer to this programmability as _programmable storage_, which differs from _active storage_ (the execution of arbitrary code in a storage system) and _software-defined storage_ (the control of thin-provisining of storage). 
+In this paper we investigate an approach that focusses on generalizing existing
+storage system resources, services, and abstractions that in generalized form can be
+used to _program_ new services. By doing so one can reuse subsystems and their
+optimizations and leverage their established correctness, robustness, and efficiency.
+We will refer to this programmability as _programmable storage_, which differs from
+_active storage_ (the injection and execution of arbitrary code in a storage system) and
+_software-defined storage_ (the control of thin-provisioning of storage).
 
-To illustrate the benefits and challenges of this approach we examine the programmability of Ceph, the increasingly popular,
+To illustrate the benefits and challenges of this approach we examine the
+programmability of Ceph [@weil_ceph_2006], the increasingly popular,
 production-level open-source distributed storage system. Something of a storage
 swiss army knife, Ceph supports file, block, and object interfaces
-simultaneously in a single cluster. While Ceph is well-regarded as
+simultaneously in a single cluster. <!--While Ceph is well-regarded as
 software-defined storage, this label largely refers to the flexibility of a
-fixed, narrow set of APIs.  By introducing programmability concepts into Ceph,
+fixed, narrow set of APIs.  --> By introducing programmability concepts into Ceph,
 we can build new services by carefully exposing internal storage services to
 applications.
 
@@ -96,14 +124,18 @@ robustness of code-hardened subsystems, yet there needs to be an equally
 flexible storage system to address the diverse performance requirements of the
 application. -->
 
-![Ceph provides object, block, file and library client APIs; with Malacology we
-can implement 2 new services on Ceph: Zlog, Mantle. Malacology re-uses MON,
-OSD, and MDS subsystems.  \label{fig:overview} ](figures/overview.png)
+![A Ceph installation consists of a cluster running mostly storage daemons (OSDs) to
+ensure data durability, a few monitor daemons (MONs) to reach consensus of the
+cluster state and to ensure its consistent versioning, and a few metadata service
+daemons (MDSs) for scalable metadata service. Ceph's APIs include object, block, file
+abstractions. Malacology enables the programmability of these abstractions and
+services. To illustrate Malacology we implement two services on Ceph, Zlog and
+Mantle, by programming Ceph's durability, consistent versioning, consensus, and metadata subsystems. \label{fig:overview} ](figures/overview.png)
 
-For example, Ceph [@weil_ceph_2006] addresses _durability_ with its RADOS
+For example, Ceph addresses _durability_ with its RADOS
 object store (e.g., replication, erasure coding, and data scrubbing),
 _consistent versioning_ by having daemons exchange "maps" of the cluster
-configuration, and _consensus_ by having monitor daemons (MONs) use PAXOS. We
+configuration, _consensus_ by having monitor daemons (MONs) use PAXOS, and _scalable metadata service_ by providing a metadata service. We
 contend that re-using and re-purposing these code-hardened subsystems is
 paramount to successfully adapting storage systems to new APIs and new storage
 devices without losing the benefits from years of code-hardening work. 
@@ -426,7 +458,7 @@ domain-specific interfaces.
 # Malacology Implementation
 \label{implementation}
 
-To enable the re-use of Ceph subsystems, Malacology relies heavily on interface
+To enable the programmability of Ceph subsystems, Malacology relies heavily on interface
 classes for introducing new functionality into the MDSs and OSDs. Malacology
 introduces 3 components to manage object/metadata interfaces:
 
@@ -435,12 +467,15 @@ Ceph \texttt{cls} infrastructure
 
 2. durable interface classes using the Ceph object store
 
-3. versioned and consistent interfaces using the Ceph MONs
+3. versioned and consistent interfaces using Ceph's consensus service
 
 In the following section, we will discuss the existing Ceph infrastructure and
-the changes necessary for Malacology. We wish to emphasize here that these
+the changes necessary for Malacology. <!-- We wish to emphasize here that these
 implementations are not necessarily optimized but they help demonstrate the
-power of programmability.
+power of programmability.-->
+Our focus will be to demonstrate the viability and usefulness of the Malacology
+appraoch with example implementations that due to limited time for the submission of
+this paper are not necessarily fully optimized.
 
 <!--
 zlog: interface is critical; as important as data
@@ -457,8 +492,8 @@ the policy, then it would just lose performance
 
 <!-- Background: Lua object interfaces -->
 
-Malacology adds new hooks to Ceph and a new Lua interface class for both the
-MDS and OSD. Our framework has added a mechanism for defining and running object
+Malacology adds new hooks to Ceph and a new interface class for both the
+MDS and OSD that uses Lua [@ierusalimschy:lua15][@ierusalimschy:spe96]. Our framework has added a mechanism for defining and running object
 and metadata balancer classes using Lua. Our Lua bindings expose functions and
 symbols both ways; the host program can call functions defined in Lua and the
 Lua scripts can call functions defined in native C++. These bindings are merged
@@ -469,17 +504,17 @@ and security.
 
 Lua is a fast scripting language. It was designed to be an embedded language
 and the LuaJIT virtual machines boasts near-native
-performance [@grawinkel_pdsw12]. Lua is frequently used in game
-engines to set policies but we use it here because most of the user-defined
-classes in Ceph are policies as well! We do not want to provide specific
+performance [@pall:luajit15][@grawinkel_pdsw12]. Lua is frequently used in game
+engines to set policies but we use it here because most of the user-defined object
+classes in Ceph are policies as well (see \S\ref{table:objclasses}). <!--We do not want to provide specific
 implementations, like pulling data from objects or transferring them over the
 network, but instead strive to say _what to do_ with the data once we have
-it. Separating policy from mechanism is a driving factor in using Lua.
+it. -->Separating policy from mechanism is a driving factor in using Lua.
 
 <!-- Lua is small -->
 
 ![Clients add functionality by injecting Lua scripts with a new monitor (M)
-command. After the proposal is accepted by the cluster of monitors, the script
+command. After the "proposal" (using PAXOS terminology) is accepted by the cluster of monitors, the script
 is redundantly and consistently distributed to OSDs.
 \label{fig:programmability-framework} ](figures/programmability-framework.png)
 
