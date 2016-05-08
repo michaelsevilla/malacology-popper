@@ -1,8 +1,10 @@
-- name: Get the status of the new Ceph cluster
-  hosts: mons
+---
+- hosts: clients
   tasks:
-    - command:  docker exec {{ ansible_hostname }} ceph -s
-      register: result
-      until:    result.stdout.find("HEALTH_OK") != -1
-      retries:  120
-    - debug:    var=result.stdout_lines
+    - name: start client
+      shell: >
+             docker run --rm \
+               --name=client0 \
+               --volumes-from cephfs \
+               piha.soe.ucsc.edu:5000/michaelsevilla/mdtest \
+               -F -C -n 1000 -d /cephfs/test0

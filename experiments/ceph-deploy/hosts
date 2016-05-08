@@ -21,6 +21,6 @@ issdm-15
 
 [clients]
 issdm-45
-issdm-18
-issdm-20
-issdm-38
+#issdm-18
+#issdm-20
+#issdm-38

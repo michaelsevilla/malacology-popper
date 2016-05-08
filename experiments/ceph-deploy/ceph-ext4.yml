@@ -35,14 +35,16 @@
   roles:
   - ceph-mds
 
-- hosts: rgws
+- name: wait for the cluster to come up
+  hosts: mons
+  tasks:
+  - command:  docker exec {{ ansible_hostname }} ceph -s
+    register: result
+    until:    result.stdout.find("HEALTH_OK") != -1
+    retries:  120
+  - debug:    var=result.stdout_lines
+
+- hosts: clients
   become: True
   roles:
-  - ceph-rgw
-
-- hosts: restapis
-  become: True
-  roles:
-  - ceph-restapi
-
-
+    - ceph-client
