@@ -1,15 +1,70 @@
 \documentclass[10pt,twocolumn]{article}
 
 \usepackage{times}
-\usepackage{fullpage}
-
-\begin{document}
+\usepackage{multirow}
+\usepackage{arydshln}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+\else % if luatex or xelatex
+  \ifxetex
+    \usepackage{mathspec}
+    \usepackage{xltxtra,xunicode}
+  \else
+    \usepackage{fontspec}
+  \fi
+  \defaultfontfeatures{Mapping=tex-text,Scale=MatchLowercase}
+  \newcommand{\euro}{€}
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\usepackage{biblatex}
+\bibliography{refs}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\ifxetex
+  \usepackage[setpagesize=false, % page size defined by xetex
+              unicode=false, % unicode breaks when used with xetex
+              xetex]{hyperref}
+\else
+  \usepackage[unicode=true]{hyperref}
+\fi
+\hypersetup{breaklinks=true,
+            bookmarks=true,
+            pdfauthor={},
+            pdftitle={Malacology: A Programmable Storage System Built on Ceph},
+            colorlinks=true,
+            citecolor=blue,
+            urlcolor=blue,
+            linkcolor=black,
+            pdfborder={0 0 0}}
+\urlstyle{same}  % don't use monospace font for urls
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\setcounter{secnumdepth}{5}
 
 \title{Malacology: A Programmable Storage System Built on Ceph}
 \author{Paper \# 123}
 \date{}
+\begin{document}
+
 \maketitle
-\thispagestyle{empty}
 
 \begin{abstract}
 Storage systems are caught between rapidly changing data processing systems and
@@ -190,13 +245,13 @@ or worse, introducing unpredictable performance problems. For example,
 we are developing a distributed shared-commit log on Ceph called ZLog.
 ZLog uses a ``sequencer'' to distribute tokens to clients that want to
 append to the end of the log. When designing the sequencer, we
-considered bolting on Zookeeper \cite{} as a service. Zookeeper would
+considered bolting on Zookeeper \autocite{} as a service. Zookeeper would
 satisfy our requirements by proiding a network and transaction stack but
 it would perform poorly because Zookeeper persists its data and the
 sequencer can be in-memory and volatile. A Zookeeper sequencer would
 adhere to the pre-conceived notions of storage, namely that data in
 storage systems should be safe from data loss, but would introduce
-unecessary scalability limits \cite{Neha HDFS namenode example}.
+unecessary scalability limits \autocite{Neha HDFS namenode example}.
 
 \subsection{Application Changes}\label{application-changes}
 
@@ -541,7 +596,7 @@ code-hardened systems. Decoupling policy mechanism is not a new
 technique but designing the storage system with programmability as a
 first-class citizen is credits policy/mechanism separation as the
 biggest reason for the success of the block allocation mechanisms in the
-Fast File System\textasciitilde{}\cite{mckusick:fast2015-FFS} yet there
+Fast File System\textasciitilde{}\autocite{mckusick:fast2015-FFS} yet there
 are no mechanisms for transparently exposing and modifying the
 underlying logic in modern file systems.
 
@@ -872,6 +927,6 @@ declarative methods for expressing new services.
 
 In conclusion, this paper should be accepted.
 
-\section{Bibliography}\label{bibliography}
+\printbibliography
 
 \end{document}
