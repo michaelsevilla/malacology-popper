@@ -227,51 +227,50 @@ Systems}\label{highly-tailored-and-application-specifc-storage-systems}
 
 \label{problem}
 
-A consequence of complicated data management frameworks and faster
-devices is that the storage system cannot meet the needs of the
-general-purpose storage system. Workarounds for helping the application
-meet its performance goals roughly fall into one of three categories:
-``bolt-on'' services, application changes, and storage changes.
+A consequence of complicated data management requirements and faster storage
+devices is that storage systems may fail to meet the needs of applications.
+Application workarounds for meeting performance goals roughly fall into one of
+three categories: ``bolt-on'' services, application changes, and changes to
+the storage system itself.
 
 \subsection{\texorpdfstring{``Bolt-on''
 services}{Bolt-on services}}\label{bolt-on-services}
 
-So called ``bolt-on'' services are 3rd party systems that are integrated
-into the system to provide functionality and improve performance for
-common use-cases (e.g.~a metadata service). In addition to sacrificing
-simplicity, ``bolt-on'' services often duplicate functionality and
-execute redundant code, unnecessarily increasing the likelihood of bugs
-or worse, introducing unpredictable performance problems. For example,
-we are developing a distributed shared-commit log on Ceph called ZLog.
-ZLog uses a ``sequencer'' to distribute tokens to clients that want to
-append to the end of the log. When designing the sequencer, we
-considered bolting on Zookeeper \autocite{} as a service. Zookeeper would
-satisfy our requirements by proiding a network and transaction stack but
-it would perform poorly because Zookeeper persists its data and the
-sequencer can be in-memory and volatile. A Zookeeper sequencer would
-adhere to the pre-conceived notions of storage, namely that data in
-storage systems should be safe from data loss, but would introduce
-unecessary scalability limits \autocite{Neha HDFS namenode example}.
+So called ``bolt-on'' services are third-party solutions integrated into a
+system to provide functionality and improve performance for common use-cases
+(e.g. a metadata service). The introduction of additional services may provide
+simplicity and performance enhancements, but ``bolt-on`` services often
+duplicate functionality, unnecessarily increasing the likelihood of bugs or
+introducing unpredictable performance problems. For example, we are developing
+a high-performance distributed shared-log on Ceph called ZLog, based on the
+CORFU protocol~\cite{corfu}. Serialization at high-performance is achieved using a
+``sequencer'' service that maintains a volatile, in-memory counter used to assign a log
+position to each client that appends to the log. One option for building
+a distributed log is to use PAXOS, or an out-of-the-box solution such as
+Zookeeper. However, these systems adhere to the pre-coneived notions of
+storage, namely that data is safe from data loss, which is exactly the feature
+that causes traditional approaches to run at significantly reduced speed.
 
 \subsection{Application Changes}\label{application-changes}
 
-The second approach to adapting to a storage system deficiency is to
+The second approach that applications may use to adapt to a storage system
+limitation is to
 extend the responsibility of the application. This means changing the
 application itself by adding more data management intelligence or
-domain-specific middleware (e.g., a new data layout). For instance, an
-application may change itself to exploit data locality or I/O
+using domain-specific middleware (e.g., a new data layout). For instance, an
+application may be changed to exploit data locality or I/O
 parallelism in a distributed storage system.
 
 For example, SciHadoop \autocites[
 ]{buck:hpc2011-scihadoop}{buck:sc2013-scidr} changes both the Hadoop
 application and the Hadoop framework itself to leverage the structure of
-scientific (3D array-based data, more specifically) to increase
+scientific data (3D array-based data, more specifically) to increase
 performance, locality, and the number of early results. This is not a
 bad proposition, but creates a coupling that is highly tied to the
 underlying physical properties of the system, making it difficult to
 adapt to future changes at the storage system level.
 
-\subsection{Storage Changes}\label{storage-changes}
+\subsection{Storage System Changes}\label{storage-changes}
 
 When these two approaches fail to meet the needs of the application,
 developers turn their attention to the storage system itself.
@@ -285,70 +284,51 @@ technique called active storage.
 Tuning large and complicated systems is difficult because of the number
 of parameters (e.g., Hadoop 2.7.1 has 210 tunables) and because the
 tunables are difficult to understand or quantify (e.g., Ceph tunables
-\autocite{sevilla:sc15-mantle}). To succesfully tune the system, the
+\autocite{sevilla:sc15-mantle}). To succesfully tune the system, a
 developer must have domain and system specific knowledge. Without this
 intimate knowledge, the tuning turns into somewhat of a black art, where
 the only way to figure out the best settings is trial and error.
 
-Auto-tuning techniques attempt to find a good solution among a huge
-space of available system configurations. However, in practice
-auto-tuning is limited to only the configuration tunables that the
-storage system exposes (e.g.~block size) and can be overwhelmed with too
-many parameters. Starfish \autocite{herodotou:cidr2011-starfish} made an
-attempt of this for Hadoop but this technique would need to severely
-limit the space of parameters in order to feasible, similar to the
-approach used in \autocite{behzad:sc2013-autotuning}. For instance,
-auto-tuning may be capable of identifying instances in which new data
-layouts would benefit a workload, but unless the system can provide such
-a transformation, the option is left off the table.
+Auto-tuning techniques attempt to find a good solution among a huge space of
+available system configurations. However, in practice auto-tuning is limited
+to only the configuration tunables that the storage system exposes and can be
+overwhelmed with too many parameters.  For instance, auto-tuning may be
+capable of identifying instances in which new data layouts would benefit a
+workload, but unless the system can provide such a transformation, the option
+is left off the table.  Starfish \autocite{herodotou:cidr2011-starfish} made
+an attempt of this for Hadoop but this technique would need to severely limit
+the space of parameters in order to feasible, similar to the approach used in
+\autocite{behzad:sc2013-autotuning}.
 
 \subsubsection{Software Changes}\label{software-changes}
 
-As a last resort, the application developer can introduce changes to the
-storage system itself. This endeavour is especially difficult because
-the developer must first familiarate themselves with the storage system,
-and even if they manage to make the necessary changes, they must get
-their changes upstream for that specific project or become mantainer for
-their in-house version. Being a maintainer means they re-base their
-versions against new versions of the storage system and address any bugs
-for their branched code. A successful example of this is the work that
-focused on HDFS scalability for metadata-intensive workloads
+As a last resort, the application developer can alter the storage system
+itself. In the best case a developer is using an open-source system in which
+case one must become familiar with often enormous code-bases before being able
+to make changes, but then face the task of approaching a community to
+integrate changes, or be forced to maintain an in-house version and risk
+maintaining features that become incompatible.  A successful example of this
+is the work that focused on HDFS scalability for metadata-intensive workloads
 \autocite{shvachko_hdfs_2010}. This has lead to modifications to its
 architecture or API \autocite{balmin:sigmod2012-clydesdale} to improve
 performance.
 
-\begin{table}[ht]
-\caption{
-    A variety of RADOS object storage classes exist to expose interfaces
-    to applications. \# is the number of methods that use these categories.
-    \label{table:objclasses}}
-  \begin{center}
-  \begin{tabular}{l|l|l}
-    Category & Specialization& \# \\ \hline
-    \multirow{2}{*}{Locking} & Shared & \multirow{2}{*}{6} \\
-                             & Exclusive & \\ \hdashline
-    \multirow{3}{*}{Logging} & Replica & 3 \\
-                             & State & 4 \\
-                             & Timestamped & 4 \\ \hdashline
-    \multirow{4}{*}{Metadata Managment} 
-                             & RADOS Block Device  & 37 \\
-                             & RADOS Gatway & 27 \\
-                             & User & 5 \\
-                             & Version & 5 \\ \hdashline
-    Garbage Collection       & Reference Counting & 4 \\
-\end{tabular}
-\end{center}
-\end{table}
+Alternatively, some systems have formal support for introducing additional
+functionality, often in the form of a plugin infrastructure. Ceph provides the
+ability to create domain-specific logical object interfaces by composing
+existing interfaces. These interfaces are written in C++ and are statically
+loaded into the system. An example usage may be to atomically combine a
+``write'' with an index update to create a content-addressable object
+interface.
 
-\subsubsection{Hybrid Approaches}\label{hybrid-approaches}
-
-As an alternative, some systems allow developers to extend the
-interfaces of the storage devices to perform arbitrary operations on
-data stored on disk. In Ceph, object interfaces are C/C++ plugins that
-add new functionality to the OSDs. As an example use-case, ZLog needs to
+\being{comment}
+As an example use-case, ZLog needs to
 store metadata information with each object so for each operation, it
 checks the epoch value and write capability (2 metadata reads) and
-writes the index (metadata write). Figure 1 shows the throughput
+writes the index (metadata write).
+\end{comment}
+
+Figure 1 shows the throughput
 (\emph{y} axis) over time (\emph{x} axis) of two OSD implementations for
 storing metadata: in the header of the byte stream (data) vs.~in the
 object extended attributes (XATTR). The speed for appending data without
@@ -368,23 +348,17 @@ object (XATTR); it is almost as fast as appending data without updating
 metadata (data raw).}
 \end{figure}
 
-Object interface classese are used in production Ceph environments;
-Figure \ref{fig:obj-int-dev-growth} shows a dramatic growth in the use
-of co-designed interfaces in the Ceph community since 2010. Figure
-\ref{fig:obj-int-dev-churn} examines this growth in interfaces further
-by showing the lines of code that are changed (\emph{y} axis) over time
-(\emph{x} axis). The prevalence of blue dots indicates that users
-frequently update their interfaces close to release cycles and that
-massive changes come in bunches. This interface churn reflects both the
-popularity of object interfaces and the complexity of the processing
-being done by the OSDs. What is most remarkable about Figure
-\ref{fig:obj-int-dev-churn} is that this trend contradicts the notion
-that API changes are a burden for users. The types of object interfaces,
-which are enumerated in Table \ref{table:objclasses}, show that this
-active storage development is present throughough the Ceph software
-stack.
+The object interface facility provided by Ceph is more than an
+proof-of-concept active storage implementation.  Figure
+\ref{fig:obj-int-dev-growth} shows a dramatic growth in the production use of
+domain-specific interfaces in the Ceph community since 2010.  What is most
+remarkable is that this trend contradicts the notion that API changes are a
+burden for users. Rather it appears that a gap in existing interfaces are
+being addressed through programmability. In fact, Table~\ref{table:objclasses}
+categorizes existing interfaces and we clearly see a trend towards reusable
+services.
 
-\begin{figure}[htbp]
+\begin{figure}[ht]
 \centering
 \includegraphics{figures/obj-int-dev-growth.png}
 \caption{Since 2010, the growth in the number of co-designed object
@@ -393,6 +367,31 @@ number of object classes (a group of interfaces), and the total number
 of methods (the actual API end-points).\label{fig:obj-int-dev-growth}}
 \end{figure}
 
+
+\begin{table}[ht]
+\centering
+  \begin{tabular}{l|l|l}
+    Category & Specialization& \# \\ \hline
+    \multirow{2}{*}{Locking} & Shared & \multirow{2}{*}{6} \\
+                             & Exclusive & \\ \hdashline
+    \multirow{3}{*}{Logging} & Replica & 3 \\
+                             & State & 4 \\
+                             & Timestamped & 4 \\ \hdashline
+    \multirow{4}{*}{Metadata Managment} 
+                             & RADOS Block Device  & 37 \\
+                             & RADOS Gatway & 27 \\
+                             & User & 5 \\
+                             & Version & 5 \\ \hdashline
+    Garbage Collection       & Reference Counting & 4 \\
+\end{tabular}
+\caption{A variety of RADOS object storage classes exist to expose interfaces
+    to applications. \# is the number of methods that use these categories.
+}
+\label{table:objclasses}
+\end{table}
+
+
+\begin{comment}
 \begin{figure}[htbp]
 \centering
 \includegraphics{figures/obj-int-dev-churn.png}
@@ -401,6 +400,7 @@ development will need to support a high frequency of interface churn.
 Each dot represents a Ceph commit with a corresponding number of lines
 of code changed. \label{fig:obj-int-dev-churn}}
 \end{figure}
+\end{comment}
 
 The popularity of the active storage component of Ceph hint at three
 trends in the Ceph community: (1) increasingly, the default
@@ -436,7 +436,7 @@ subsystems to build new services.
 \subsection{Durability}\label{durability}
 
 Ceph provides storage by striping and replicating data across RADOS
-\autocite{weil_rados_2007}, the reliable distributed object store. RADOS
+~\cite{weil_rados_2007}, the reliable distributed object store. RADOS
 uses many techniques to ensure that data is not corrupted or lost, such
 as erasure coding, replication, and data scrubbing. Furthermore, many of
 these techniques try to be autonomous so that work is distributed across
