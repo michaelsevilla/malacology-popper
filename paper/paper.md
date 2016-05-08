@@ -20,7 +20,6 @@ abstract:
 
 documentclass: article
 classoption: twocolumn, 10pt
-ieeetran: true
 monofont-size: scriptsize
 numbersections: true
 substitute-hyperref: true
