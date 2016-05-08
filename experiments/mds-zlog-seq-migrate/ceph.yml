@@ -42,6 +42,7 @@
     until:    result.stdout.find("HEALTH_OK") != -1
     retries:  120
   - debug:    var=result.stdout_lines
+<<<<<<< HEAD:experiments/mds-zlog-seq-migrate/ceph.yml
   - pause: seconds=30
 
 - hosts: graphite
@@ -62,4 +63,10 @@
 - hosts: clients1
   become: True
   roles:
+=======
+
+- hosts: clients
+  become: True
+  roles:
+>>>>>>> 683717b... client: add ceph-fuse mount/shared stuff:experiments/ceph-deploy/ceph-ext4.yml
     - ceph-client
