@@ -1,0 +1,48 @@
+---
+# Defines deployment design and assigns role to server groups
+
+- name: cleanup
+  include: ./ceph-cleanup.yml
+
+- name: setup gdisk
+  hosts: all
+  become: True
+  tasks:
+  - name: install the latest version of gdisk
+    package: name=gdisk state=present
+
+- name: setup the journal device
+  hosts: osds
+  become: True
+  tasks:
+  - shell: sgdisk -g -n 1:0:+35G /dev/sde
+  - shell: sgdisk -g -n 2:+35G /dev/sde
+  - shell: sgdisk -g -N 3 /dev/sde
+
+- hosts: mons
+  become: True
+  roles:
+  - ceph-mon
+  serial: 1 # MUST be '1' WHEN DEPLOYING MONITORS ON DOCKER CONTAINERS
+
+- hosts: osds
+  become: True
+  roles:
+  - ceph-osd
+
+- hosts: mdss
+  become: True
+  roles:
+  - ceph-mds
+
+- hosts: rgws
+  become: True
+  roles:
+  - ceph-rgw
+
+- hosts: restapis
+  become: True
+  roles:
+  - ceph-restapi
+
+

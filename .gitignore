@@ -4,3 +4,4 @@ paper/build.log
 *.sw?
 .ropeproject/
 .ipynb_checkpoints/
+fetch
