@@ -26,8 +26,8 @@
 \usepackage{microtype}
 \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
 }{}
-\usepackage{biblatex}
-\bibliography{refs}
+%\usepackage{biblatex}
+%\bibliography{paper}
 \usepackage{graphicx}
 \makeatletter
 \def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
@@ -129,13 +129,12 @@ a storage system) and \emph{software-defined storage} (the control of
 thin-provisioning of storage).
 
 To illustrate the benefits and challenges of this approach we examine
-the programmability of Ceph \autocite{weil_ceph_2006}, the increasingly
+the programmability of Ceph~\cite{weil_ceph_2006}, the increasingly
 popular, production-level open-source distributed storage system.
 Something of a storage swiss army knife, Ceph supports file, block, and
 object interfaces simultaneously in a single cluster. Ceph's Reliable Autonomous Distributed Object Storage (RADOS) system is a cluster of storage
 devices (OSDs) that provide Ceph with data durability and integrity
-using replication, erasure-coding, and scrubbing
-\autocite{weil_rados_2007}. 
+using replication, erasure-coding, and scrubbing~\cite{weil_rados_2007}. 
 % By introducing
 % programmability concepts into Ceph, we can build new services by
 % carefully exposing internal storage services to applications.
@@ -204,9 +203,9 @@ are:
   \def\labelenumi{\arabic{enumi}.}
   \itemsep1pt\parskip0pt\parsep0pt
   \item
-    A high-performance distributed shared log service called Zlog which is based on CORFU~\autocite{balakrishnan_corfu_2012}
+    A high-performance distributed shared log service called Zlog which is based on CORFU~\cite{balakrishnan_corfu_2012}
   \item
-    A re-implementation of the programmable Mantle metadata load balancing service using Malacology~\autocite{sevilla:sc15-mantle}
+    A re-implementation of the programmable Mantle metadata load balancing service using Malacology~\cite{sevilla:sc15-mantle}
   \item 
     An application of the Mantle metadata load balancing service to manage 
   \end{enumerate}
@@ -240,7 +239,7 @@ services}{Bolt-on services}}\label{bolt-on-services}
 So called ``bolt-on'' services are third-party solutions integrated into a
 system to provide functionality and improve performance for common use-cases
 (e.g. a metadata service). The introduction of additional services may provide
-simplicity and performance enhancements, but ``bolt-on`` services often
+simplicity and performance enhancements, but ``bolt-on'' services often
 duplicate functionality, unnecessarily increasing the likelihood of bugs or
 introducing unpredictable performance problems. For example, we are developing
 a high-performance distributed shared-log on Ceph called ZLog, based on the
@@ -262,8 +261,7 @@ using domain-specific middleware (e.g., a new data layout). For instance, an
 application may be changed to exploit data locality or I/O
 parallelism in a distributed storage system.
 
-For example, SciHadoop \autocites[
-]{buck:hpc2011-scihadoop}{buck:sc2013-scidr} changes both the Hadoop
+For example, SciHadoop~\cite{buck:hpc2011-scihadoop,buck:sc2013-scidr} changes both the Hadoop
 application and the Hadoop framework itself to leverage the structure of
 scientific data (3D array-based data, more specifically) to increase
 performance, locality, and the number of early results. This is not a
@@ -284,8 +282,7 @@ technique called active storage.
 
 Tuning large and complicated systems is difficult because of the number
 of parameters (e.g., Hadoop 2.7.1 has 210 tunables) and because the
-tunables are difficult to understand or quantify (e.g., Ceph tunables
-\autocite{sevilla:sc15-mantle}). To succesfully tune the system, a
+tunables are difficult to understand or quantify (e.g., Ceph tunables~\cite{sevilla:sc15-mantle}). To succesfully tune the system, a
 developer must have domain and system specific knowledge. Without this
 intimate knowledge, the tuning turns into somewhat of a black art, where
 the only way to figure out the best settings is trial and error.
@@ -296,10 +293,9 @@ to only the configuration tunables that the storage system exposes and can be
 overwhelmed with too many parameters.  For instance, auto-tuning may be
 capable of identifying instances in which new data layouts would benefit a
 workload, but unless the system can provide such a transformation, the option
-is left off the table.  Starfish \autocite{herodotou:cidr2011-starfish} made
+is left off the table.  Starfish~\cite{herodotou:cidr2011-starfish} made
 an attempt of this for Hadoop but this technique would need to severely limit
-the space of parameters in order to feasible, similar to the approach used in
-\autocite{behzad:sc2013-autotuning}.
+the space of parameters in order to feasible, similar to the approach used in~\cite{behzad:sc2013-autotuning}.
 
 \subsubsection{Software Changes}\label{software-changes}
 
@@ -309,9 +305,8 @@ case one must become familiar with often enormous code-bases before being able
 to make changes, but then face the task of approaching a community to
 integrate changes, or be forced to maintain an in-house version and risk
 maintaining features that become incompatible.  A successful example of this
-is the work that focused on HDFS scalability for metadata-intensive workloads
-\autocite{shvachko_hdfs_2010}. This has lead to modifications to its
-architecture or API \autocite{balmin:sigmod2012-clydesdale} to improve
+is the work that focused on HDFS scalability for metadata-intensive workloads~\cite{shvachko_hdfs_2010}. This has lead to modifications to its
+architecture or API~\cite{balmin:sigmod2012-clydesdale} to improve
 performance.
 
 Alternatively, some systems have formal support for introducing additional
@@ -322,12 +317,12 @@ loaded into the system. An example usage may be to atomically combine a
 ``write'' with an index update to create a content-addressable object
 interface.
 
-\being{comment}
+\if{false}
 As an example use-case, ZLog needs to
 store metadata information with each object so for each operation, it
 checks the epoch value and write capability (2 metadata reads) and
 writes the index (metadata write).
-\end{comment}
+\fi
 
 Figure 1 shows the throughput
 (\emph{y} axis) over time (\emph{x} axis) of two OSD implementations for
@@ -392,7 +387,7 @@ of methods (the actual API end-points).\label{fig:obj-int-dev-growth}}
 \end{table}
 
 
-\begin{comment}
+\if{false}
 \begin{figure}[htbp]
 \centering
 \includegraphics{figures/obj-int-dev-churn.png}
@@ -401,7 +396,7 @@ development will need to support a high frequency of interface churn.
 Each dot represents a Ceph commit with a corresponding number of lines
 of code changed. \label{fig:obj-int-dev-churn}}
 \end{figure}
-\end{comment}
+\fi
 
 The popularity of the active storage component of Ceph hint at three
 trends in the Ceph community: (1) increasingly, the default
@@ -436,8 +431,7 @@ subsystems to build new services.
 
 \subsection{Durability}\label{durability}
 
-Ceph provides storage by striping and replicating data across RADOS
-~\cite{weil_rados_2007}, the reliable distributed object store. RADOS
+Ceph provides storage by striping and replicating data across RADOS~\cite{weil_rados_2007}, the reliable distributed object store. RADOS
 uses many techniques to ensure that data is not corrupted or lost, such
 as erasure coding, replication, and data scrubbing. Furthermore, many of
 these techniques try to be autonomous so that work is distributed across
@@ -544,8 +538,7 @@ submission of this paper are not necessarily fully optimized.
 Classes}\label{additional-interface-hooks-and-classes}
 
 Malacology adds new hooks to Ceph and a new interface class for both the
-MDS and OSD that uses Lua
-\autocite{ierusalimschy:lua15}\autocite{ierusalimschy:spe96}. Our
+MDS and OSD that uses Lua~\cite{ierusalimschy:lua15,ierusalimschy:spe96}. Our
 framework has added a mechanism for defining and running object and
 metadata balancer classes using Lua. Our Lua bindings expose functions
 and symbols both ways; the host program can call functions defined in
@@ -554,8 +547,7 @@ bindings are merged upstream. We choose Lua for 4 reasons: performance,
 portabability, size, and and security.
 
 Lua is a fast scripting language. It was designed to be an embedded
-language and the LuaJIT virtual machines boasts near-native performance
-\autocite{pall:luajit15}\autocite{grawinkel_pdsw12}. Lua is frequently
+language and the LuaJIT virtual machines boasts near-native performance~\cite{pall:luajit15,grawinkel_pdsw12}. Lua is frequently
 used in game engines to set policies but we use it here because most of
 the user-defined object classes in Ceph are policies as well (see
 \S\ref{table:objclasses}). Separating policy from mechanism is a driving
@@ -597,7 +589,7 @@ code-hardened systems. Decoupling policy mechanism is not a new
 technique but designing the storage system with programmability as a
 first-class citizen is credits policy/mechanism separation as the
 biggest reason for the success of the block allocation mechanisms in the
-Fast File System\textasciitilde{}\autocite{mckusick:fast2015-FFS} yet there
+Fast File System~\cite{mckusick:fast2015-FFS} yet there
 are no mechanisms for transparently exposing and modifying the
 underlying logic in modern file systems.
 
@@ -613,11 +605,9 @@ Lua is a performs well as an embeddable scripting language. Although it
 is an interpreted language, the bindings are designed to make the
 exchange of variables and functions amongst languages straightforward.
 The LuaJIT virtual machine boasts near-native performance, making it a
-logical choice for scriptability frameworks in systems research
-\autocite{neto:dls14-luaos}. In storage systems, it has been effectively
-used both on \autocites[
-]{grawinkel:pdsw2012-lua}{watkins2013:bdmc13-in-vivo} and off
-\autocite{sevilla:sc15-mantle} the critical path, where performance is
+logical choice for scriptability frameworks in systems research~\cite{neto:dls14-luaos}. In storage systems, it has been effectively
+used both on \cite{grawinkel:pdsw2012-lua,watkins2013:bdmc13-in-vivo} and off
+\cite{sevilla:sc15-mantle} the critical path, where performance is
 important. Lua is frequently used in game engines to set policies but we
 use it here because most of the user-defined classes in Ceph are
 policies as well! We do not want to provide specific implementations,
@@ -637,8 +627,7 @@ other places, like RADOS, so we can enjoy all the other properties
 provided by that particular back-end.
 
 The other two advantages, that Lua leaves a small memory footprint and
-that is is secure, are discussed at length in \autocites[
-]{ierusalimschy_programming_2006}{neto:dls14-luaos}. In short, Lua
+that is is secure, are discussed at length in~\cite{ierusalimschy_programming_2006,neto:dls14-luaos}. In short, Lua
 provides relatively robust sandbox capabilities for protecting the
 system against some malicious cases, but does not protect the system
 from poor policies. Since Malacology does not use these features (yet),
@@ -785,27 +774,17 @@ client & client & mds \\
 Balancer}\label{mantle-a-programmable-metadata-load-balancer}
 
 Many distributed file systems decouple metadata and data I/O so that
-these services can scale independently \autocites[
-]{alam:pdsw2011-metadata-scaling}[ ]{ghemawat:sosp2003-gfs}[
-]{hildebrand:msst2005-pnfs}[ ]{weil_ceph_2006}[
-]{welch:fast2008-panasas}{shvachko:login2012-hdfs-scalability}. Despite
+these services can scale independently~\cite{alam:pdsw2011-metadata-scaling,ghemawat:sosp2003-gfs,hildebrand:msst2005-pnfs,weil_ceph_2006,welch:fast2008-panasas,shvachko:login2012-hdfs-scalability}. Despite
 this optimization, scaling the metadata services is still difficult
 because metadata accesses impose small and frequent requests on the
-underlying storage syste \autocite{roselli:atec2000-FS-workloads}. Many
+underlying storage syste~\cite{roselli:atec2000-FS-workloads}. Many
 techniques for designing the metadata services have been proposed to
-accommodate this workload: Lustre
-\autocite{konstantinos:pdsw2014-lustre-metadata}, GFS
-\autocite{ghemawat:sosp2003-gfs}, and HDFS
-\autocite{shvachko:login2012-hdfs-scalability} keep all metadata on one
-server; GIGA+ \autocite{patil:fast2011-giga}, IndexFS
-\autocite{ren:sc2014-indexfs}, Lazy Hybrid
-\autocite{brandt:msst2003-lh}, GPFS \autocite{schmuck:fast2002-gpfs},
-and pNFS \autocite{hildebrand:supercomputing2006-pNFS} hash the file
-system namespace across a dedicated cluster and cache metadata; Panasas
-\autocite{welch:fast2008-panasas} and CephFS
-\autocite{weil:sc2004-dyn-metadata} partition the file system namespace
+accommodate this workload: Lustre~\cite{konstantinos:pdsw2014-lustre-metadata}, GFS~\cite{ghemawat:sosp2003-gfs}, and HDFS~\cite{shvachko:login2012-hdfs-scalability} keep all metadata on one
+server; GIGA+~\cite{patil:fast2011-giga}, IndexFS~\cite{ren:sc2014-indexfs}, Lazy Hybrid~\cite{brandt:msst2003-lh}, GPFS~\cite{schmuck:fast2002-gpfs},
+and pNFS~\cite{hildebrand:supercomputing2006-pNFS} hash the file
+system namespace across a dedicated cluster and cache metadata; Panasas~\cite{welch:fast2008-panasas} and CephFS~\cite{weil:sc2004-dyn-metadata} partition the file system namespace
 into \# d assign them to servers. These systems have novel mechanisms
-for Mantle \autocite{sevilla:sc15-mantle} is a programmable metadata
+for Mantle~\cite{sevilla:sc15-mantle} is a programmable metadata
 balancer that separates the metadata balancing policies from their
 mechanisms. Admistrators inject code to change how the metadata cluster
 distributes metadata. In the paper, we showed how to implement a single
@@ -845,7 +824,7 @@ Log}\label{zlog-a-distributed-shared-commit-log}
 \subsubsection{Tiering}\label{tiering}
 
 Malacology uses the same Active and Typed Storage module presented in
-DataMods \autocite{watkins_datamods_2012}; Asynchronous Service and File
+DataMods~\cite{watkins_datamods_2012}; Asynchronous Service and File
 Manifolds can be implemented with small changes to the Malacology
 framework, namely asynchronous object calls and Lua stubs in the inode,
 respectively.
@@ -928,6 +907,8 @@ declarative methods for expressing new services.
 
 In conclusion, this paper should be accepted.
 
-\printbibliography
+\bibliography{paper}
+\bibliographystyle{plain}
+%\printbibliography
 
 \end{document}
