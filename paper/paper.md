@@ -97,6 +97,20 @@ application. -->
 can implement 2 new services on Ceph: Zlog, Mantle. Malacology re-uses MON,
 OSD, and MDS subsystems.  \label{fig:overview} ](figures/overview.png)
 
+For example, Ceph [@weil_ceph_2006] contains a cluster of monitoring nodes
+(MONs) that use PAXOS to maintain a consistent view of system-wide metadata
+such as data distribution parameters and cluster membership. The RADOS object
+storage system is a cluster of storage devices (OSDs) that provide Ceph with
+data durability and integrity using replication, erasure-coding, and scrubbing
+[@weil_rados_2007]. The data distrubiton metadata maintained by the cluster
+monitors is used by RADOS servers and clients to provide consistent reads and
+writes, and both RADOS and the monitoring services are used by a cluster of
+file system metadata servers that provide POSIX semantics using sophisticated
+indexing and distributed locking services. We contend that re-using and re-purposing these code-hardened subsystems is
+paramount to successfully adapting storage systems to new APIs and new storage
+devices without losing the benefits from years of code-hardening work. 
+
+<!--
 For example, Ceph [@weil_ceph_2006] addresses _durability_ with its RADOS
 object store (e.g., replication, erasure coding, and data scrubbing),
 _consistent versioning_ by having daemons exchange "maps" of the cluster
@@ -104,6 +118,7 @@ configuration, and _consensus_ by having monitor daemons (MONs) use PAXOS. We
 contend that re-using and re-purposing these code-hardened subsystems is
 paramount to successfully adapting storage systems to new APIs and new storage
 devices without losing the benefits from years of code-hardening work. 
+-->
 
 <!-- (1) improving the longevity and community uptake of "research
 quality" code and (2) avoiding duplication of the same protocols and algorithms
@@ -128,7 +143,7 @@ exposed to other parts of the systems.-->
 
 To illustrate the benefits and challenges of this approach we have designed and evaluated Malacology, a programmable storage system capable of incorporating
 new functionality and re-purposing existing subsystems of Ceph. We build the framework
-on Ceph by leveraging the subsystems in the monitor daemons (MONs), object
+on Ceph by leveraging powerful subsystem abstractions used by the monitor daemons (MONs), object
 storage daemons (OSDs), and metadata server daemons (MDSs). As shown in Figure
 \ref{fig:overview}, this framework is expressive enough to provide the
 functionality necessary for implementing new services. Our contributions are:
