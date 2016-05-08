@@ -77,9 +77,13 @@ To illustrate the benefits and challenges of this approach we examine
 the programmability of Ceph \autocite{weil_ceph_2006}, the increasingly
 popular, production-level open-source distributed storage system.
 Something of a storage swiss army knife, Ceph supports file, block, and
-object interfaces simultaneously in a single cluster. By introducing
-programmability concepts into Ceph, we can build new services by
-carefully exposing internal storage services to applications.
+object interfaces simultaneously in a single cluster. Ceph's Reliable Autonomous Distributed Object Storage (RADOS) system is a cluster of storage
+devices (OSDs) that provide Ceph with data durability and integrity
+using replication, erasure-coding, and scrubbing
+\autocite{weil_rados_2007}. 
+% By introducing
+% programmability concepts into Ceph, we can build new services by
+% carefully exposing internal storage services to applications.
 
 \begin{figure}[htbp]
 \centering
@@ -96,13 +100,10 @@ consistent versioning, consensus, and metadata subsystems.
 \label{fig:overview}}
 \end{figure}
 
-For example, Ceph \autocite{weil_ceph_2006} contains a cluster of
+For example, a Ceph cluster contains a small number of
 monitoring nodes (MONs) that use PAXOS to maintain a consistent view of
 system-wide metadata such as data distribution parameters and cluster
-membership. The RADOS object storage system is a cluster of storage
-devices (OSDs) that provide Ceph with data durability and integrity
-using replication, erasure-coding, and scrubbing
-\autocite{weil_rados_2007}. The data distrubiton metadata maintained by
+membership. The data distribution metadata maintained by
 the cluster monitors is used by RADOS servers and clients to provide
 consistent reads and writes, and both RADOS and the monitoring services
 are used by a cluster of file system metadata servers that provide POSIX
@@ -118,41 +119,41 @@ constructing new functionality by re-purposing existing subsystem
 abstractions contained in Ceph. We build the framework on Ceph by
 leveraging a broad spectrum of existing services, including distributed
 locking and caching services provides by MDSs, durability and logical
-storage devices provides by RADOS, and propogation of consistent cluster
-state provided by the monitoring service. As shown in Figure
-\ref{fig:overview}, this framework is expressive enough to provide the
+storage devices provided by RADOS, and propogation of consistent cluster
+state provided by the monitoring service (see \ref{fig:overview}). As we will show in this paper, this framework is expressive enough to provide the
 functionality necessary for implementing new services. Our contributions
 are:
 
+\paragraph{}
+
 \begin{itemize}
 \itemsep1pt\parskip0pt\parsep0pt
-\item
-  a programmable storage system implementation that re-uses and extends
-  existing abstractions. It includes:
+\item A programmable storage system implementation that re-uses and extends existing abstractions. It includes:
 
   \begin{enumerate}
   \def\labelenumi{\arabic{enumi}.}
   \itemsep1pt\parskip0pt\parsep0pt
   \item
-    inode abstractions for sequencer services
+    Extending file system metadata by a new type of inode that together with Ceph's capability subsystem implements high-performance, non-durable access serialization
   \item
-    consensus abstractions for policy versioning
+    Re-using Ceph's PAXOS-based consensus infrastructure for versioning of metadata service load-balancing policies
   \item
-    storage objects for persisting policies
+    Re-using storage objects for persisting policies
   \item
-    interface classes for new logical storage/metadata devices
+    Extending object interface classes for new logical storage/metadata devices
   \end{enumerate}
 \item
-  example systems that use this framework
+  Two example implementations and evaluations for feasibility of services that use this framework
 
   \begin{enumerate}
   \def\labelenumi{\arabic{enumi}.}
   \itemsep1pt\parskip0pt\parsep0pt
   \item
-    shared log service based on CORFU \autocite{balakrishnan_corfu_2012}
+    A high-performance distributed shared log service called Zlog which is based on CORFU~\autocite{balakrishnan_corfu_2012}
   \item
-    metadata load balancer based on Mantle
-    \autocite{sevilla:sc15-mantle}
+    A re-implementation of the programmable Mantle metadata load balancing service using Malacology~\autocite{sevilla:sc15-mantle}
+  \item 
+    An application of the Mantle metadata load balancing service to manage 
   \end{enumerate}
 \end{itemize}
 
