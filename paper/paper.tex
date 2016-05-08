@@ -188,7 +188,7 @@ are:
   \def\labelenumi{\arabic{enumi}.}
   \itemsep1pt\parskip0pt\parsep0pt
   \item
-    Extending file system metadata by a new type of inode that together with Ceph's capability subsystem implements high-performance, non-durable access serialization
+    Extending file system metadata by a new type of ``sequencer'' inode that together with Ceph's capability subsystem implements high-performance, non-durable access serialization
   \item
     Re-using Ceph's PAXOS-based consensus infrastructure for versioning of metadata service load-balancing policies
   \item
@@ -207,7 +207,7 @@ are:
   \item
     A re-implementation of the programmable Mantle metadata load balancing service using Malacology~\cite{sevilla:sc15-mantle}
   \item 
-    An application of the Mantle metadata load balancing service to manage 
+    An application of the Mantle metadata load balancing service to manage the placement of new sequencer inodes.
   \end{enumerate}
 \end{itemize}
 
