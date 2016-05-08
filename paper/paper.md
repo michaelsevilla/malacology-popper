@@ -20,8 +20,6 @@ abstract:
 
 documentclass: article
 classoption: twocolumn, 10pt
-ieeetran: true
-monofont-size: scriptsize
 numbersections: true
 substitute-hyperref: true
 csl: "ieee.csl"
@@ -37,7 +35,6 @@ keywords:
  - systems-evaluation
 linkcolor: black
 ---
- 
 
 # Introduction
 
@@ -132,13 +129,28 @@ abstractions. Malacology enables the programmability of these abstractions and
 services. To illustrate Malacology we implement two services on Ceph, Zlog and
 Mantle, by programming Ceph's durability, consistent versioning, consensus, and metadata subsystems. \label{fig:overview} ](figures/overview.png)
 
-For example, Ceph addresses _durability_ with its RADOS
+For example, Ceph [@weil_ceph_2006] contains a cluster of monitoring nodes
+(MONs) that use PAXOS to maintain a consistent view of system-wide metadata
+such as data distribution parameters and cluster membership. The RADOS object
+storage system is a cluster of storage devices (OSDs) that provide Ceph with
+data durability and integrity using replication, erasure-coding, and scrubbing
+[@weil_rados_2007]. The data distrubiton metadata maintained by the cluster
+monitors is used by RADOS servers and clients to provide consistent reads and
+writes, and both RADOS and the monitoring services are used by a cluster of
+file system metadata servers that provide POSIX semantics using sophisticated
+indexing and distributed locking services. We contend that re-using and re-purposing these code-hardened subsystems is
+paramount to successfully adapting storage systems to new APIs and new storage
+devices without losing the benefits from years of code-hardening work. 
+
+<!--
+For example, Ceph [@weil_ceph_2006] addresses _durability_ with its RADOS
 object store (e.g., replication, erasure coding, and data scrubbing),
 _consistent versioning_ by having daemons exchange "maps" of the cluster
 configuration, _consensus_ by having monitor daemons (MONs) use PAXOS, and _scalable metadata service_ by providing a metadata service. We
 contend that re-using and re-purposing these code-hardened subsystems is
 paramount to successfully adapting storage systems to new APIs and new storage
 devices without losing the benefits from years of code-hardening work. 
+-->
 
 <!-- (1) improving the longevity and community uptake of "research
 quality" code and (2) avoiding duplication of the same protocols and algorithms
@@ -163,7 +175,7 @@ exposed to other parts of the systems.-->
 
 To illustrate the benefits and challenges of this approach we have designed and evaluated Malacology, a programmable storage system capable of incorporating
 new functionality and re-purposing existing subsystems of Ceph. We build the framework
-on Ceph by leveraging the subsystems in the monitor daemons (MONs), object
+on Ceph by leveraging powerful subsystem abstractions used by the monitor daemons (MONs), object
 storage daemons (OSDs), and metadata server daemons (MDSs). As shown in Figure
 \ref{fig:overview}, this framework is expressive enough to provide the
 functionality necessary for implementing new services. Our contributions are:
@@ -658,7 +670,7 @@ lua_toboolean(lua, 1);
 
 ### Generalizing the Class Handler
 
-<--!
+<!--
 - Re-Used Components: Class Handler, Lua Class
 - Durability with RADOS
 - Send functionality with request
@@ -876,13 +888,11 @@ We are intend to pursue this work towards the goal of constructing a set of
 customization points that allow a wide variety of storage system services to be
 configured on-the-fly in existing systems. This work is one point along that
 path in which we have looked an a target special-purpose storage system.
-Ultimately we want to utilize declarative methods for expressing new services.
+Ultimately we want to utilize declarative methods for expressing new 
+services.
 
 In conclusion, this paper should be accepted.
 
-```sql
-    not sure why ./build fails without this
-```
 # Bibliography
 
 <!-- hanged biblio -->
