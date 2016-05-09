@@ -5,3 +5,9 @@ paper/build.log
 .ropeproject/
 .ipynb_checkpoints/
 fetch
+*.aux
+*.bbl
+*.blg
+*.log
+*.pdf
+*.synctex.gz
