@@ -429,7 +429,8 @@ touch on some of the subsystems it uses to provide a general-purpose
 storage system. In the next section, we describe how we leverage these
 subsystems to build new services.
 
-\subsection{Durability}\label{durability}
+\subsection{Durability}
+\label{sec:durability}
 
 Ceph provides storage by striping and replicating data across RADOS~\cite{weil_rados_2007}, the reliable distributed object store. RADOS
 uses many techniques to ensure that data is not corrupted or lost, such
@@ -450,63 +451,32 @@ and talks to other PAXOS instances on other MONs so that they can all
 agree on the correct version of the service; essentially they reach an
 agreement about what the state of the cluster is.
 
-\subsection{Active Storage}\label{active-storage}
+\subsection{Logical Storage Devices}
+\label{active-storage}
 
-Active storage attempts to push computation closer to the data by
-exposing interfaces to execute code remotely. For example, the storage
-server could process data before sending data over the network or
-sorting it. The active storage component in Ceph is called ``object
-interface classes'' (or \texttt{cls} for short). The Ceph object
-interface classes can be loaded at runtime and customized with
-user-defined functionality. The basic idea is shown in
-Figure\textasciitilde{}\ref{fig:object-interfaces}, where the
-\texttt{libcls\_md5.so} shared library performs the MD5 hash on an
-object at the oSD instead of transferring data over the network. This
-ability to carry out arbitrary operations on objects stored on OSDs
-helps applications improve performance by optimizing things like network
-round trips, data movement, and remote resources which may be idle.
+Ceph provides a rich plugin framework for defining new interfaces to objects
+stored within RADOS, effectively allowing developers to use co-design
+techniques to define logical storage devices tailored to their application
+domain.
 
-Object storage interfaces are compiled into shared libraries and loaded
-into a running OSD daemon using \texttt{dlopen()}. Because the shared
-library has to link against symbols found in the running executable, the
-interfaces are stored on the local file systems of each OSD so they can
-be versioned and distributed alongside the same Ceph binaries. This
-policy is for safety, since the OSDs could be on different distros that
-provide different versioning capabilities. Also, this approach allows
-bug fixes to co-evolve with the rest of the Ceph installation.
+An object interface plugin is structured in a similar way to that of an RPC in
+which a developer creates a named function within the cluster that clients may
+invoke upon an object. In Ceph these functions are defined by a composition of
+existing native interfaces that include reading and writing bytestream data
+and controlling snapshots and cloning, all of which may be transactionally
+composed with full access to a sorted key-value service allowing applications
+to fine tune storage interfaces, such as using a read-modify-write guard to
+protect shared data.
 
-Although customizable OSD interfaces are powerful, the current
-implementation has drawbacks. OSD interfaces are written in C/C++ and
-compiled into a shared library, so the developer must account for
-different target architectures. Second, C/C++ provides more
-functionality than is necessary since the snippets of interface code
-mainly set policies and perform simple operations. Finally, developing
-these interfaces in C/C++ has high overhead. The developer must learn
-how the OSD dynamically loads the shared libraries (\emph{e.g.}, OSDs
-rely on a strict naming convention to find shared libraries), how to get
-their interfaces compiled using the Ceph \texttt{make} system, and how
-to debug issues that are not related to their specific interface
-(\emph{e.g.}, the OSD cannot find the shared library) - this learning
-curve is unacceptable for non-Ceph developers, especially since most
-interfaces are one-off solutions specific to their applications.
-
-Ceph has a whole infrastructure for getting dynamic code into the OSD.
-The \texttt{ClassHandler} class safely opens object interfaces, executes
-commands defined by the shared library, and fails gracefully with
-helpful errors if anything goes wrong. Instead of injecting strings
-directly into Ceph (like we did with the original Mantle
-implementation), the \texttt{ClassHandler} class safely opens shared
-code, even code with dependencies that are not in Ceph itself (e.g.,
-Lua). With the \texttt{ClassHandler}, we get the safety and robustness
-of loading dynamic code, the ease of transferring state between object
-interfaces and the oSD internals, integration with testing and
-correctness suites, and \texttt{struct}s for interface data and
-handlers.
-
-While we consider active storage to be an excellent example of
-programmability, what separates our proposal from previous work is the
-observation that so much \emph{more} of the storage system can be reused
-to construct advanced, domain-specific interfaces.
+Although this feature is powerful, the current implementation has drawbacks.
+Supporting only C/C++ for object interface developers, Ceph requires
+distribution of compiled binaries for the correct architecture, adding a
+large barrier of entry for developers and system administrators. Second,
+having no way to dynamically unload modules, any changes require a full
+restart of an OSD which may have serious performance impacts due to a loss
+of cached data. And finally, the security limitations of the framework
+limit the use of object classes to all but those with administrative level
+access and technique expertise.
 
 \begin{figure}[htbp]
 \centering
@@ -821,12 +791,6 @@ Log}\label{zlog-a-distributed-shared-commit-log}
 
 \subsubsection{Tiering}\label{tiering}
 
-Malacology uses the same Active and Typed Storage module presented in
-DataMods~\cite{watkins_datamods_2012}; Asynchronous Service and File
-Manifolds can be implemented with small changes to the Malacology
-framework, namely asynchronous object calls and Lua stubs in the inode,
-respectively.
-
 \subsection{MDS as a sequencer}\label{mds-as-a-sequencer}
 
 \subsubsection{Sequencer recovery with
@@ -886,6 +850,15 @@ Failures}\label{cut-this-experiment-client-v.-mds-caps-failures}
 
 \subsubsection{Experiment: Mantle Sequencer
 Balancer}\label{experiment-mantle-sequencer-balancer}
+
+\section{Related Work}
+
+Malacology uses the same Active and Typed Storage module presented in
+DataMods~\cite{watkins_datamods_2012}; Asynchronous Service and File
+Manifolds can be implemented with small changes to the Malacology
+framework, namely asynchronous object calls and Lua stubs in the inode,
+respectively.
+
 
 \section{Conclusion and Future Work}\label{conclusion-and-future-work}
 
