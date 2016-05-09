@@ -1,6 +1,7 @@
 ---
 fsid: "e9570dd8-03ad-45f0-8a74-ec9b3bb7095f"
 docker: true
+install_docker: false
 
 #############
 # ceph.conf #
@@ -10,6 +11,8 @@ ceph_conf_overrides:
      osd pool default size: 1
      osd pool default pg num: 4096
      osd pool default pgp num: 4096
+     mds cache size: 0
+     client cache size: 0
    mon:
      debug mon: 1
    osd:

@@ -10,9 +10,32 @@
 
 - hosts: all
   become: True
+  roles:
+  - role: cleanup
+    images:
+    - piha.soe.ucsc.edu:5000/ivotron/ceph-mantle:jewel
+    - michaelsevilla/graphite
+    - michaelsevilla/collectl
+    - michaelsevilla/mdtest
+    delete:
+    - /etc/ceph/
+    - /var/lib/ceph
+    - /tmp/graphite
   tasks:
-  - name: collect ceph containers
+    - command: docker rm cephfs -f
+      ignore_errors: True
+
+- hosts: all
+  become: True
+  tasks:
+  - name: decimate all containers
     shell: docker ps -aq --filter="ancestor=piha.soe.ucsc.edu:5000/ivotron/ceph-mantle:jewel"
+    register: containers
+  - name: delete ceph containers
+    shell: docker rm -f {{ item }}
+    with_items: containers.stdout_lines
+  - name: decimate all containers
+    shell: docker ps -aq --filter="ancestor=piha.soe.ucsc.edu:5000/michaelsevilla/mdtest"
     register: containers
   - name: delete ceph containers
     shell: docker rm -f {{ item }}
@@ -36,7 +59,3 @@
     command: sgdisk --zap-all --clear --mbrtogpt -g -- {{ journal }}
   - name: journal zap again
     command: sgdisk --zap-all --clear --mbrtogpt -g -- {{ journal }}
-  #- name: make the directory for the journal
-  #  file: path=/var/lib/ceph/journal state=directory
-  #- name: mount the journal 
-  #  mount: name=/var/lib/ceph/journal src=/dev/sde1 state=mounted fstype=ext4

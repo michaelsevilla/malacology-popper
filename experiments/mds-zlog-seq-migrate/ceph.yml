@@ -1,8 +1,7 @@
 ---
 # Defines deployment design and assigns role to server groups
 
-- name: cleanup
-  include: ./ceph-cleanup.yml
+- include: cleanup.yml
 
 - name: setup gdisk
   hosts: all
@@ -43,8 +42,24 @@
     until:    result.stdout.find("HEALTH_OK") != -1
     retries:  120
   - debug:    var=result.stdout_lines
+  - pause: seconds=30
 
-- hosts: clients
+- hosts: graphite
+  become: True
+  roles: 
+    - monitor/graphite
+
+- hosts: mdss
+  become: True
+  roles:
+    - monitor/collectl
+
+- hosts: clients0
+  become: True
+  roles:
+    - ceph-client
+
+- hosts: clients1
   become: True
   roles:
     - ceph-client
