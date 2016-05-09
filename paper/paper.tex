@@ -717,7 +717,7 @@ Lua, and the cls-client uses the lua-rados library to send Lua object
 classes to the OSDs equipped with the LuaJIT VM.
 
 
-\section{Services Built on Malacology}\label{services-built-on-malacology}
+\section{Services Built on Malacology}
 \label{services}
 
 \begin{table}
@@ -735,8 +735,15 @@ Seq.    & MDS file types & log management \\
 \label{table:implementation}
 \end{table}
 
-\subsection{Mantle: A Programmable Metadata Load
-Balancer}\label{mantle-a-programmable-metadata-load-balancer}
+
+
+In this section we describe two services built on top of Malacology. The first
+is Mantle, a framework for dynamically specifying metadata load balancing
+policies. The second system, ZLog, is a high-performance distributed shared-log.
+In addition to these services, we'll demonstrate how we combine ZLog and Mantle
+to implement service-aware metadata load balancing policies.
+
+\subsection{Mantle: A Programmable Metadata Load Balancer}
 
 Many distributed file systems decouple metadata and data I/O so that
 these services can scale independently~\cite{alam:pdsw2011-metadata-scaling,ghemawat:sosp2003-gfs,hildebrand:msst2005-pnfs,weil_ceph_2006,welch:fast2008-panasas,shvachko:login2012-hdfs-scalability}. Despite
@@ -773,7 +780,7 @@ down.
 \caption{This is Mantle.}
 \end{figure}
 
-\subsection{ZLog: A Distributed Shared-Log}
+\subsection{ZLog: A Fast Distributed Shared-Log}
 
 The CORFU protocol is enforced using logical storage devices.
 
@@ -788,6 +795,8 @@ for automatic verisoning and dissemtation across the cluster.
 
 log management is supported by mds using a special directory layout
 and file types.
+
+\subsubsection{Sequencer}
 
 The zlog sequencer is volatile, shared resource that requires serialized
 access. in corfu the sequencer is a fast, centeralized network counter
@@ -804,18 +813,16 @@ a different approach to sequencer implementation.
 In Section we quantify the trade-offs of throughput and latency for the
 centeralized sequencer and the batching mechanism based on capabilities.
 
-\subsubsection{Sequencer recovery with
-MDS}\label{sequencer-recovery-with-mds}
-
-\subsubsection{MDS Policy for Revoking
-Capability}\label{mds-policy-for-revoking-capability}
-
 The MDS has a queue of locks that it uses to revoke capabilities from
 the clients. If we put a Mantle-style hook here, we can control when
 those revoke messages go out.
 
-\subsubsection{Mantle Balancing Policies to Migrate
-Sequencers}\label{mantle-balancing-policies-to-migrate-sequencers}
+Mantle is used to implement a zlog file type specific policy for maximizing
+throughput to the sequencer by migration the resource between metadata servers.
+
+Sequencer recovery is handled by tapping into existing recovery mechanisms
+that recover inode state. file type specific recovery augments the existing
+recovery procedure.
 
 \section{Evaluation}\label{evaluation}
 
@@ -832,22 +839,62 @@ just based on default traffic 12 13 3. OpenSSL compile
 \subsubsection{Experiment: OpenSSL
 Compile}\label{experiment-openssl-compile}
 
-\subsection{MDS as ZLog Sequencer}\label{mds-as-zlog-sequencer}
+\subsection{ZLog}
 
-\subsubsection{Experiment: Object Class
-Programmability}\label{experiment-object-class-programmability}
+\subsubsection{Sequencer}
 
-Add quote from CORFU paper that talks about what they had to hack
+We evaluated the performance of the ZLog Sequencer implemented in several
+different configurations by showing a trade-off between aggregate throughput
+achieved (shown in Figure~\ref{fig:captp}), and latency distribution (shown in
+Figure~\ref{fig:capcdf}).
 
-\subsubsection{Experiment: Multi-Client
-Burstiness}\label{experiment-multi-client-burstiness}
+In Figure~\ref{fig:captp} the highest throughput labeled $1C$ shows that a
+single client caching the sequencer resource may obtain new sequences at a rate
+of nearly 6 million positions per second. This is not surprising given that all
+state is cached locally in the client. When this resource is shared between two
+clients, the MDS uses a best-effort approach to granting the sequencer resource
+to each client (value $2C,BE$). This sharing has a large impact on performance,
+as shown by the nearly three orders of magnitude drop off in throughput.
 
-\begin{figure}[htbp]
+\begin{figure}[h]
 \centering
 \includegraphics{figures/caps-delay-thruput.png}
-\caption{Forcing the client to drop their capabilities later (delay)
-improves throughput}
+\caption{Sequencer throughput by reusing various services.
+The highest performance is achieved using a single client with
+exclusive, cacheable priviledge. Round-robin sharing of the sequencer
+resource is affected by the amount of time the resource is held,
+with best-effort performing the worst.}
+\label{fig:captp}
 \end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics{figures/caps-delay-latency.png}
+\caption{But if the clients hold their capabilities longer, it hurts
+latency for everyone.}
+\label{fig:capcdf}
+\end{figure}
+
+While a best-effort approach to sharing capabilities makes sense for a file
+system client, throughput drops significantly with two clients as the majority
+of the time neither client has the capapbitility as it ping-pongs between
+clients. This observation reveals a tuning parameter: how long a client
+maintains its capapbility lease. In throughputs labeled $2C,<time>$ we show
+aggregate throughput as we decrease the amount of time that a client holds its
+lease before responding to a request for the capapbility.  At lease times as
+low as 10ms throughputs achieve a significant proportion of the locally cached
+throughput.
+
+While the batching mechanism can achieve high-throughput, it is not appropriate
+for applications that require predictable latency. The throughput in
+Figure~\ref{fig:captp} labeled $2C,ZLog$ corresponds to a centeralized
+sequencer implementation. While throughput is lower for two clients (because of
+the synchronous network round-trip required for each request),
+Figure~\ref{fig:capcdf} shows that this approach achieves more predicable
+latency compared to all other approaches except for the single client locally
+cached mode.
+
+\subsubsection{Interface Propogation}
 
 In Section~\ref{} we described an interface management service that is
 responsible for the durable and consistent cluster-wide distribution of
@@ -899,18 +946,10 @@ order to accumulate updates. In a minimum realistic quorum of 3 monitors using
 HDD-based storage, we were able to decrease this interval to an average of 222
 ms.
 
-\begin{figure}[htbp]
-\centering
-\includegraphics{figures/caps-delay-latency.png}
-\caption{But if the clients hold their capabilities longer, it hurts
-latency for everyone.}
-\end{figure}
+\subsubsection{Experiment: Object Class
+Programmability}\label{experiment-object-class-programmability}
 
-\subsubsection{CUT THIS Experiment: Client v. MDS caps +
-Failures}\label{cut-this-experiment-client-v.-mds-caps-failures}
-
-\subsubsection{Experiment: Mantle Sequencer
-Balancer}\label{experiment-mantle-sequencer-balancer}
+Add quote from CORFU paper that talks about what they had to hack
 
 \section{Related Work}
 
