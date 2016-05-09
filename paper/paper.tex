@@ -877,38 +877,40 @@ down.
 \subsection{ZLog: A Fast Distributed Shared-Log}
 
 The second service implemented on Malacology is ZLog, a high-performance
-distributed shared-log that is based on the CORFU protocol~\cite{corfu}. A
+distributed shared-log that is based on the CORFU
+protocol~\cite{balakrishnan_corfu_2012}. A
 shared-log is a general, yet powerful abstraction used to build many
 distributed systems. However, existing implementations that rely on consensus
 algorithms such as PAXOS funnel I/O through a single point introducing a
 bottleneck that restricts throughput. In contrast, the CORFU protocol is able
-to achieve high throughput network counter service (called a \emph{sequencer})
-that avoids all persistent I/O in the common case.
+to achieve high throughput using a network counter service, called a 
+\emph{sequencer}, that avoids all persistent I/O in the common case.
 
 While a full description of the CORFU system is beyond the scope of this
-paper, we'll briefly describe the storage interface, sequencer, and recovery
-protocol that form the core components of CORFU that we implement within
-Malacology:
+paper, we'll briefly describe the custom storage device interface, sequencer
+service, and recovery protocol that form the core components of CORFU that we
+implement within Malacology:
 
 {\bf Sequencer.}
 High-performance in CORFU is achived using a sequencer service that assigns
-client log positions by reading from a volatile, in-memory counter which can
-run at a very high throughput and at low-latency. Since the sequencer is
-centralized, ensuring seiralizability in the common case is trivial.  The
+log positions to clients by reading from a volatile, in-memory counter which
+can run at a very high throughput and at low-latency. And since the sequencer
+is centralized, ensuring seiralizability in the common case is trivial.  The
 primary challenge in CORFU is handling the failure of the sequencer in a way
-that guarantees correctness.  Failures of the sequencer service in CORFU are
+that preserves correctness. Failure of the sequencer service in CORFU is
 handled by a recovery algorithm that recomputes the new sequencer state using
 an application-specific custom storage interface to discover the tail of the
-log and invalidate stale client requests using an epoch-based protocol.
+log, while simulatenously invalidating stale client requests using an
+epoch-based protocol.
 
 {\bf Storage Interface.} The storage interface is a critical component in the
-CORFU design. Storage devices must provide a \emph{write}-once, random
-\emph{read} interface for reading and writing log entries. The key to
-correctness in CORFU lies with the enforcement of up-to-date epoch tags on
-client requests; requests tagged with out-of-date epoch values are rejected,
-and clients are expected to request a new tail from the sequencer after
-refreshing state from an auxillary service. This mechanism forms the basis for
-sequencer recovery.
+CORFU design. Clients independently map log positions onto storage devices,
+while storage devices provide an intelligent \emph{write}-once, random
+\emph{read} interface for accessing log entries. The key to correctness in
+CORFU lies with the enforcement of up-to-date epoch tags on client requests;
+requests tagged with out-of-date epoch values are rejected, and clients are
+expected to request a new tail from the sequencer after refreshing state from
+an auxillary service. This mechanism forms the basis for sequencer recovery.
 
 {\bf Sequencer Recovery.}
 In order to repopulate the cached tail value during recovery of a sequencer,
@@ -921,12 +923,11 @@ iterative process of contacting storage devices.  Recovery of the sequencer
 process itself may be handled in many ways, such as leader election using an
 auxillary service such as PAXOS.
 
-\subsubsection{Log Management}
-
-log management is supported by mds using a special directory layout
-and file types.
-
 \subsubsection{Sequencer}
+
+We implement the sequencer service in Malacology as an application-specific
+file type that attaches a 64-bit value to the inode state within the Ceph
+metadata service.
 
 The zlog sequencer is volatile, shared resource that requires serialized
 access. in corfu the sequencer is a fast, centeralized network counter
@@ -954,17 +955,17 @@ Sequencer recovery is handled by tapping into existing recovery mechanisms
 that recover inode state. file type specific recovery augments the existing
 recovery procedure.
 
-%\begin{figure}[htbp]
-%\centering
-%\includegraphics{figures/overview-zlog.png}
-%\caption{This is ZLog.}
-%\end{figure}
+\subsubsection{Log Management}
 
-\subsection{Interface Installation}
+log management is supported by mds using a special directory layout
+and file types.
+
+\subsubsection{Storage Interface Management}
+
+lua snippet
 
 The lua implementation of the interfaces are encoded into cluster maps
 for automatic verisoning and dissemtation across the cluster.
-
 
 \section{Evaluation}\label{evaluation}
 
