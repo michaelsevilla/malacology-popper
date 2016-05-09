@@ -490,46 +490,24 @@ common services that are useful to large sets of applications.
 \section{Malacology Implementation}
 \label{implementation}
 
-In this section we describe the extensions to existing Ceph services that
-allow for reusability.
+In this section we describe how Malacology exposes and builds upon existing
+services within Ceph. While we strive for implementation independent
+approaches within Malacology, our prototype implementation makes heavy use of
+the embedded language Lua to enable dynamic features without relying on
+complex and heavy-weight code generation techniques.
 
-{Lua Integration.} Because of limited space we describe our extensions
-generally, but we have explicitly added the ability to use Lua to specify
-the customizations. Lua is great because..., and let's us save and version
-interfaces.
-
-Our framework has added a mechanism for defining and running object and
-metadata balancer classes using the Lua scripting language. Scripting is
-useful in large systems for 3 reasons:
-
-\begin{itemize}
-\item
-  accelerates deployment: tweaking policies, like changing a threshold
-  or metric calculation, does not require a full recompile or system
-  start-up.
-\item
-  transparency: if the bindings carefully expose the correct metrics and
-  functions, the user does not need to learn the internal functions,
-  variables, or types of the system.
-\item
-  portability: scripts can be exchanged across platforms and system
-  versions without compatibility issues.
-\end{itemize}
-
-Lua performs well as an embeddable scripting language. Although it is an
-interpreted language, the bindings are designed to make the exchange of
-variables and functions amongst languages straightforward. The LuaJIT
-virtual machine boasts near-native performance, making it a logical
-choice for scriptability frameworks in systems research
-\cite{neto:dls14-luaos}. In storage systems, it has been effectively
-used both on \cite{grawinkel:pdsw2012-lua,watkins2013:bdmc13-in-vivo} and off
-\cite{sevilla:sc15-mantle} the critical path, where performance is
-important.
-
-The other two advantages, that Lua leaves a small memory footprint and
-that it is secure, are discussed at length in 
-\cite{ierusalimschy_programming_2006,neto:dls14-luaos}. In short, Lua
-provides relatively robust sandbox capabilities for protecting the
+{\bf Lua integration.}
+Supporting dynamic reconfiguration and programmabiilty is critical in real
+systems that must adapt to a changing environment where potentially
+conflicting policies arise. We've adopted Lua as a scripting language to
+implement dynamic components in Malacology.  Lua is a portable, embedded
+scripting language that offers superious performance and productivity
+trade-offs, including a JIT-based implementation that is well known for near
+native performance. Lua has been used extensively in game engines, and systems
+research \cite{neto:dls14-luaos}, including storage systems where it has been
+effectively used both on
+\cite{grawinkel:pdsw2012-lua,watkins2013:bdmc13-in-vivo} and off
+\cite{sevilla:sc15-mantle} the performance critical path.
 
 \subsection{Metadata Services}
 
