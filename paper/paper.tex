@@ -94,6 +94,21 @@ production-quality scalable storage systems available as open source
 software have established and are continuing to establish new, \emph{de
 facto} API standards at a faster pace than traditional standards bodies.
 
+\begin{figure}[tb]
+\centering
+\includegraphics{figures/overview.png}
+\caption{A Ceph installation consists of a cluster running mostly
+storage daemons (OSDs) to ensure data durability, a few monitor daemons
+(MONs) to reach consensus of the cluster state and to ensure its
+consistent versioning, and a few metadata service daemons (MDSs) for
+scalable metadata service. Ceph's APIs include object, block, file
+abstractions. Malacology enables the programmability of these
+abstractions and services (indicated by bold arrows). To illustrate Malacology we implement two
+services on Ceph, Zlog and Mantle, by programming Ceph's durability,
+consistent versioning, consensus, and metadata subsystems.
+\label{fig:overview}}
+\end{figure}
+
 These three trends put evolutionary pressure on storage systems and
 raise the question whether there are principles that storage systems
 designers can follow to evolve storage systems efficiently and without
@@ -122,20 +137,6 @@ using replication, erasure-coding, and scrubbing~\cite{weil_rados_2007}.
 % programmability concepts into Ceph, we can build new services by
 % carefully exposing internal storage services to applications.
 
-\begin{figure}[htbp]
-\centering
-\includegraphics{figures/overview.png}
-\caption{A Ceph installation consists of a cluster running mostly
-storage daemons (OSDs) to ensure data durability, a few monitor daemons
-(MONs) to reach consensus of the cluster state and to ensure its
-consistent versioning, and a few metadata service daemons (MDSs) for
-scalable metadata service. Ceph's APIs include object, block, file
-abstractions. Malacology enables the programmability of these
-abstractions and services. To illustrate Malacology we implement two
-services on Ceph, Zlog and Mantle, by programming Ceph's durability,
-consistent versioning, consensus, and metadata subsystems.
-\label{fig:overview}}
-\end{figure}
 
 For example, a Ceph cluster contains a small number of
 monitoring nodes (MONs) that use PAXOS to maintain a consistent view of
@@ -726,18 +727,27 @@ Malacology}\label{services-built-on-malacology}
 \label{services}
 
 \begin{table}
-\begin{tabular}{ | l | l | l | l | l |}
-\hline
-Cap Owner & Failure & ZLog Recovery \\ \hline
-mds & mds & mds \\ \hline
-client & mds & xfer client cap \\ \hline
-mds & client & n/a \\ \hline
-client & client & mds \\
-\hline
+\centering
+\begin{tabular}{  l | l | l    }
+\textbf{Service} & \textbf{Ceph Component} & \textbf{Used for...}  \\ \hline
+Mantle  & RADOS    & policy durability \\
+        & MON maps & policy versioning \\ \hline
+ZLog    & Logical Storage & CORFU protocol  \\ 
+        & MON maps & interface install \\ \hline
+Seq.    & MDS file types & log management \\ 
+        & MDS fault toler. & seq. fault toler. \\
 \end{tabular}
-\caption{Failure and recovery scenarios.}
-\label{t:mds-zlog-fail}
+\caption{To implement the Mantle and ZLog services, we leverage Ceph components. Malacology uses these subsystems because they provide powerful abstractions.}
+\label{table:implementation}
 \end{table}
+
+
+
+In this section we describe two services built on top of Malacology. The first
+is Mantle, a framework for dynamically specifying metadata load balancing
+policies. The second system, ZLog, is a high-performance distributed shared-log.
+In addition to these services, we'll demonstrate how we combine ZLog and Mantle
+to implement service-aware metadata load balancing policies.
 
 \subsection{Mantle: A Programmable Metadata Load
 Balancer}\label{mantle-a-programmable-metadata-load-balancer}
