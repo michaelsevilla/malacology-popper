@@ -19,7 +19,7 @@
 % Scale images if necessary, so that they will not overflow the page
 % margins by default, and it is still possible to overwrite the defaults
 % using explicit options in \includegraphics[width, height, ...]{}
-\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\setkeys{Gin}{width=\maxwidth,keepaspectratio}
 \ifxetex
   \usepackage[setpagesize=false, % page size defined by xetex
               unicode=false, % unicode breaks when used with xetex
@@ -39,7 +39,7 @@
 \urlstyle{same}  % don't use monospace font for urls
 %\setlength{\parindent}{0pt}
 %\setlength{\parskip}{6pt plus 2pt minus 1pt}
-\setlength{\emergencystretch}{3em}  % prevent overfull lines
+%\setlength{\emergencystretch}{3em}  % prevent overfull lines
 \setcounter{secnumdepth}{5}
 
 \title{Malacology: A Programmable Storage System Built on Ceph}
@@ -511,6 +511,11 @@ effectively used both on
 
 \subsection{Metadata Services}
 
+% todo:
+%  - ellude to the need for policies to be avialable quickly to support
+%    our experiment about propogtation delay
+%
+
 {\bf Balancing Policy.}
 Avoiding hard-coded balancing policies are important. First, it is difficult,
 nay impossible, to select a one-size-fits-all policy. System administrators
@@ -537,6 +542,11 @@ We can reference PDSW12 DataMods, and talk about any new stuff here that we
 want to.
 
 \subsection{Object Storage}
+
+% todo:
+%  - ellude to the need for interfaces to be avialable quickly to support
+%    our experiment about propogtation delay
+%
 
 Lua integration. Overhead?
 
@@ -826,8 +836,7 @@ policies. The second system, ZLog, is a high-performance distributed shared-log.
 In addition to these services, we'll demonstrate how we combine ZLog and Mantle
 to implement service-aware metadata load balancing policies.
 
-\subsection{Mantle: A Programmable Metadata Load
-Balancer}\label{mantle-a-programmable-metadata-load-balancer}
+\subsection{Mantle: A Programmable Metadata Load Balancer}
 
 Many distributed file systems decouple metadata and data I/O so that
 these services can scale independently~\cite{alam:pdsw2011-metadata-scaling,ghemawat:sosp2003-gfs,hildebrand:msst2005-pnfs,weil_ceph_2006,welch:fast2008-panasas,shvachko:login2012-hdfs-scalability}. Despite
@@ -865,6 +874,29 @@ down.
 \end{figure}
 
 \subsection{ZLog: A Fast Distributed Shared-Log}
+
+The second service implemented on Malacology is ZLog, and a high-performance
+distributed shared-log that is based on the CORFU protocol~\cite{corfu}. A
+shared-log is a general, yet powerful abstraction used to build many
+distributed systems. However, existing implementations that rely on consensus
+algorithms such as PAXOS funnel I/O through a single point introducing a
+bottleneck that restricts throughput. In contrast, the CORFU protocol is able
+to achieve high throughput using a \emph{volatile} in-memory network counter
+service (called a \emph{sequencer}) that distributes log positions to clients,
+and may run at very high rates. Failures in CORFU are handled by a recovery
+algorithm that recomputes the sequencer state using custom storage interfaces
+to discover the tail of the log.
+
+A full dexription ...
+
+that computes the
+tail of the log by contacting each storage device
+
+Two i
+
+The CORFU protocol handles failures using a combination of 
+
+Failures in CORFU are handled using a recovery protocol that res
 
 The CORFU protocol is enforced using logical storage devices.
 
