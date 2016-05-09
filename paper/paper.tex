@@ -773,8 +773,12 @@ down.
 \caption{This is Mantle.}
 \end{figure}
 
-\subsection{ZLog: A Distributed Shared Commit
-Log}\label{zlog-a-distributed-shared-commit-log}
+\subsection{ZLog: A Distributed Shared-Log}
+
+The CORFU protocol is enforced using logical storage devices.
+
+The lua implementation of the interfaces are encoded into cluster maps
+for automatic verisoning and dissemtation across the cluster.
 
 \begin{figure}[htbp]
 \centering
@@ -782,13 +786,23 @@ Log}\label{zlog-a-distributed-shared-commit-log}
 \caption{This is ZLog.}
 \end{figure}
 
-\subsubsection{Consistency}\label{consistency}
+log management is supported by mds using a special directory layout
+and file types.
 
-\subsubsection{Striping Strategies}\label{striping-strategies}
+The zlog sequencer is volatile, shared resource that requires serialized
+access. in corfu the sequencer is a fast, centeralized network counter
+resource.
 
-\subsubsection{Tiering}\label{tiering}
+Initially we saught to directly model the sequencer in ceph as a non-exclusive,
+non-cacheable resource, forcing clients to perform round-trip access the
+resource at the authoratiave MDS for the inode representing the sequencer.
+However, we found that the capapbility system in Ceph is used to batch access
+to cacheable resources, providing clients best-effort access to the capability
+and allowing them to burst. While unexpected, this alternative mode provides
+a different approach to sequencer implementation.
 
-\subsection{MDS as a sequencer}\label{mds-as-a-sequencer}
+In Section we quantify the trade-offs of throughput and latency for the
+centeralized sequencer and the batching mechanism based on capabilities.
 
 \subsubsection{Sequencer recovery with
 MDS}\label{sequencer-recovery-with-mds}
@@ -834,6 +848,56 @@ Burstiness}\label{experiment-multi-client-burstiness}
 \caption{Forcing the client to drop their capabilities later (delay)
 improves throughput}
 \end{figure}
+
+In Section~\ref{} we described an interface management service that is
+responsible for the durable and consistent cluster-wide distribution of
+interface versions. We evaluate the costs of such a service by embedding
+interface definitions in a Ceph cluster membership data structure that is
+managed by a Paxos instance, and distributed using a scalable, peer-to-peer
+gossip protocol. We assume an architecture that consists of a light-weight
+interface that enforces the semantics of interface management resulting in one
+or more interface updates that must be consistent across the cluster. The
+following experiments focus on the cost of achieving distribution of consistent
+a interface version.
+
+\begin{figure}[h]
+\centering
+\includegraphics{figures/iface-update-delay.pdf}
+\caption{Cluster-wide interface update latency, excluding the Paxos proposal cost for
+interface commit. Each of the 120 OSDs used a RAM-based object store, while the
+3 OSDs used an HDD-backed object store.}
+\label{fig:propdelay}
+\end{figure}
+
+Figure~\ref{fig:propdelay} shows the CDF of the latency of distributing and
+installing an interface update on all OSDs in the cluster. The latency is
+defined as the elapsed time following the Paxos proposal for an interface
+update until each OSDs makes the update live (he cost of the Paxos proposal is
+configurable and is discussed below). The latency measurements were taken on
+the nodes running Ceph server daemons (the Paxos servers and OSDs nodes), and
+thus excludes the client round-trip cost. In each of the experiments 1000
+interface updates were observed.
+
+The first experiment shown in Figure~\ref{fig:propdelay} illustrates a lower
+bound cost for updates in a large cluster by avoiding disk I/O for storing
+interface updates locally within each OSD.  In the experiment labeled "120 OSD
+(RAM)" a cluster of 120 OSDs (10 OSDs x 12 servers) using an in-memory data
+store were deployed, showing a latency of less than 54 ms with a probability of
+90\% and a worst case latency of 194 ms. The curve labeled "3 OSD (HDD)" is a
+smaller cluster where each of the three OSDs uses a spinning disk as the object
+store that saves a copy of the cluster map ({\bf is this I/O before its made
+live?}), and shows a latency of 37 ms with a 90\% probability and a worst case
+latency of 255 ms. Since the cost of a disk I/O is larger than the same I/O
+executed against the in-memory device, the predominant cost in a lightly loaded
+cluster appears to be the number of OSDs.
+
+The real cost of interface management, in addition to cluster-wide propagation
+of interface updates, includes the network round-trip to the interface
+management service, the Paxos commit protocol, and other factors such as system
+load. By default Paxos proposals occur periodically with a 1 second interval in
+order to accumulate updates. In a minimum realistic quorum of 3 monitors using
+HDD-based storage, we were able to decrease this interval to an average of 222
+ms.
 
 \begin{figure}[htbp]
 \centering
