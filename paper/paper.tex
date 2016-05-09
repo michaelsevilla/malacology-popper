@@ -488,6 +488,24 @@ clients are allowed to access as well as what they may cache locally.  While
 designed for a fixed file abstraction, indexing, locking, and caching are all
 common services that are useful to large sets of applications.
 
+\subsection{Load Balancing}
+
+% Straw man example
+Migrating resources is an important part of load balancing but understanding the effects of different configurations and parameters is difficult. Systems already virtualize and migrate memory; soon systems will be able to migrate other resources, like CPU, disk, and memory. Figuring out how, when, and where to move these resources depends on complex metrics like utilization, configuration, and workload.
+
+These problems are general, distributed systems load balancing problems and share many of the same properties as the POSIX metadata wall~\cite{alam:pdsw2011-metadata-scaling,ghemawat:sosp2003-gfs,hildebrand:msst2005-pnfs,weil_ceph_2006,welch:fast2008-panasas,shvachko:login2012-hdfs-scalability}. Many distributed file systems decouple metadata and data I/O so that
+these services can scale independently. Despite
+this optimization, scaling the metadata services is still difficult
+because metadata accesses impose small and frequent requests on the
+underlying storage system~\cite{roselli:atec2000-FS-workloads}. Many
+techniques for designing the metadata services have been proposed to
+accommodate this workload: Lustre~\cite{konstantinos:pdsw2014-lustre-metadata}, GFS~\cite{ghemawat:sosp2003-gfs}, and HDFS~\cite{shvachko:login2012-hdfs-scalability} keep all metadata on one
+server; GIGA+~\cite{patil:fast2011-giga}, IndexFS~\cite{ren:sc2014-indexfs}, Lazy Hybrid~\cite{brandt:msst2003-lh}, GPFS~\cite{schmuck:fast2002-gpfs},
+and pNFS~\cite{hildebrand:supercomputing2006-pNFS} hash the file
+system namespace across a dedicated cluster and cache metadata; Panasas~\cite{welch:fast2008-panasas} and CephFS~\cite{weil:sc2004-dyn-metadata} use subtree partitioning to carve up the namespace and distribute it across a cluster.
+
+CephFS moves units of the namespace called directory fragments and assigns them to servers using  its own metadata load balancer. It then uses a hard-coded policy to balance these fragments using a secularized load metric based on CPU, workload, and file system operation metrics~\cite{sevilla:sc15-mantle}.
+
 \section{Malacology Implementation}
 \label{implementation}
 
@@ -839,23 +857,12 @@ to implement service-aware metadata load balancing policies.
 
 \subsection{Mantle: A Programmable Metadata Load Balancer}
 
-Many distributed file systems decouple metadata and data I/O so that
-these services can scale independently~\cite{alam:pdsw2011-metadata-scaling,ghemawat:sosp2003-gfs,hildebrand:msst2005-pnfs,weil_ceph_2006,welch:fast2008-panasas,shvachko:login2012-hdfs-scalability}. Despite
-this optimization, scaling the metadata services is still difficult
-because metadata accesses impose small and frequent requests on the
-underlying storage syste~\cite{roselli:atec2000-FS-workloads}. Many
-techniques for designing the metadata services have been proposed to
-accommodate this workload: Lustre~\cite{konstantinos:pdsw2014-lustre-metadata}, GFS~\cite{ghemawat:sosp2003-gfs}, and HDFS~\cite{shvachko:login2012-hdfs-scalability} keep all metadata on one
-server; GIGA+~\cite{patil:fast2011-giga}, IndexFS~\cite{ren:sc2014-indexfs}, Lazy Hybrid~\cite{brandt:msst2003-lh}, GPFS~\cite{schmuck:fast2002-gpfs},
-and pNFS~\cite{hildebrand:supercomputing2006-pNFS} hash the file
-system namespace across a dedicated cluster and cache metadata; Panasas~\cite{welch:fast2008-panasas} and CephFS~\cite{weil:sc2004-dyn-metadata} partition the file system namespace
-into \# d assign them to servers. These systems have novel mechanisms
-for Mantle~\cite{sevilla:sc15-mantle} is a programmable metadata
-balancer that separates the metadata balancing policies from their
-mechanisms. Admistrators inject code to change how the metadata cluster
+Mantle~\cite{sevilla:sc15-mantle} is a programmable metadata
+balancer for Ceph that separates the metadata balancing policies from their
+mechanisms. Administrators inject code to change how the metadata cluster
 distributes metadata. In the paper, we showed how to implement a single
 node metadata service, a distributed metadata services with hashing, and
-a distributed metadata service with dynamic subtree partitioning.
+a distributed metadata service with dynamic subtree ipartitioning.
 
 The Ceph team wants to merge Mantle because the scriptability is useful
 for debugging, controlling the metadata balancer, and examining
@@ -867,6 +874,9 @@ the system allows injectable strings through the admin daemon,
 constructing the Lua script in C++ is clunky, and the administrator can
 inject really bad policies (e.g., while 1) that brings the whole system
 down.
+
+We implemented it using the components from section 3. I will tell you about them here.
+
 
 \begin{figure}[htbp]
 \centering
