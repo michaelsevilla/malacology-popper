@@ -419,37 +419,45 @@ sacrificing the correctness of the underlying system. This evaluation
 and resulting implementation would have been a burden without object
 classes.
 
-\section{Re-Usable Components in
-Ceph}\label{re-usable-components-in-ceph}
+\section{Re-Usable Components in Ceph}\label{re-usable-components-in-ceph}
 
 \label{background}
 
 Ceph is a production-quality distributed system and in this section we
 touch on some of the subsystems it uses to provide a general-purpose
 storage system. In the next section, we describe how we leverage these
-subsystems to build new services.
+subsystems to build new services. This is the an exhuastive list of services.
+
+\subsection{Cluster State Management}
+\label{consistencyversioning-of-cluster-state}
+
+A consistent view of cluster state among Ceph daemons and clients is critical
+to provide strong consistency guarnatees to clients.  Ceph maintains cluster
+state information in per-subsystem ``maps'' (e.g. OSD map, MDS map) that
+record membership and status information. A PAXOS-based monitoring service is
+responsible integrating state changes into cluster maps, and responding to
+requests from out-of-date clients.  As a fundamental building block of many
+system designs, consensus abstractions such as PAXOS are a common technique
+for maintaining consistent data versions, and are a useful system to expose.
+While Ceph does not expose this service directly, it does allow limited use by
+clients through a key-value service intended for low-volume, small size
+configuration information.
 
 \subsection{Durability}
 \label{sec:durability}
 
-Ceph provides storage by striping and replicating data across RADOS~\cite{weil_rados_2007}, the reliable distributed object store. RADOS
-uses many techniques to ensure that data is not corrupted or lost, such
-as erasure coding, replication, and data scrubbing. Furthermore, many of
-these techniques try to be autonomous so that work is distributed across
-the cluster. For example, when placement groups change the OSDs
-rebalance and re-shard data in the background in a process called
-placement group splitting.
+Ceph provides storage by striping and replicating data across
+RADOS~\cite{weil_rados_2007}, the reliable distributed object store. RADOS
+uses many techniques to ensure that data is not corrupted or lost, such as
+erasure coding, replication, and data scrubbing. Furthermore, many of these
+techniques try to be autonomous so that work is distributed across the
+cluster. For example, when placement groups change the OSDs rebalance and
+re-shard data in the background in a process called placement group splitting.
 
-\subsection{Consistency/Versioning of Cluster
-State}\label{consistencyversioning-of-cluster-state}
-
-Ceph needs to keep track of cluster state and it does this with separate
-``services'': client authentication, logging, MDS maps, MON maps, OSD
-maps and placement group (PG) maps. These services are all managed in
-the MONs and they all talk to a PAXOS instance; this PAXOS instance goes
-and talks to other PAXOS instances on other MONs so that they can all
-agree on the correct version of the service; essentially they reach an
-agreement about what the state of the cluster is.
+In order to reduce load on the monitoring service, Ceph OSDs use a gossip
+protocol to efficiently propogate changes to cluster maps throughout the
+system, and automonmously initiate recovery mechansims when failures are
+discovered.
 
 \subsection{Logical Storage Devices}
 \label{active-storage}
@@ -487,8 +495,17 @@ script is redundantly and consistently distributed to OSDs.
 \label{fig:implementation}}
 \end{figure}
 
-\section{Malacology Implementation}\label{malacology-implementation}
+\subsection{File System Indexing and Locking}
 
+The distributed metadata service in Ceph provides clients with a POSIX file
+system abstraction. Distributed file systems are complex, but fundamentally
+provide durable hierarhical indexing and distributed locking service.  The
+locking service implements a capabilities that express what data and metadata
+clients are allowed to access as well as what they may cache locally.  While
+designed for a fixed file abstraction, indexing, locking, and caching are all
+common services that are useful to large sets of applications.
+
+\section{Malacology Implementation}
 \label{implementation}
 
 To enable the re-use of Ceph subsystems, Malacology relies heavily on
