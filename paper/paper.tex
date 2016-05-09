@@ -72,14 +72,14 @@ that leverages flash devices.  RESULTS
 A storage system implements abstractions designed to persistently store
 data and must exhibit a high level of correctness to prevent data loss.
 Storage systems have evolved around storage devices that often were
-orders of magnitude slower than CPU and memory and therefore can
+orders of magnitude slower than CPU and memory, and therefore could
 dominate overall performance if not used carefully. Over the last few
 decades members of the storage systems community have developed
 ingenious strategies to meet correctness requirements while somewhat
-hiding the latency of traditional storage media. To avoid lock-in by a
+hiding the latency of traditional storage media~\cite{brewer_disks_2016}. To avoid lock-in by a
 particular vendor, users of storage systems have preferred systems with
 highly standardized APIs and lowest common denominator abstract data
-types such as blocks of bytes and byte stream files.
+types such as blocks of bytes and byte stream files~\cite{armbrust_view_2010}.
 
 A number of recent developments are disrupting traditional storage
 systems: (1) the falling prices of flash storage and the availability of
@@ -87,12 +87,12 @@ new types of non-volatile memory that are orders of magnitude faster
 than traditional spinning media are moving overall performance
 bottlenecks away from storage devices to CPUs and networking, and
 pressure storage systems to shorten their code paths and incorporate new
-optimizations; (2) demand for managing structured data and flexible
+optimizations~\cite{gray_tape_2007,gray_flash_2008}; (2) demand for managing structured data and flexible
 consistency semantics at scale pressure big data processing systems to
-use storage abstractions that can meet these demands; and (3)
+use storage abstractions that can meet these demands~\cite{apache_contributors_parquet_2014}; and (3)
 production-quality scalable storage systems available as open source
 software have established and are continuing to establish new, \emph{de
-facto} API standards at a faster pace than traditional standards bodies.
+facto} API standards at a faster pace than traditional standards bodies~\cite{snia_implementing_2014,linux_foundation_kinetic_2015}.
 
 \begin{figure}[tb]
 \centering
@@ -130,7 +130,8 @@ To illustrate the benefits and challenges of this approach we examine
 the programmability of Ceph~\cite{weil_ceph_2006}, the increasingly
 popular, production-level open-source distributed storage system.
 Something of a storage swiss army knife, Ceph supports file, block, and
-object interfaces simultaneously in a single cluster. Ceph's Reliable Autonomous Distributed Object Storage (RADOS) system is a cluster of storage
+object interfaces simultaneously in a single cluster~\cite{ceph_contributors_ceph_2010}. Ceph's Reliable Autonomous 
+Distributed Object Storage (RADOS) system is a cluster of storage
 devices (OSDs) that provide Ceph with data durability and integrity
 using replication, erasure-coding, and scrubbing~\cite{weil_rados_2007}. 
 % By introducing
