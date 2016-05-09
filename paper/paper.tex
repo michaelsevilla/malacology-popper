@@ -224,13 +224,13 @@ simplicity and performance enhancements, but ``bolt-on'' services often
 duplicate functionality, unnecessarily increasing the likelihood of bugs or
 introducing unpredictable performance problems. For example, we are developing
 a high-performance distributed shared-log on Ceph called ZLog, based on the
-CORFU protocol~\cite{corfu}. Serialization at high-performance is achieved using a
-``sequencer'' service that maintains a volatile, in-memory counter used to assign a log
-position to each client that appends to the log. One option for building
+CORFU protocol~\cite{corfu}. Without going into greater detail, the CORFU protocol by separating the concern of correctness from the concern of performance enables serialization using a \emph{volatile}
+``sequencer'' service. This high-performance in-memory counter is used to assign a log
+position to each client that appends to the log. The sequencer is purely a performance optimization and does not have a role in correctness (if the sequencer fails, the tail of the log can always be retrieved by other means). Thus, it is the volatiity of the sequence that enables high performance. A ``bolt-on'' option for building
 a distributed log is to use PAXOS, or an out-of-the-box solution such as
 Zookeeper. However, these systems adhere to the pre-coneived notions of
 storage, namely that data is safe from data loss, which is exactly the feature
-that causes traditional approaches to run at significantly reduced speed.
+that causes traditional approaches to run at significantly reduced speed. 
 
 \subsection{Application Changes}\label{application-changes}
 
@@ -245,14 +245,15 @@ parallelism in a distributed storage system.
 For example, SciHadoop~\cite{buck:hpc2011-scihadoop,buck:sc2013-scidr} changes both the Hadoop
 application and the Hadoop framework itself to leverage the structure of
 scientific data (3D array-based data, more specifically) to increase
-performance, locality, and the number of early results. This is not a
-bad proposition, but creates a coupling that is highly tied to the
+performance, locality, and the number of early results. %This is not a
+%bad proposition, but 
+Changing applications creates a coupling that is highly tied to the
 underlying physical properties of the system, making it difficult to
 adapt to future changes at the storage system level.
 
 \subsection{Storage System Changes}\label{storage-changes}
 
-When these two approaches fail to meet the needs of the application,
+When both the bolt-on approach and changing applications fail to meet the needs of the application,
 developers turn their attention to the storage system itself.
 Traditionally, storage system behaviour can be altered using two
 techniques: tuning the system or introducing changes to the system. The
@@ -264,7 +265,7 @@ technique called active storage.
 Tuning large and complicated systems is difficult because of the number
 of parameters (e.g., Hadoop 2.7.1 has 210 tunables) and because the
 tunables are difficult to understand or quantify (e.g., Ceph tunables~\cite{sevilla:sc15-mantle}). To succesfully tune the system, a
-developer must have domain and system specific knowledge. Without this
+developer must have domain and system-specific knowledge. Without this
 intimate knowledge, the tuning turns into somewhat of a black art, where
 the only way to figure out the best settings is trial and error.
 
@@ -294,9 +295,9 @@ Alternatively, some systems have formal support for introducing additional
 functionality, often in the form of a plugin infrastructure. Ceph provides the
 ability to create domain-specific logical object interfaces by composing
 existing interfaces. These interfaces are written in C++ and are statically
-loaded into the system. An example usage may be to atomically combine a
-``write'' with an index update to create a content-addressable object
-interface.
+loaded into the system. %An example usage may be to atomically combine a
+%``write'' with an index update to create a content-addressable object
+%interface.
 
 \if{false}
 As an example use-case, ZLog needs to
@@ -305,9 +306,9 @@ checks the epoch value and write capability (2 metadata reads) and
 writes the index (metadata write).
 \fi
 
-Figure 1 shows the throughput
-(\emph{y} axis) over time (\emph{x} axis) of two OSD implementations for
-storing metadata: in the header of the byte stream (data) vs.~in the
+For example, Figure~\ref{fig:datavsxattr} compares the throughput
+(\emph{y} axis) over time (\emph{x} axis) of two OSD implementations of the same storage object interface for
+storing metadata: either in the header of the byte stream (data) or in the
 object extended attributes (XATTR). The speed for appending data without
 any metadata operations (data raw) is also shown as a baseline for
 comparison. For append-heavy workloads storing metadata as a header in
@@ -323,11 +324,11 @@ a header in the data byte stream (data) performs 1.5x better than the
 object class that stores metdata in the extended attributes of the
 object (XATTR); it is almost as fast as appending data without updating
 metadata (data raw).}
+\label{fig:datavsxattr}
 \end{figure}
 
 The object interface facility provided by Ceph is more than an
-a proof-of-concept active storage implementation.  Figure
-\ref{fig:obj-int-dev-growth} shows a dramatic growth in the production use of
+a proof-of-concept active storage implementation.  Figure~\ref{fig:obj-int-dev-growth} shows a dramatic growth in the production use of
 domain-specific interfaces in the Ceph community since 2010.  What is most
 remarkable is that this trend contradicts the notion that API changes are a
 burden for users.
@@ -342,7 +343,8 @@ services.
 \caption{Since 2010, the growth in the number of co-designed object
 storage interfaces in Ceph has been accelerating. This plot is the
 number of object classes (a group of interfaces), and the total number
-of methods (the actual API end-points).\label{fig:obj-int-dev-growth}}
+of methods (the actual API end-points).}
+\label{fig:obj-int-dev-growth}
 \end{figure}
 
 \begin{table}[ht]
@@ -384,13 +386,14 @@ algorithms/tunables of the storage system are insufficient for the
 application's performance goals, (2) programmers are becoming more aware
 of their application's behavior, and (3) programmers know how to manage
 resources to improve performance. Programmers gravitate towards object
-interfaces because it gives them ability to tell the storage system
+interfaces because it gives them the ability to tell the storage system
 about their application: if it is CPU or IO bound, if it has locality,
 if its size has the potential to overload a single proxy node, etc. The
 programmers know what the problem is and how to solve it, but until
-object interfaces, had no way to tell the storage system how to handle
+the ability to modify object interfaces, they had no way to express to the storage system how to handle
 their data.
 
+\if{false}
 These implementations use the active storage interfaces in Ceph. We
 refer to this as \emph{storage programmability} which is a method by
 which an application communicates its requirements to the storage system
@@ -398,6 +401,7 @@ in a way that allows the application to realize a new behavior without
 sacrificing the correctness of the underlying system. This evaluation
 and resulting implementation would have been a burden without object
 classes.
+\fi
 
 \section{Re-Usable Components in Ceph}\label{re-usable-components-in-ceph}
 
@@ -716,16 +720,27 @@ Lua, and the cls-client uses the lua-rados library to send Lua object
 classes to the OSDs equipped with the LuaJIT VM.
 
 
-\section{Services Built on Malacology}
+\section{Services Built on
+Malacology}\label{services-built-on-malacology}
+
 \label{services}
 
-In this section we describe two services built on top of Malacology. The first
-is Mantle, a framework for dynamically specifying metadata load balancing
-policies. The second system, ZLog, is a high-performance distributed shared-log.
-In addition to these services, we'll demonstrate how we combine ZLog and Mantle
-to implement service-aware metadata load balancing policies.
+\begin{table}
+\begin{tabular}{ | l | l | l | l | l |}
+\hline
+Cap Owner & Failure & ZLog Recovery \\ \hline
+mds & mds & mds \\ \hline
+client & mds & xfer client cap \\ \hline
+mds & client & n/a \\ \hline
+client & client & mds \\
+\hline
+\end{tabular}
+\caption{Failure and recovery scenarios.}
+\label{t:mds-zlog-fail}
+\end{table}
 
-\subsection{Mantle: A Programmable Metadata Load Balancer}
+\subsection{Mantle: A Programmable Metadata Load
+Balancer}\label{mantle-a-programmable-metadata-load-balancer}
 
 Many distributed file systems decouple metadata and data I/O so that
 these services can scale independently~\cite{alam:pdsw2011-metadata-scaling,ghemawat:sosp2003-gfs,hildebrand:msst2005-pnfs,weil_ceph_2006,welch:fast2008-panasas,shvachko:login2012-hdfs-scalability}. Despite
@@ -806,6 +821,7 @@ Sequencer recovery is handled by tapping into existing recovery mechanisms
 that recover inode state. file type specific recovery augments the existing
 recovery procedure.
 
+
 \section{Evaluation}\label{evaluation}
 
 1 Experiments: 2 3 1. mdtest separate directories 4 - just based on
@@ -821,62 +837,22 @@ just based on default traffic 12 13 3. OpenSSL compile
 \subsubsection{Experiment: OpenSSL
 Compile}\label{experiment-openssl-compile}
 
-\subsection{ZLog}
+\subsection{MDS as ZLog Sequencer}\label{mds-as-zlog-sequencer}
 
-\subsubsection{Sequencer}
+\subsubsection{Experiment: Object Class
+Programmability}\label{experiment-object-class-programmability}
 
-We evaluated the performance of the ZLog Sequencer implemented in several
-different configurations by showing a trade-off between aggregate throughput
-achieved (shown in Figure~\ref{fig:captp}), and latency distribution (shown in
-Figure~\ref{fig:capcdf}).
+Add quote from CORFU paper that talks about what they had to hack
 
-In Figure~\ref{fig:captp} the highest throughput labeled $1C$ shows that a
-single client caching the sequencer resource may obtain new sequences at a rate
-of nearly 6 million positions per second. This is not surprising given that all
-state is cached locally in the client. When this resource is shared between two
-clients, the MDS uses a best-effort approach to granting the sequencer resource
-to each client (value $2C,BE$). This sharing has a large impact on performance,
-as shown by the nearly three orders of magnitude drop off in throughput.
+\subsubsection{Experiment: Multi-Client
+Burstiness}\label{experiment-multi-client-burstiness}
 
-\begin{figure}[h]
+\begin{figure}[htbp]
 \centering
 \includegraphics{figures/caps-delay-thruput.png}
-\caption{Sequencer throughput by reusing various services.
-The highest performance is achieved using a single client with
-exclusive, cacheable priviledge. Round-robin sharing of the sequencer
-resource is affected by the amount of time the resource is held,
-with best-effort performing the worst.}
-\label{fig:captp}
+\caption{Forcing the client to drop their capabilities later (delay)
+improves throughput}
 \end{figure}
-
-\begin{figure}[h]
-\centering
-\includegraphics{figures/caps-delay-latency.png}
-\caption{But if the clients hold their capabilities longer, it hurts
-latency for everyone.}
-\label{fig:capcdf}
-\end{figure}
-
-While a best-effort approach to sharing capabilities makes sense for a file
-system client, throughput drops significantly with two clients as the majority
-of the time neither client has the capapbitility as it ping-pongs between
-clients. This observation reveals a tuning parameter: how long a client
-maintains its capapbility lease. In throughputs labeled $2C,<time>$ we show
-aggregate throughput as we decrease the amount of time that a client holds its
-lease before responding to a request for the capapbility.  At lease times as
-low as 10ms throughputs achieve a significant proportion of the locally cached
-throughput.
-
-While the batching mechanism can achieve high-throughput, it is not appropriate
-for applications that require predictable latency. The throughput in
-Figure~\ref{fig:captp} labeled $2C,ZLog$ corresponds to a centeralized
-sequencer implementation. While throughput is lower for two clients (because of
-the synchronous network round-trip required for each request),
-Figure~\ref{fig:capcdf} shows that this approach achieves more predicable
-latency compared to all other approaches except for the single client locally
-cached mode.
-
-\subsubsection{Interface Propogation}
 
 In Section~\ref{} we described an interface management service that is
 responsible for the durable and consistent cluster-wide distribution of
@@ -928,10 +904,18 @@ order to accumulate updates. In a minimum realistic quorum of 3 monitors using
 HDD-based storage, we were able to decrease this interval to an average of 222
 ms.
 
-\subsubsection{Experiment: Object Class
-Programmability}\label{experiment-object-class-programmability}
+\begin{figure}[htbp]
+\centering
+\includegraphics{figures/caps-delay-latency.png}
+\caption{But if the clients hold their capabilities longer, it hurts
+latency for everyone.}
+\end{figure}
 
-Add quote from CORFU paper that talks about what they had to hack
+\subsubsection{CUT THIS Experiment: Client v. MDS caps +
+Failures}\label{cut-this-experiment-client-v.-mds-caps-failures}
+
+\subsubsection{Experiment: Mantle Sequencer
+Balancer}\label{experiment-mantle-sequencer-balancer}
 
 \section{Related Work}
 
