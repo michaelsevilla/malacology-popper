@@ -610,10 +610,9 @@ interpreted language, the bindings are designed to make the exchange of
 variables and functions amongst languages straightforward. The LuaJIT
 virtual machine boasts near-native performance, making it a logical
 choice for scriptability frameworks in systems research
-\autocite{neto:dls14-luaos}. In storage systems, it has been effectively
-used both on \autocites[
-]{grawinkel:pdsw2012-lua}{watkins2013:bdmc13-in-vivo} and off
-\autocite{sevilla:sc15-mantle} the critical path, where performance is
+\cite{neto:dls14-luaos}. In storage systems, it has been effectively
+used both on \cite{grawinkel:pdsw2012-lua,watkins2013:bdmc13-in-vivo} and off
+\cite{sevilla:sc15-mantle} the critical path, where performance is
 important.
 
 Because Lua is interpreted, it is also portable. The portability allows
@@ -628,8 +627,8 @@ other places, like RADOS, so we can enjoy all the other properties
 provided by that particular back-end.
 
 The other two advantages, that Lua leaves a small memory footprint and
-that it is secure, are discussed at length in \autocites[
-]{ierusalimschy_programming_2006}{neto:dls14-luaos}. In short, Lua
+that it is secure, are discussed at length in 
+\cite{ierusalimschy_programming_2006,neto:dls14-luaos}. In short, Lua
 provides relatively robust sandbox capabilities for protecting the
 system against some malicious cases, but does not protect the system
 from poor policies. Since Malacology does not use these features (yet),
