@@ -716,27 +716,16 @@ Lua, and the cls-client uses the lua-rados library to send Lua object
 classes to the OSDs equipped with the LuaJIT VM.
 
 
-\section{Services Built on
-Malacology}\label{services-built-on-malacology}
-
+\section{Services Built on Malacology}
 \label{services}
 
-\begin{table}
-\begin{tabular}{ | l | l | l | l | l |}
-\hline
-Cap Owner & Failure & ZLog Recovery \\ \hline
-mds & mds & mds \\ \hline
-client & mds & xfer client cap \\ \hline
-mds & client & n/a \\ \hline
-client & client & mds \\
-\hline
-\end{tabular}
-\caption{Failure and recovery scenarios.}
-\label{t:mds-zlog-fail}
-\end{table}
+In this section we describe two services built on top of Malacology. The first
+is Mantle, a framework for dynamically specifying metadata load balancing
+policies. The second system, ZLog, is a high-performance distributed shared-log.
+In addition to these services, we'll demonstrate how we combine ZLog and Mantle
+to implement service-aware metadata load balancing policies.
 
-\subsection{Mantle: A Programmable Metadata Load
-Balancer}\label{mantle-a-programmable-metadata-load-balancer}
+\subsection{Mantle: A Programmable Metadata Load Balancer}
 
 Many distributed file systems decouple metadata and data I/O so that
 these services can scale independently~\cite{alam:pdsw2011-metadata-scaling,ghemawat:sosp2003-gfs,hildebrand:msst2005-pnfs,weil_ceph_2006,welch:fast2008-panasas,shvachko:login2012-hdfs-scalability}. Despite
@@ -832,7 +821,9 @@ just based on default traffic 12 13 3. OpenSSL compile
 \subsubsection{Experiment: OpenSSL
 Compile}\label{experiment-openssl-compile}
 
-\subsection{ZLog Sequencer}
+\subsection{ZLog}
+
+\subsubsection{Sequencer}
 
 We evaluated the performance of the ZLog Sequencer implemented in several
 different configurations by showing a trade-off between aggregate throughput
@@ -846,6 +837,25 @@ state is cached locally in the client. When this resource is shared between two
 clients, the MDS uses a best-effort approach to granting the sequencer resource
 to each client (value $2C,BE$). This sharing has a large impact on performance,
 as shown by the nearly three orders of magnitude drop off in throughput.
+
+\begin{figure}[h]
+\centering
+\includegraphics{figures/caps-delay-thruput.png}
+\caption{Sequencer throughput by reusing various services.
+The highest performance is achieved using a single client with
+exclusive, cacheable priviledge. Round-robin sharing of the sequencer
+resource is affected by the amount of time the resource is held,
+with best-effort performing the worst.}
+\label{fig:captp}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics{figures/caps-delay-latency.png}
+\caption{But if the clients hold their capabilities longer, it hurts
+latency for everyone.}
+\label{fig:capcdf}
+\end{figure}
 
 While a best-effort approach to sharing capabilities makes sense for a file
 system client, throughput drops significantly with two clients as the majority
@@ -866,28 +876,7 @@ Figure~\ref{fig:capcdf} shows that this approach achieves more predicable
 latency compared to all other approaches except for the single client locally
 cached mode.
 
-\subsubsection{Experiment: Multi-Client
-Burstiness}\label{experiment-multi-client-burstiness}
-
-\begin{figure}[htbp]
-\centering
-\includegraphics{figures/caps-delay-thruput.png}
-\caption{Sequencer throughput by reusing various services.
-The highest performance is achieved using a single client with
-exclusive, cacheable priviledge. Round-robin sharing of the sequencer
-resource is affected by the amount of time the resource is held,
-with best-effort performing the worst.}
-\label{fig:captp}
-\end{figure}
-
-\begin{figure}[htbp]
-\centering
-\includegraphics{figures/caps-delay-latency.png}
-\caption{But if the clients hold their capabilities longer, it hurts
-latency for everyone.}
-\label{fig:capcdf}
-\end{figure}
-
+\subsubsection{Interface Propogation}
 
 In Section~\ref{} we described an interface management service that is
 responsible for the durable and consistent cluster-wide distribution of
@@ -943,13 +932,6 @@ ms.
 Programmability}\label{experiment-object-class-programmability}
 
 Add quote from CORFU paper that talks about what they had to hack
-
-
-\subsubsection{CUT THIS Experiment: Client v. MDS caps +
-Failures}\label{cut-this-experiment-client-v.-mds-caps-failures}
-
-\subsubsection{Experiment: Mantle Sequencer
-Balancer}\label{experiment-mantle-sequencer-balancer}
 
 \section{Related Work}
 
