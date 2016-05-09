@@ -299,7 +299,7 @@ loaded into the system. %An example usage may be to atomically combine a
 
 \if{false}
 As an example use-case, ZLog needs to
-store metadata information with each object so for each operation, it
+store metadata information with each object, so for each operation, it
 checks the epoch value and write capability (2 metadata reads) and
 writes the index (metadata write).
 \fi
@@ -309,7 +309,7 @@ For example, Figure~\ref{fig:datavsxattr} compares the throughput
 storing metadata: either in the header of the byte stream (data) or in the
 object extended attributes (XATTR). The speed for appending data without
 any metadata operations (data raw) is also shown as a baseline for
-comparison. For append-heavy workloads storing metadata as a header in
+comparison. For append-heavy workloads, storing metadata as a header in
 the data performs about 1.5x better than storing metadata as an extended
 attribute.
 
@@ -325,7 +325,7 @@ metadata (data raw).}
 \label{fig:datavsxattr}
 \end{figure}
 
-The object interface facility provided by Ceph is more than an
+The object interface facility provided by Ceph is more than
 a proof-of-concept active storage implementation.  Figure~\ref{fig:obj-int-dev-growth} shows a dramatic growth in the production use of
 domain-specific interfaces in the Ceph community since 2010.  What is most
 remarkable is that this trend contradicts the notion that API changes are a
@@ -414,10 +414,10 @@ subsystems to build new services. This is the an exhuastive list of services.
 \label{consistencyversioning-of-cluster-state}
 
 A consistent view of cluster state among Ceph daemons and clients is critical
-to provide strong consistency guarnatees to clients.  Ceph maintains cluster
+to provide strong consistency guarantees to clients.  Ceph maintains cluster
 state information in per-subsystem ``maps'' (e.g. OSD map, MDS map) that
 record membership and status information. A PAXOS-based monitoring service is
-responsible integrating state changes into cluster maps, and responding to
+responsible for integrating state changes into cluster maps, and responding to
 requests from out-of-date clients.  As a fundamental building block of many
 system designs, consensus abstractions such as PAXOS are a common technique
 for maintaining consistent data versions, and are a useful system to expose.
@@ -433,7 +433,7 @@ RADOS~\cite{weil_rados_2007}, the reliable distributed object store. RADOS
 uses many techniques to ensure that data is not corrupted or lost, such as
 erasure coding, replication, and data scrubbing. Furthermore, many of these
 techniques try to be autonomous so that work is distributed across the
-cluster. For example, when placement groups change the OSDs rebalance and
+cluster. For example, when placement groups change, the OSDs rebalance and
 re-shard data in the background in a process called placement group splitting.
 
 In order to reduce load on the monitoring service, Ceph OSDs use a gossip
