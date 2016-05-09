@@ -224,9 +224,9 @@ introducing unpredictable performance problems. For example, we are developing
 a high-performance distributed shared-log on Ceph called ZLog, based on the
 CORFU protocol~\cite{corfu}. Without going into greater detail, the CORFU protocol by separating the concern of correctness from the concern of performance enables serialization using a \emph{volatile}
 ``sequencer'' service. This high-performance in-memory counter is used to assign a log
-position to each client that appends to the log. The sequencer is purely a performance optimization and does not have a role in correctness (if the sequencer fails, the tail of the log can always be retrieved by other means). Thus, it is the volatiity of the sequence that enables high performance. A ``bolt-on'' option for building
+position to each client that appends to the log. The sequencer is purely a performance optimization and does not have a role in correctness (if the sequencer fails, the tail of the log can always be retrieved by other means). Thus, it is the volatility of the sequencer that enables high performance. A ``bolt-on'' option for building
 a distributed log is to use PAXOS, or an out-of-the-box solution such as
-Zookeeper. However, these systems adhere to the pre-coneived notions of
+Zookeeper. However, these systems adhere to the preconceived notions of
 storage, namely that data is safe from data loss, which is exactly the feature
 that causes traditional approaches to run at significantly reduced speed. 
 
