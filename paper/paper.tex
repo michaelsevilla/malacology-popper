@@ -773,7 +773,7 @@ down.
 \caption{This is Mantle.}
 \end{figure}
 
-\subsection{ZLog: A Distributed Shared-Log}
+\subsection{ZLog: A Fast Distributed Shared-Log}
 
 The CORFU protocol is enforced using logical storage devices.
 
@@ -788,6 +788,8 @@ for automatic verisoning and dissemtation across the cluster.
 
 log management is supported by mds using a special directory layout
 and file types.
+
+\subsubsection{Sequencer}
 
 The zlog sequencer is volatile, shared resource that requires serialized
 access. in corfu the sequencer is a fast, centeralized network counter
@@ -804,18 +806,17 @@ a different approach to sequencer implementation.
 In Section we quantify the trade-offs of throughput and latency for the
 centeralized sequencer and the batching mechanism based on capabilities.
 
-\subsubsection{Sequencer recovery with
-MDS}\label{sequencer-recovery-with-mds}
-
-\subsubsection{MDS Policy for Revoking
-Capability}\label{mds-policy-for-revoking-capability}
-
 The MDS has a queue of locks that it uses to revoke capabilities from
 the clients. If we put a Mantle-style hook here, we can control when
 those revoke messages go out.
 
-\subsubsection{Mantle Balancing Policies to Migrate
-Sequencers}\label{mantle-balancing-policies-to-migrate-sequencers}
+Mantle is used to implement a zlog file type specific policy for maximizing
+throughput to the sequencer by migration the resource between metadata servers.
+
+Sequencer recovery is handled by tapping into existing recovery mechanisms
+that recover inode state. file type specific recovery augments the existing
+recovery procedure.
+
 
 \section{Evaluation}\label{evaluation}
 
