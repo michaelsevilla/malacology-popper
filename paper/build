@@ -4,22 +4,11 @@
 cp ../experiments/figure1/cls_xattr-vs-data.png figures/
 
 # Build the paper
-docker run \
-  --rm \
-  --workdir="/root" \
-  -v `pwd`/vendor/:/root/.pandoc/templates \
-  -v `pwd`/vendor/:/root/texmf/tex/latex \
-  -v `pwd`/vendor/ieee.csl:/root/ieee.csl \
-  -v `pwd`/vendor/zotero.bib:/root/citations.bib \
-  -v `pwd`/paper.md:/root/paper.md \
-  -v `pwd`/experiments:/root/experiments \
-  -v `pwd`/figures:/root/figures \
-  -v `pwd`/out:/root/out \
-  ivotron/pandoc:1.13.2 \
-    --standalone \
-    --highlight-style tango \
-    --filter pandoc-citeproc \
-    --output=out/main.pdf paper.md 2> build.log
+docker run --rm \
+  --entrypoint=/bin/bash \
+  -v `pwd`/:/mnt \
+  ivotron/texlive:latest -c \
+    "cd /mnt ; pdflatex paper && bibtex paper && pdflatex paper && pdflatex paper" &> build.log
 
 if [ $? != "0" ] ; then
   echo "ERROR"
@@ -27,6 +16,6 @@ if [ $? != "0" ] ; then
   exit 1
 fi
 
-echo "SUCCESS: check out/ folder for output"
+echo "SUCCESS"
 
 exit 0
