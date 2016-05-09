@@ -482,7 +482,7 @@ script is redundantly and consistently distributed to OSDs.
 The distributed metadata service in Ceph provides clients with a POSIX file
 system abstraction. Distributed file systems are complex, but fundamentally
 provide durable hierarhical indexing and distributed locking service.  The
-locking service implements a capabilities that express what data and metadata
+locking service implements capabilities that express what data and metadata
 clients are allowed to access as well as what they may cache locally.  While
 designed for a fixed file abstraction, indexing, locking, and caching are all
 common services that are useful to large sets of applications.
@@ -490,111 +490,11 @@ common services that are useful to large sets of applications.
 \section{Malacology Implementation}
 \label{implementation}
 
-In this section we describe the extensions to existing Ceph services that
-allow for reusability.
+To enable the re-use of Ceph subsystems, Malacology relies heavily on
+interface classes for introducing new functionality into the MDSs and
+OSDs. Malacology introduces 3 components to manage object/metadata
+interfaces:
 
-{Lua Integration.} Because of limited space we describe our extensions
-generally, but we have explicitly added the ability to use Lua to specify
-the customizations. Lua is great because..., and let's us save and version
-interfaces.
-
-Our framework has added a mechanism for defining and running object and
-metadata balancer classes using the Lua scripting language. Scripting is
-useful in large systems for 3 reasons:
-
-\begin{itemize}
-\item
-  accelerates deployment: tweaking policies, like changing a threshold
-  or metric calculation, does not require a full recompile or system
-  start-up.
-\item
-  transparency: if the bindings carefully expose the correct metrics and
-  functions, the user does not need to learn the internal functions,
-  variables, or types of the system.
-\item
-  portability: scripts can be exchanged across platforms and system
-  versions without compatibility issues.
-\end{itemize}
-
-Lua performs well as an embeddable scripting language. Although it is an
-interpreted language, the bindings are designed to make the exchange of
-variables and functions amongst languages straightforward. The LuaJIT
-virtual machine boasts near-native performance, making it a logical
-choice for scriptability frameworks in systems research
-\cite{neto:dls14-luaos}. In storage systems, it has been effectively
-used both on \cite{grawinkel:pdsw2012-lua,watkins2013:bdmc13-in-vivo} and off
-\cite{sevilla:sc15-mantle} the critical path, where performance is
-important.
-
-The other two advantages, that Lua leaves a small memory footprint and
-that it is secure, are discussed at length in 
-\cite{ierusalimschy_programming_2006,neto:dls14-luaos}. In short, Lua
-provides relatively robust sandbox capabilities for protecting the
-
-\subsection{Metadata Services}
-
-{\bf Balancing Policy.}
-Avoiding hard-coded balancing policies are important. First, it is difficult,
-nay impossible, to select a one-size-fits-all policy. System administrators
-may want to partition load based on SLAs, etc... Applications are often in
-a better position to know what to do.
-
-Mantle is a framework that allows balancing policies to be written in Lua,
-and supports such policies be specified at run-time.
-
-{\bf Capabilities.}
-The metadata service tracks the state of clients, including the data they
-may have cached and any locks that they hold. The metadata service is
-responsible responding to client requests for capabilities by first
-revoking caps from other clients. Currently clients voluntarily
-release their capabilities, and the MDS maintains a queue of requests.
-Both clients and MDSs use a best-effort approach to handling capabilities.
-
-In our current we retain the best-effort, volutary release of caps within
-clients, but generalize the queueing policies within the MDS to allow for
-centeralized policies such as fairness or priority.
-
-{\bf File Types.}
-We can reference PDSW12 DataMods, and talk about any new stuff here that we
-want to.
-
-\subsection{Object Storage}
-
-Lua integration. Overhead?
-
-Although these OSD interfaces are powerful, the current implementation
-has drawbacks. OSD interfaces are written in C/C++ and compiled into a
-shared library, so the developer must account for different target
-architectures. Second, C/C++ provides more functionality than is
-necessary since the snippets of interface code mainly set policies and
-perform simple operations. Finally, developing these interfaces in C/C++
-has high overhead. The developer must learn how the OSD dynamically
-
-\subsection{Cluster State}
-
-Map modification for propogation of state. We allow applications to augment
-these data structures with application-specific metdata. In order to keep the
-size of these data structures small application state may be stored elsewhere
-and the references stored within the data structure.
-
-\subsection{Programmability and Durability}
-
-{\bf Recovery.}
-Application specific recovery is critical.
-
-{\bf Durability.}
-
-\noindent \texttt{ceph\ mds\ set\ lua\_balancer\_class\ \textless{}version\textgreater{}}
-\noindent \texttt{ceph\ osd\ pool\ set-class\ \textless{}pool\textgreater{}\ \textless{}class\textgreater{}\ \textless{}script\textgreater{}}
-
-Metadata service policies and object storage interfaces are stored durability
-within RADOS and managed by storing references with the object maps. Since
-the cluster already propogates a consistent view of these data structures,
-we use this service to automatically install interfaces in OSDs, and install
-policies within the MDS such that clients and daemons are synchronzied on
-correct implementations without restarting.
-
-\iffalse
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
 \item
@@ -686,7 +586,7 @@ important.
 
 Because Lua is interpreted, it is also portable. The portability allows
 functions to be shipped around the cluster without having to compile or
-reason about compatibility issues. Traditionally, intefaces are written
+reason about compatibility issues. Traditionally, interfaces are written
 in C/C++, so they must be compiled into shared libraries before being
 injected into the daemon at runtime. Shared libraries need to be
 compiled on the host they will be run on to accomodate different
@@ -708,9 +608,7 @@ we will avoid discussion here.
 Malacogy adds interface hooks to the MDS in the load balancing and
 capability subsystems. In contrast to the Mantle implementation, which
 had a large function hard-coded into the balancer subsystem, Malacology
-embeds code in the MDS using OSD subsystems.
-
-Ceph has a whole
+embeds code in the MDS using OSD subsystems. Ceph has a whole
 infrastructure for getting dynamic code into the OSD. The
 \texttt{ClassHandler} class safely opens object interfaces, executes
 commands defined by the shared library, and fails gracefully with
@@ -743,11 +641,10 @@ metadata (\emph{it i.e.} \texttt{cxx\_omap\_getvals()}, object data,
 object extended attributes, and object versions -- all these are
 dependencies, symbols, and functions are part of the OSD process but not
 the MDS process. As a result, we put interface code that uses these in
-\texttt{cls} directory. With this scheme, The OSD will \texttt{dlopen()}
+\texttt{cls} directory. With this scheme, the OSD will \texttt{dlopen()}
 the shared library created by Lua object interface shared library while
 the MDS will \texttt{dlopen()} the Lua balancer interface shared
 library; both shared libraries will the Lua core.
-\fi
 
 \begin{figure}[htbp]
 \centering
@@ -758,7 +655,6 @@ VM is dynamically loaded first (1) and then interfaces can execute (2).
 \label{fig:cls-osd-mds}}
 \end{figure}
 
-\iffalse
 Both the object and balancer interfaces define functions and attach them
 to the core Lua sandbox. For example, the Lua object storage interface
 class attaches data, extended attribute, object map, and object version
@@ -768,7 +664,8 @@ duplicating code, we provide a framework for putting Lua code in other
 parts of the system, and we remove components and APIs that are too
 integrated with the OSD.
 
-\subsection{Programmability and Durability}
+\subsection{Storing Interfaces in
+RADOS}\label{storing-interfaces-in-rados}
 
 Traditionally, object storage interfaces are compiled into shared
 libraries and loaded into a running OSD daemon using \texttt{dlopen()}.
@@ -803,7 +700,7 @@ robustness of the monitors and persistence with Paxos. The
 implementation uses the placement group pool data structure which
 maintains the policies (\emph{e.g.}, erasure coding) and organization
 details (\emph{e.g.}, snapshots) for each pool. While stuffing the
-information into the monitor map, the structure that describes the the
+information into the monitor map, the structure that describes the
 monitor topology, was an option, the placement group pool allows finer
 grain control over different types of data.
 
@@ -819,9 +716,10 @@ The cls-lua branch lets users write object classes in Lua, the lua-rados
 client library lets users write applications that talk to RADOS with
 Lua, and the cls-client uses the lua-rados library to send Lua object
 classes to the OSDs equipped with the LuaJIT VM.
-\fi
 
-\section{Services Built on Malacology}\label{services-built-on-malacology}
+
+\section{Services Built on
+Malacology}\label{services-built-on-malacology}
 
 \label{services}
 
@@ -905,13 +803,13 @@ and file types.
 \subsubsection{Sequencer}
 
 The zlog sequencer is volatile, shared resource that requires serialized
-access. in corfu the sequencer is a fast, centeralized network counter
+access. In Corfu the sequencer is a fast, centeralized network counter
 resource.
 
-Initially we saught to directly model the sequencer in ceph as a non-exclusive,
+Initially we saught to directly model the sequencer in Ceph as a non-exclusive,
 non-cacheable resource, forcing clients to perform round-trip access the
 resource at the authoratiave MDS for the inode representing the sequencer.
-However, we found that the capapbility system in Ceph is used to batch access
+However, we found that the capability system in Ceph is used to batch access
 to cacheable resources, providing clients best-effort access to the capability
 and allowing them to burst. While unexpected, this alternative mode provides
 a different approach to sequencer implementation.
