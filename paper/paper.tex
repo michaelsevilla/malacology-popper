@@ -773,8 +773,12 @@ down.
 \caption{This is Mantle.}
 \end{figure}
 
-\subsection{ZLog: A Distributed Shared Commit
-Log}\label{zlog-a-distributed-shared-commit-log}
+\subsection{ZLog: A Distributed Shared-Log}
+
+The CORFU protocol is enforced using logical storage devices.
+
+The lua implementation of the interfaces are encoded into cluster maps
+for automatic verisoning and dissemtation across the cluster.
 
 \begin{figure}[htbp]
 \centering
@@ -782,13 +786,23 @@ Log}\label{zlog-a-distributed-shared-commit-log}
 \caption{This is ZLog.}
 \end{figure}
 
-\subsubsection{Consistency}\label{consistency}
+log management is supported by mds using a special directory layout
+and file types.
 
-\subsubsection{Striping Strategies}\label{striping-strategies}
+The zlog sequencer is volatile, shared resource that requires serialized
+access. in corfu the sequencer is a fast, centeralized network counter
+resource.
 
-\subsubsection{Tiering}\label{tiering}
+Initially we saught to directly model the sequencer in ceph as a non-exclusive,
+non-cacheable resource, forcing clients to perform round-trip access the
+resource at the authoratiave MDS for the inode representing the sequencer.
+However, we found that the capapbility system in Ceph is used to batch access
+to cacheable resources, providing clients best-effort access to the capability
+and allowing them to burst. While unexpected, this alternative mode provides
+a different approach to sequencer implementation.
 
-\subsection{MDS as a sequencer}\label{mds-as-a-sequencer}
+In Section we quantify the trade-offs of throughput and latency for the
+centeralized sequencer and the batching mechanism based on capabilities.
 
 \subsubsection{Sequencer recovery with
 MDS}\label{sequencer-recovery-with-mds}
