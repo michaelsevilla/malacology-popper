@@ -71,7 +71,7 @@ storage systems to evolve without sacrificing the robustness of its
 code-hardened subsystems.  We illustrate the advantages and challenges of
 programmability by constructing two services out of existing abstractions: a
 file system metadata load balancer and a high-performance distributed shared-log
-that leverages flash devices.  RESULTS
+that leverages flash devices.
 \end{abstract}
 
 \section{Introduction}
@@ -100,8 +100,7 @@ optimizations~\cite{gray_tape_2007,gray_flash_2008}; (2) demand for managing str
 consistency semantics at scale pressure big data processing systems to
 use storage abstractions that can meet these demands~\cite{apache_contributors_parquet_2014}; and (3)
 production-quality scalable storage systems available as open source
-software have established and are continuing to establish new, \emph{de
-facto} API standards at a faster pace than traditional standards bodies~\cite{snia_implementing_2014,linux_foundation_kinetic_2015}.
+software have established and are continuing to establish new, \emph{de-facto} API standards at a faster pace than traditional standards bodies~\cite{snia_implementing_2014,linux_foundation_kinetic_2015}.
 
 \begin{figure}[tb]
 \centering
@@ -113,7 +112,7 @@ consistent versioning, and a few metadata service daemons (MDSs) for
 scalable metadata service. Ceph's APIs include object, block, file
 abstractions. Malacology enables the programmability of these
 abstractions and services (indicated by bold arrows). To illustrate Malacology we implement two
-services on Ceph, Zlog and Mantle, by programming Ceph's durability,
+services on Ceph, ZLog and Mantle, by programming Ceph's durability,
 consistent versioning, consensus, and metadata subsystems.
 \label{fig:overview}}
 \end{figure}
@@ -125,7 +124,7 @@ jeopardizing years of code-hardening and performance optimization
 efforts that are important for users to continue to entrust their data
 to the storage system.
 
-In this paper we investigate an approach that focusses on generalizing
+In this paper we investigate an approach that focuses on generalizing
 existing storage system resources, services, and abstractions that in
 generalized form can be used to \emph{program} new services. By doing so
 one can reuse subsystems and leverage their optimizations,
@@ -210,7 +209,7 @@ constructing new services by re-purposing existing subsystem
 abstractions contained in Ceph. We build the framework in Ceph by
 leveraging a broad spectrum of existing services, including distributed
 locking and caching services provided by MDSs, durability and logical
-storage devices provided by RADOS, and propogation of consistent cluster
+storage devices provided by RADOS, and propagation of consistent cluster
 state provided by the monitoring service (see Figure~\ref{fig:overview}). As we will show in this paper, this framework is expressive enough to provide the
 functionality necessary for implementing new services. Our contributions
 are:
@@ -236,7 +235,7 @@ are:
 %  \def\labelenumi{\arabic{enumi}.}
 %  \itemsep1pt\parskip0pt\parsep0pt
   \item
-    A high-performance distributed shared log service called Zlog which is based on CORFU~\cite{balakrishnan_corfu_2012}
+    A high-performance distributed shared log service called ZLog which is based on CORFU~\cite{balakrishnan_corfu_2012}
   \item
     A re-implementation of the programmable Mantle metadata load balancing service~\cite{sevilla:sc15-mantle} using Malacology
   \item 
@@ -267,7 +266,7 @@ efforts. The guiding principle is to re-use existing services and extend them so
 
 There are multiple reasons that make Lua an attractive runtime for implementing 
 Malacology. Lua is a portable, embedded
-scripting language that offers superious performance and productivity
+scripting language that offers superior performance and productivity
 trade-offs, including a JIT-based implementation that is well known for near
 native performance. Additionally, Lua has been used extensively in game engines, 
 and systems research \cite{neto:dls14-luaos}, including storage systems where it 
@@ -330,7 +329,7 @@ makes use of this functionality to version object interfaces defined in OSDs
 
 Briefly described in Section~\ref{sec:intro}, Ceph supports the creation
 of application-specific object interfaces~\cite{weil_rados_2007}. The ability
-to offload computation can reduce data movement, and transactional interfaces can
+to offload computation can reduce data movement, and transnational interfaces can
 significantly simplify construction of complex storage interfaces that require
 uncoordinated parallel access. 
 
@@ -341,7 +340,7 @@ context of an object specified when the function is invoked. Developers of
 object interfaces express behavior by creating a composition of native
 interfaces or other custom object interfaces, and handle serialization of
 function input and output. A wide range of native interfaces are available to
-developers, such as reading and writing to a bytestream, controlling snapshots
+developers, such as reading and writing to a byte stream, controlling snapshots
 and clones, all of which may be transactionally composed with access to a
 sorted key-value service allowing applications to create rich interfaces, such
 as using a read-modify-write guard to protect a shared index defined over
@@ -351,7 +350,7 @@ content store in a byte stream.
 \centering
 \includegraphics{figures/implementation.png}
 \caption{Malacology re-uses Ceph subsystems to manage interface classes.
-command. After the proposal is accepted by the cluster of monitors, the
+After the proposal is accepted by the cluster of monitors, the
 script is redundantly and consistently distributed to OSDs.
 \label{fig:implementation}}
 \end{figure}
@@ -395,8 +394,8 @@ To this end we have extended the monitoring service using the framework
 described in Section~\ref{sec:mon} to provide an interface for registration
 and verification of dynamically defined object interfaces. Using this service
 guarantees that interface definitions are not only made durable, but are
-transparently and consistently propogated throughput the cluster and that
-clients are properly synchronousized with the latest interfaces.
+transparently and consistently propagated throughput the cluster and that
+clients are properly synchronized with the latest interfaces.
 
 \subsection{Distributed Metadata Services}
 \label{malacology:mds}
@@ -434,7 +433,7 @@ challenges which are often solved using application-specific sharding.
 
 \paragraph*{Malacology:} New interface hooks are added in strategic spots in
 the metadata service to control load balancing and capabilities, and for
-defining new file types allowing the indexing service to be repurposed for
+defining new file types allowing the indexing service to be re-purposed for
 other types of named resources.
 
 {\bf Load balancing.} Mantle~\cite{sevilla:sc15-mantle}, a programmable
@@ -444,7 +443,7 @@ balancing logic has stayed largely the same but the infrastructure has been
 improved to safely load, manage, and persist its load balancing policies. 
 
 {\bf Safely Loading Classes.} The original Mantle API is fragile: the API is
-not enforced by the runtime, the system allows injectable strings through the
+not enforced by the runtime, the system allows strings to be injected through the
 admin daemon, constructing the Lua script in C++ is clunky, and the
 administrator can inject really bad policies (e.g., while 1) that brings the
 whole system down. Malacology exposes the important subsystems of Ceph's
@@ -508,7 +507,7 @@ revoking or releasing capabilities.
 
 The clients retain the best-effort, voluntary release of capabilities, but in
 Malacology, the queuing policies are generalized within the MDS to allow for
-centeralized policies such as fairness or priority.
+centralized policies such as fairness or priority.
 
 {\bf File Types.} We leverage the same active and typed storage module
 presented in DataMods~\cite{watkins_datamods_2012} to assign state and a set of
@@ -548,7 +547,7 @@ RADOS~\cite{weil_rados_2007}, the reliable distributed object store. RADOS
 uses many techniques to ensure that data is not corrupted or lost, such as
 erasure coding, replication, and data scrubbing. Furthermore, many of these
 techniques try to be autonomous so that work is distributed across the
-cluster. For example, when placement groups change, the OSDs rebalance and
+cluster. For example, when placement groups change, the OSDs re-balance and
 re-shard data in the background in a process called placement group splitting.
 
 In order to reduce load on the monitoring service, Ceph OSDs use a gossip
@@ -560,7 +559,7 @@ discovered.
 within RADOS and managed by storing references with the object maps. Since
 the cluster already propagates a consistent view of these data structures,
 we use this service to automatically install interfaces in OSDs, and install
-policies within the MDS such that clients and daemons are synchronzied on
+policies within the MDS such that clients and daemons are synchronized on
 correct implementations without restarting.
 
 \section{Services Built on Malacology}\label{services-built-on-malacology}
@@ -654,15 +653,15 @@ Malacology framework.
 
 \subsubsection{Sequencer}
 
-High-performance in CORFU is achived using a sequencer service that assigns
+High-performance in CORFU is achieved using a sequencer service that assigns
 log positions to clients by reading from a volatile, in-memory counter which
 can run at a very high throughput and at low-latency. And since the sequencer
-is centralized, ensuring seiralizability in the common case is trivial.  The
+is centralized, ensuring serializability in the common case is trivial.  The
 primary challenge in CORFU is handling the failure of the sequencer in a way
 that preserves correctness. Failure of the sequencer service in CORFU is
 handled by a recovery algorithm that recomputes the new sequencer state using
 an application-specific custom storage interface to discover the tail of the
-log, while simulatenously invalidating stale client requests using an
+log, while simultaneously invalidating stale client requests using an
 epoch-based protocol.
 
 We implement the sequencer service in Malacology as an application-specific
@@ -682,8 +681,8 @@ serialization correctly.
 
 Initially we sought to directly model the sequencer service in Ceph as a
 non-exclusive, non-cacheable resource, forcing clients to perform a round-trip
-access to the resource at the authoratiave metadata server for the sequencer
-inode.  Interestingly, we found that the capapbility system in Ceph uses a
+access to the resource at the authoritative metadata server for the sequencer
+inode.  Interestingly, we found that the capability system in Ceph uses a
 strategy to reduce metadata service load by allowing multiple clients that
 open a shared file to temporarily cache the inode resource, resulting in a
 round-robin, best-effort batching behavior. When a single client is accessing
@@ -722,12 +721,12 @@ contention or high demand.
 
 The storage interface is a critical component in the CORFU design. Clients
 independently map log positions that they have obtained from a sequencer
-service (described in detail in the next seciton) onto storage devices, while
+service (described in detail in the next section) onto storage devices, while
 storage devices provide an intelligent \emph{write}-once, random \emph{read}
 interface for accessing log entries. The key to correctness in CORFU lies with
 the enforcement of up-to-date epoch tags on client requests; requests tagged
 with out-of-date epoch values are rejected, and clients are expected to
-request a new tail from the sequencer after refreshing state from an auxillary
+request a new tail from the sequencer after refreshing state from an auxiliary
 service.  This mechanism forms the basis for sequencer recovery.
 
 In order to repopulate the cached tail value during recovery of a sequencer,
@@ -738,7 +737,7 @@ Since the recovery protocol does not inform clients of a new epoch value until
 the end of the process, the validity of the tail can be guaranteed despite the
 iterative process of contacting storage devices.  Recovery of the sequencer
 process itself may be handled in many ways, such as leader election using an
-auxillary service such as PAXOS.
+auxiliary service such as PAXOS.
 
 \section{Evaluation}\label{evaluation}
 We have conducted our evaluation on CloudLab as well as our own 20 node cluster. We follow the ``Popper Convention"~\cite{anonymous} so as to try and make our experiments as reproducible as possible. We have a GitHub repository with our source code,  experimental environment, configuration parameters, and workloads in a GitHub repository. Due to the double-blind policy, we have temporarily disabled the links to our graphs and experimental details.
@@ -753,7 +752,7 @@ respectively.
 \subsection{ZLog}
 
 We evaluate the mapping of ZLog onto Malacology by examining the costs of
-utilizing the metadata service as a sequencer, and propogating interface
+utilizing the metadata service as a sequencer, and propagating interface
 changes throughout the cluster using the monitoring service. We have omitted
 evaluation of the overhead costs of adding object interfaces themselves due to
 lack of space, and the fact that they are heavily tested and used already in
@@ -780,7 +779,7 @@ as shown by the nearly three orders of magnitude drop off in throughput.
 \includegraphics{figures/caps-delay-thruput.png}
 \caption{Sequencer throughput by reusing various services.
 The highest performance is achieved using a single client with
-exclusive, cacheable priviledge. Round-robin sharing of the sequencer
+exclusive, cacheable privilege. Round-robin sharing of the sequencer
 resource is affected by the amount of time the resource is held,
 with best-effort performing the worst.}
 \label{fig:captp}
@@ -796,18 +795,18 @@ latency for everyone.}
 
 While a best-effort approach to sharing capabilities makes sense for a file
 system client, throughput drops significantly with two clients as the majority
-of the time neither client has the capapbitility as it ping-pongs between
+of the time neither client has the capability as it ping-pongs between
 clients. This observation reveals a tuning parameter: how long a client
-maintains its capapbility lease. In throughputs labeled $2C,<time>$ we show
+maintains its capability lease. In throughput labeled $2C,<time>$ we show
 aggregate throughput as we decrease the amount of time that a client holds its
-lease before responding to a request for the capapbility.  At lease times as
-low as 10ms throughputs achieve a significant proportion of the locally cached
+lease before responding to a request for the capability.  At lease times as
+low as 10ms throughput achieve a significant proportion of the locally cached
 throughput.
 
 \textbf{The Malacology Approach:} Re-use the capability management features of the MDS.
 While the batching mechanism can achieve high-throughput, it is not appropriate
 for applications that require predictable latency. The throughput in
-Figure~\ref{fig:captp} labeled $2C,ZLog$ corresponds to a centeralized
+Figure~\ref{fig:captp} labeled $2C,ZLog$ corresponds to a centralized
 sequencer implementation. While throughput is lower for two clients (because of
 the synchronous network round-trip required for each request),
 Figure~\ref{fig:capcdf} shows that this approach achieves more predicable
@@ -815,7 +814,7 @@ latency compared to all other approaches except for the single client locally
 cached mode.
 
 
-\subsubsection{Interface Propogation}
+\subsubsection{Interface Propagation}
 
 In Section~\ref{consistencyversioning-of-cluster-state} we described an
 interface management service that is responsible for the durable and
@@ -882,7 +881,7 @@ and between 1 and 3 MDS nodes.
 \includegraphics{figures/mantle-seq-thruput.png}
 \caption{A ZLog sequencer that uses the CephFS MDS enjoys the load balancing
 capabilities of the metadata cluster. The ``Sequencer Baseline'' has no
-background sequencers, while the the ``2 Seq'' curves are the throughputs
+background sequencers, while the ``2 Seq'' curves are the throughput
 of 1 sequencer when an additional sequencer is running in the background
 generating load.}\label{fig:mantle-seq-thruput}
 \end{figure}
@@ -934,9 +933,9 @@ Balancing Policy" waits for 120 seconds.
 
 Figure~\ref{fig:mantle-cpu-utilization} gives a time series graph to show the
 behavior of the same workload, 2 sequencers, with balancing turned on and off.
-The curves are the throughputs (\(y\) axis) over time (\(x\) axis) and the graph
+The curves are the throughput (\(y\) axis) over time (\(x\) axis) and the graph
 has been partitioned into the two cluster setups. The CPU utilization is
-confined to one core the MDS is not multithreaded, as it has been shown that
+confined to one core the MDS is not multi-threaded, as it has been shown that
 metadata performance does not improve with multiple
 threads~\cite{konstantinos:pdsw2014-lustre-metadata}. 
 
@@ -944,7 +943,7 @@ Overall, the clients achieve lower performance than the capability experiments
 in Figure~\ref{fig:captp} because the sequencer uses a slower metadata
 operation to manage the capability.  ``Sequencer Baseline" is the best
 performance for this particular workload because there is no contention.
-Performance is stable and the MDS is underloaded because we do not see the
+Performance is stable and the MDS is under-loaded because we do not see the
 spike at the end like the other curves. It appears the bottleneck is somewhere
 with the clients -- perhaps it is our 1GBit/s network link. ``2 Seq; No Load
 Balancing" shows an overloaded sequencer because the performance of our one
@@ -1020,14 +1019,12 @@ related to reliability. We propose that system expose their services in
 a safe way allowing application developers to customize system behavior
 to meet their needs while not sacrificing correctness.
 
-We are intend to pursue this work towards the goal of constructing a set
+We are intending to pursue this work towards the goal of constructing a set
 of customization points that allow a wide variety of storage system
 services to be configured on-the-fly in existing systems. This work is
-one point along that path in which we have looked an a target
-special-purpose storage system. Ultimately we want to utilize
+one point along that path in which we have looked at targeting
+special-purpose storage systems. Ultimately we want to utilize
 declarative methods for expressing new services.
-
-In conclusion, this paper should be accepted.
 
 \bibliography{paper}
 \bibliographystyle{plain}
