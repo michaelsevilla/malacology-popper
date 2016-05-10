@@ -21,7 +21,6 @@ issdm-15
 
 [clients0]
 issdm-45
-<<<<<<< HEAD:experiments/mds-zlog-seq-migrate/hosts
 issdm-18
 issdm-17
 issdm-24
@@ -41,8 +40,3 @@ issdm-16
 
 [graphite]
 piha.soe.ucsc.edu
-=======
-#issdm-18
-#issdm-20
-#issdm-38
->>>>>>> 683717b... client: add ceph-fuse mount/shared stuff:experiments/ceph-deploy/hosts

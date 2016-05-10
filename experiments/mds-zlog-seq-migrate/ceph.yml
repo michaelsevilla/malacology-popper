@@ -42,7 +42,6 @@
     until:    result.stdout.find("HEALTH_OK") != -1
     retries:  120
   - debug:    var=result.stdout_lines
-<<<<<<< HEAD:experiments/mds-zlog-seq-migrate/ceph.yml
   - pause: seconds=30
 
 - hosts: graphite

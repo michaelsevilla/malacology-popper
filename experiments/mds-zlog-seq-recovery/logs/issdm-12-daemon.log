@@ -1,0 +1,7 @@
+static: does not generate config
+HEALTH_ERR 2248 pgs are stuck inactive for more than 300 seconds; 2244 pgs peering; 2248 pgs stuck inactive
+static: does not generate admin key
+2016-05-09 23:50:56.527876 7f3c8fdf5180  0 set uid:gid to 64045:64045 (ceph:ceph)
+2016-05-09 23:50:56.527916 7f3c8fdf5180  0 ceph version 9.0.0-11612-ga018acb (a018acbd46aefacf3a540e94a850ce3aaae4312d), process ceph-mds, pid 88
+starting mds.mds-issdm-12 at :/0
+2016-05-09 23:50:56.528326 7f3c8fdf5180  0 pidfile_write: ignore empty --pid-file
