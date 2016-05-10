@@ -864,17 +864,14 @@ cluster, so we design sequencers uses a more heavy-weight file system
 operation. The experiments use our internal cluster and there are 15 clients
 and between 1 and 3 MDS nodes. 
 
-WE NEED SOMETHING HERE DESCRIBING WHY AN INODE IS A GOOD ABSTRACTION
-
-\begin{figure}[h]
+\begin{figure}[t!]
 \centering
 \includegraphics{figures/mantle-seq-thruput.png}
 \caption{A ZLog sequencer that uses the CephFS MDS enjoys the load balancing
 capabilities of the metadata cluster. The ``Sequencer Baseline'' has no
 background sequencers, while the the ``2 Seq'' curves are the throughputs
 of 1 sequencer when an additional sequencer is running in the background
-generating load.} 
-\label{fig:mantle-seq-thruput.png}
+generating load.}\label{fig:mantle-seq-thruput}
 \end{figure}
 
 \subsubsection{Load Balancing}
@@ -883,7 +880,7 @@ We use a balancer policy specifically designed for the sequencer. The balancer a
 off the ``Greedy Spill Even" approach in the Mantle~\cite{sevilla:sc15-mantle} paper
 but is reproduced here for the reader's convenience. 
 
-\begin{figure}[h]
+\begin{figure}[]
 \begin{lstlisting}
   -- Metadata server load
   mdsload = MDSs[i]["all"]
@@ -898,18 +895,37 @@ but is reproduced here for the reader's convenience.
     \caption{The sequencer balancing policy that works best for bursty workloads. \label{listing:greedy-spill}}
 \end{figure}
 
-Figure~\ref{fig:mantle-seq-thruput.png} gives a macro-level view of the
-performance of the Ceph components exposed by Malacology. Each curve shows the
-throughput from the perspective of one sequencer ({\it y} axis) over time ({\it
-x} axis). The ``Sequencer Baseline'' curve is one sequencer serving 7 clients.
-The sequencer operates on an MDS cluster where balancing is turned off and
-there are no other workloads running. ``2 Seq; No Load Balancing" adds another
-sequencer of equal load running in the background. The performance of the
-background sequencer is omitted. ``2 Seq; Mantle Load Balancing" uses a 3 MDS
-node cluster to provide the sequencer services, again with a background
-sequencer service. Finally, the ``Sequencer Recovery" curve shows the
-performance of the sequencer in a multi-MDS cluster with 2 standby MDS nodes.
-At 60 seconds, MDS 0 is killed. 
+\begin{figure}[t!]
+\centering
+\includegraphics{figures/mantle-cpu-utilization-annotate.png}
+\caption{The sequencer using Mantle in Figure~\ref{fig:mantle-seq-thruput.png}
+migrates to a new MDS immediately because its uses a policy designed for bursty
+workloads. This is a trace of the same workload running twice: once with a
+single MDS and once with Mantle.}
+\label{fig:mantle-cpu-utilization}
+\end{figure}
+
+Figure~\ref{fig:mantle-seq-thruput} gives a macro-level view of the performance
+of the Ceph components exposed by Malacology. Each curve shows the throughput
+from the perspective of one sequencer (\(y\) axis) over time (\(x\) axis).  The
+``Sequencer Baseline'' curve is one sequencer serving 7 clients.  The sequencer
+operates on an MDS cluster where balancing is turned off and there are no other
+workloads running. ``No Load Balancing" adds another sequencer of equal load
+running in the background. The performance of the background sequencer is
+omitted. The last two policies, ``Sequencer Balancing Policy" and
+``Conservative Balancing Policy", show the performance of the sequencer (with a
+background sequencer running) when using Mantle with a 3 MDS node cluster.
+These policies differ by the threshold at which they start balancing:
+``Sequencer Balancing Policy" starts balancing immediately and ``Conservative
+Balancing Policy" waits for 120 seconds.
+
+Figure~\ref{fig:mantle-cpu-utilization} gives a time series graph to show the
+behavior of the same workload, 2 sequencers, with balancing turned on and off.
+The curves are the throughputs (\(y\) axis) over time (\(x\) axis) and the graph
+has been partitioned into the two cluster setups. The CPU utilization is
+confined to one core the MDS is not multithreaded, as it has been shown that
+metadata performance does not improve with multiple
+threads~\cite{konstantinos:pdsw2014-lustre-metadata}. 
 
 Overall, the clients achieve lower performance than the capability experiments
 in Figure~\ref{fig:captp} because the sequencer uses a slower metadata
@@ -921,41 +937,43 @@ with the clients -- perhaps it is our 1GBit/s network link. ``2 Seq; No Load
 Balancing" shows an overloaded sequencer because the performance of our one
 sequencer is low and unstable (high variation in performance). We also deduce
 that it is overloaded by comparing to the ``2 Seq; Mantle Load Balancing"
-curve, which shows improved performance when load is migrated. At 10 seconds, 
+curve, which shows improved performance when load is migrated. At 10 seconds,
 the sequencer balancer immediately starts balancing and decides that two
 sequencer streams should be split onto two MDSs. It migrates to its neighbor as
 per the policy. 
 
 \textbf{The Malacology Principle:} Re-uses the Ceph metadata migration, load
 balancing, cache coherence, and capabilities subsystems of the MDS. Applying
-Mantle's load balancing policy shows 2\(\times\) performance improvent and x\%
-of the baseline best-case performance. 
+Mantle's load balancing policy shows 2.02\(\times\) performance improvement and
+16\% degradation in performance over the baseline, even though the baseline has
+half as many clients.
 
 \subsubsection{Recovery}
 
-- Describe the graph
-
-- We get recovery and load balancing with minimal implementation
-
-
-\subsection{Load Balancing}
-
-\begin{figure}[h]
+\begin{figure}[t]
 \centering
-\includegraphics{figures/mantle-cpu-utilization-annotate.png}
-\caption{The sequencer using Mantle in Figure~\ref{fig:mantle-seq-thruput.png} migrates to a new MDS immediately because its uses a policy designed for bursty workloads. This is a trace of the same workload running twice: once with a single MDS and once with Mantle.}
-\label{fig:mantle-cpu-utilization}
+\includegraphics{figures/recovery-seq-thruput.png}
+\caption{The sequencer using Mantle also inherits all the recovery protocols of
+the Ceph metadata cluster. The throughput of the sequencer drops when we
+terminal MDS 0. The performance quickly resumes and the sequencer is only down
+for 15 seconds.}
+\label{fig:recovery-seq-thruput}
 \end{figure}
 
-- Sequencer specific policy
+This experiment shows how a sequencer handing out tokens can use the Ceph MDS
+recovery protocols to recover. For this workload, two sequencers are running on
+a metadata cluster {\it without} multiple active MDS nodes. In this cluster,
+MDS 1 and MDS 2 are in ``standby" mode, meaning one of them will step in should
+the head MDS 0 fail. At the 60 second mark, we manually kill MDS 0. 
 
-- Describe the graph
+Figure~\ref{fig:recovery-seq-thruput} shows the sequencer throughput (\(y\)
+axis) over time (\(x\) axis). When MDS 0 dies, the MON cluster notices and
+quickly assigns a new MDS to handle the namespace. This is when MDS 1 takes
+over the sequencer duties and starts handing out tokens.
 
-- We get tunable policies 
-
-
-\subsection{Recovery}
-
+\textbf{The Malacology Principle:} Re-uses the Ceph metadata protocols for
+failure detection and recovery. The sequencer recovers in 15 seconds on a new
+MDS and it maintains the same throughput that it had before the failure.
 
 %\subsubsection{Experiment: Object Class
 %Programmability}\label{experiment-object-class-programmability}
