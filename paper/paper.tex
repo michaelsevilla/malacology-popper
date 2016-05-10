@@ -71,7 +71,10 @@ storage systems to evolve without sacrificing the robustness of its
 code-hardened subsystems.  We illustrate the advantages and challenges of
 programmability by constructing two services out of existing abstractions: a
 file system metadata load balancer and a high-performance distributed shared-log
-that leverages flash devices.
+that leverages flash devices. The evaluation demonstrates that our services 
+inherit desirable qualities of Ceph, including the ability to make trade-offs 
+for lease capabilities, balance load (2\(\times\) improvement), propagate interfaces 
+(average of 222ms) and recover (15 second down time).  
 \end{abstract}
 
 \section{Introduction}
