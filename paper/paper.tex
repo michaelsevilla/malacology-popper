@@ -352,14 +352,14 @@ features of the base object class~\cite{bdmc}. New object interfaces that are
 expressed in thousands of lines of code can be implemented in approximately an
 order of magnitude less code~\cite{geambasu_comet_2010}.
 
-All of these modifications work in tandem to implement the desired behavior,
-and are typically co-designed together such that each depends on the other to
-behave as expected. In highly dynamic environments such as a distributed
-storage system, changes to the system propagate at variable rates, requiring
-all components of the system to be able to adapt. Thus, system services
-realized through extensibility should be versioned together as a group,
-exposing the version to allow introspection and domain-specific treatment of
-version mismatch scenarios.
+{\bf Interface management.} All of these modifications work in tandem to
+implement the desired behavior, and are typically co-designed together such
+that each depends on the other to behave as expected. In highly dynamic
+environments such as a distributed storage system, changes to the system
+propagate at variable rates, requiring all components of the system to be able
+to adapt. Thus, system services realized through extensibility should be
+versioned together as a group, exposing the version to allow introspection and
+domain-specific treatment of version mismatch scenarios.
 
 And finally, it is important to not underestimate the importance of the
 preservation of the modifications that enable a new system service. In many
