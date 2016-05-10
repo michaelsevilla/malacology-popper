@@ -380,34 +380,66 @@ clients are properly synchronousized with the latest interfaces.
 \subsection{Distributed Metadata Services}
 \label{malacology:mds}
 
-% Straw man example
-Migrating resources is an important part of load balancing but understanding the effects of different configurations and parameters is difficult. Systems already virtualize and migrate memory; soon systems will be able to migrate other resources, like CPU, disk, and memory. Figuring out how, when, and where to move these resources depends on complex metrics like utilization, configuration, and workload.
+The distributed metadata service in Ceph provides clients with a POSIX file
+system abstraction~\cite{cephfs}. Distributed file systems are complex, but
+fundamentally provide hierarchical indexing and distributed locking services.
+In Ceph, the locking service implements a capability-based system that express
+what data and metadata clients are allowed to access as well as what state
+they may cache and modify locally. While designed for a fixed file
+abstraction, indexing, locking, and caching are all common services that are
+useful to a broad spectrum of applications.
 
-These problems are general, distributed systems load balancing problems and share many of the same properties as the POSIX metadata wall~\cite{alam:pdsw2011-metadata-scaling,ghemawat:sosp2003-gfs,hildebrand:msst2005-pnfs,weil_ceph_2006,welch:fast2008-panasas,shvachko:login2012-hdfs-scalability}. Many distributed file systems decouple metadata and data I/O so that
-these services can scale independently. Despite
-this optimization, scaling the metadata services is still difficult
-because metadata accesses impose small and frequent requests on the
-underlying storage system~\cite{roselli:atec2000-FS-workloads}. Many
-techniques for designing the metadata services have been proposed to
-accommodate this workload: Lustre~\cite{konstantinos:pdsw2014-lustre-metadata}, GFS~\cite{ghemawat:sosp2003-gfs}, and HDFS~\cite{shvachko:login2012-hdfs-scalability} keep all metadata on one
-server; GIGA+~\cite{patil:fast2011-giga}, IndexFS~\cite{ren:sc2014-indexfs}, Lazy Hybrid~\cite{brandt:msst2003-lh}, GPFS~\cite{schmuck:fast2002-gpfs},
-and pNFS~\cite{hildebrand:supercomputing2006-pNFS} hash the file
-system namespace across a dedicated cluster and cache metadata; Panasas~\cite{welch:fast2008-panasas} and CephFS~\cite{weil:sc2004-dyn-metadata} use subtree partitioning to carve up the namespace and distribute it across a cluster.
-
-CephFS moves units of the namespace called directory fragments and assigns them to servers using  its own metadata load balancer. It then uses a hard-coded policy to balance these fragments using a secularized load metric based on CPU, workload, and file system operation metrics~\cite{sevilla:sc15-mantle}.
+Ceph addresses the challenge of balancing load across the metadata cluster
+using load balancing policies that compute balancing metrics based on system
+state (e.g. CPU and memory utilization) and statistics collected by the
+cluster (e.g. the popularity of an inode). Distributed applications that share
+centralized resources (e.g. a database or directory) face similar challenges
+which are often solved using application-specific sharding. 
 
 \paragraph*{Malacology:}
+Malacogy adds interface hooks in strategic spots in the metadata service to
+control load balancing, capability subsystems, and for defining new file
+types allowing the indexing service to be repurposed for other types of
+named resources.
 
-For CephFS, designing a general POSIX metadata load balancer is difficult becuase the workloads are diverse and quickly changing. With CephFS, it is especially complicated because the system has variable sized migration units (i.e. file system namespace subtrees), which can be shipped anywhere (i.e., to any MDS of any capacity) at any time for any reason. Furthermore, the original balancer was designed with hard-coded policies and tunables. Both angles were difficult to understand. It is understandable why it was implemented this way -- it is difficult to pick a one-size-fits-all policy, system administrators may want to partition load based on SLAs, or applications are better equipped to make these decisions, etc. -- but we choose instead to expose a balancing API at strategic points in the balancing logic using Lua hooks. 
+{\bf Load balancing.}
+For CephFS, designing a general POSIX metadata load balancer is difficult
+becuase the workloads are diverse and quickly changing. With CephFS, it is
+especially complicated because the system has variable sized migration units
+(i.e. file system namespace subtrees), which can be shipped anywhere (i.e., to
+any MDS of any capacity) at any time for any reason. Furthermore, the original
+balancer was designed with hard-coded policies and tunables. Both angles were
+difficult to understand. It is understandable why it was implemented this way
+-- it is difficult to pick a one-size-fits-all policy, system administrators
+may want to partition load based on SLAs, or applications are better equipped
+to make these decisions, etc. -- but we choose instead to expose a balancing
+API at strategic points in the balancing logic using Lua hooks. 
 
-\begin{figure}[htbp]
-\centering
-\includegraphics{figures/cls-osd-mds.png}
-\caption{To generalize the LuaVM for use in both the OSD and MDS,
-Malacology detaches the core functionality into a Lua core module. The
-VM is dynamically loaded first (1) and then interfaces can execute (2).
-\label{fig:cls-osd-mds}}
-\end{figure}
+These problems are general, distributed systems load balancing problems and
+share many of the same properties as the POSIX metadata
+wall~\cite{alam:pdsw2011-metadata-scaling,ghemawat:sosp2003-gfs,hildebrand:msst2005-pnfs,weil_ceph_2006,welch:fast2008-panasas,shvachko:login2012-hdfs-scalability}.
+Many distributed file systems decouple metadata and data I/O so that these
+services can scale independently. Despite this optimization, scaling the
+metadata services is still difficult because metadata accesses impose small
+and frequent requests on the underlying storage
+system~\cite{roselli:atec2000-FS-workloads}. Many techniques for designing the
+metadata services have been proposed to accommodate this workload:
+Lustre~\cite{konstantinos:pdsw2014-lustre-metadata},
+GFS~\cite{ghemawat:sosp2003-gfs}, and
+HDFS~\cite{shvachko:login2012-hdfs-scalability} keep all metadata on one
+server; GIGA+~\cite{patil:fast2011-giga}, IndexFS~\cite{ren:sc2014-indexfs},
+Lazy Hybrid~\cite{brandt:msst2003-lh}, GPFS~\cite{schmuck:fast2002-gpfs}, and
+pNFS~\cite{hildebrand:supercomputing2006-pNFS} hash the file system namespace
+across a dedicated cluster and cache metadata;
+Panasas~\cite{welch:fast2008-panasas} and
+CephFS~\cite{weil:sc2004-dyn-metadata} use subtree partitioning to carve up
+the namespace and distribute it across a cluster.
+
+CephFS moves units of the namespace called directory fragments and assigns
+them to servers using  its own metadata load balancer. It then uses a
+hard-coded policy to balance these fragments using a secularized load metric
+based on CPU, workload, and file system operation
+metrics~\cite{sevilla:sc15-mantle}.
 
 Both the object and balancer interfaces define functions and attach them
 to the core Lua sandbox. For example, the Lua object storage interface
@@ -418,34 +450,27 @@ duplicating code, we provide a framework for putting Lua code in other
 parts of the system, and we remove components and APIs that are too
 integrated with the OSD.
 
-To facilitate the use of Lua in both the MDS and OSD, we modularize the LuaVM in a core sandbox wrapper and link against it, as shown in Figure~\ref{fig:cls-osd-mds}. This core Lua wrapper contains
-just the dependencies, symbols, and functions, needed to run the Lua VM and strips away all the functionality inherent to object classes (like placement group filters, cryptography functions, object metadata,  object data, object extended attributes, and object versions). Some functions of Ceph's more helpful subsystems, like the logging facilities for the daemons, were re-used in the MDS.  With this scheme, The OSD will dynamically open the shared library created by Lua object interface shared library while the MDS will dynamically open the Lua balancer interface shared
-library; both shared libraries will the Lua core.
+To facilitate the use of Lua in both the MDS and OSD, we modularize the LuaVM
+in a core sandbox wrapper and link against it, as shown in
+Figure~\ref{fig:cls-osd-mds}. This core Lua wrapper contains just the
+dependencies, symbols, and functions, needed to run the Lua VM and strips away
+all the functionality inherent to object classes (like placement group
+filters, cryptography functions, object metadata,  object data, object
+extended attributes, and object versions). Some functions of Ceph's more
+helpful subsystems, like the logging facilities for the daemons, were re-used
+in the MDS.  With this scheme, The OSD will dynamically open the shared
+library created by Lua object interface shared library while the MDS will
+dynamically open the Lua balancer interface shared library; both shared
+libraries will the Lua core.
 
-\subsection{File System Indexing and Locking}
-
-The distributed metadata service in Ceph provides clients with a POSIX file
-system abstraction. Distributed file systems are complex, but fundamentally
-provide durable hierarchical indexing and distributed locking service.  The
-locking service implements a capabilities that express what data and metadata
-clients are allowed to access as well as what they may cache locally.  While
-designed for a fixed file abstraction, indexing, locking, and caching are all
-common services that are useful to large sets of applications.
-
-\paragraph*{Malacology:} Malacogy adds interface hooks in strategic spots in the MDS to control the load balancing and capability subsystems.
-Malacogy adds interface hooks in strategic spots in the MDS to control the load balancing and capability subsystems. 
-
-These hooks embed Lua code in the MDS using the
-OSD subsystems. By re-using the OSD interface classes, the MDS gets the safety and robustness of loading dynamic code (including graceful failures and helpful errors), the ease of transferring state between object
-interfaces and the OSD internals, integration with testing and
-correctness suites, and \texttt{struct}s for interface data and
-handlers. 
-
-The metadata service also manages sessions with its clients. This gives both subsystems (MDSs and clients) the ability cache data and grab locks. The metadata service is
-responsible for responding to client requests for capabilities by first
-revoking caps from other clients. Currently clients voluntarily
-release their capabilities, and the MDS maintains a queue of requests.
-Both clients and MDSs use a best-effort approach to revoking or releasing capabilities.
+{\bf Capabilities.}
+The metadata service also manages sessions with its clients. This gives both
+subsystems (MDSs and clients) the ability cache data and grab locks. The
+metadata service is responsible for responding to client requests for
+capabilities by first revoking caps from other clients. Currently clients
+voluntarily release their capabilities, and the MDS maintains a queue of
+requests.  Both clients and MDSs use a best-effort approach to revoking or
+releasing capabilities.
 
 In our current we retain the best-effort, voluntary release of caps within
 clients, but generalize the queueing policies within the MDS to allow for
@@ -455,6 +480,33 @@ centeralized policies such as fairness or priority.
 We can reference PDSW12 DataMods, and talk about any new stuff here that we
 want to.
 
+{\bf Policy management.} A new interface is added to the metadata service
+subsystem using the monitoring framework to support management of interfaces,
+which ensures durability and distribution of policies in a consistent way.
+
+\begin{figure}[h]
+\centering
+\includegraphics{figures/cls-osd-mds.png}
+\caption{To generalize the LuaVM for use in both the OSD and MDS,
+Malacology detaches the core functionality into a Lua core module. The
+VM is dynamically loaded first (1) and then interfaces can execute (2).
+\label{fig:cls-osd-mds}}
+\end{figure}
+
+% Straw man example
+%Migrating resources is an important part of load balancing but understanding
+%the effects of different configurations and parameters is difficult. Systems
+%already virtualize and migrate memory; soon systems will be able to migrate
+%other resources, like CPU, disk, and memory. Figuring out how, when, and where
+%to move these resources depends on complex metrics like utilization,
+%configuration, and workload.
+
+%These hooks embed Lua code in the MDS using the OSD subsystems. By re-using
+%the OSD interface classes, the MDS gets the safety and robustness of loading
+%dynamic code (including graceful failures and helpful errors), the ease of
+%transferring state between object interfaces and the OSD internals,
+%integration with testing and correctness suites, and \texttt{struct}s for
+%interface data and handlers. 
 
 \subsection{Durability}
 \label{sec:durability}
