@@ -245,15 +245,13 @@ are:
     An application of Mantle to manage load-balancing of sequencers.
   \end{enumerate}
 
-First, we describe existing techniques for adapting storage systems
-(\S\ref{sec:evidence}). Next, we discuss the ``distributed systems'' inspired
-abstractions employed by Ceph (\S\ref{background}) and allude to their
-re-usability as components in other services. The next section
-enumerates the abstractions that Malacology exposes in the
-implementation section (\S\ref{implementation}). We then show how we use
-Malacology to synthesize entirely new storage services on an existing
-system through configuration and small changes (\S\ref{services}). We
-conclude by evaluating real-world use cases (\S\ref{evaluation}).
+The remainder of this paper is structured as follows. First we describe
+Malacology by presenting the subsystems within Ceph that we re-purpose, and
+briefly describe how those system are used within Malacology
+(\S\ref{sec:malacology}). Next we describe the services that we have
+constructed within the Malacology framework (\S\ref{sec:services}),
+and evaluate our ideas within our prototype implementation
+(\S\ref{evaluation}). Finally we discuss related work and conclude.
 
 \section{Challenges}
 \label{sec:challenges}
@@ -296,6 +294,7 @@ We will now discuss the subsystems Ceph uses to provide a general-purpose
 storage system and how Malacology makes them programmable.
 
 \subsection{Cluster State Management}
+\label{sec:mon}
 \label{consistencyversioning-of-cluster-state}
 
 % straw man example
@@ -326,16 +325,16 @@ application-specific logic that can be executed for particular maps (or values
 in a map).
 
 \paragraph*{Malacology:} Malacology exposes Ceph's PAXOS-based monitoring
-service by embedding a Lua VM in the monitors that implements a generic API
-for creating dynamic interfaces around existing subsystems that may associated
-additional state with a subsystem map.
-As a consequence of this, applications can define simple but useful 
-domain-specific logic to the PAXOS quorum, such as authorization control (just 
-specific clients can write new values) or to trigger actions based on specific 
-values (e.g. sanitize values). Since the monitor is intended to be out of 
-high-performance I/O paths, a general guideline is to make use of this 
-functionality infrequently and to assign small values to maps. Malacology itself 
-makes use of this functionality to version object interfaces defined in OSDs 
+service implementing a generic API
+for adding arbitrary values to existing subsystem cluster maps, namely to the 
+OSD map and the MDS map. As a consequence of this, applications can define 
+simple but useful domain-specific logic to the PAXOS state machine, such as 
+authorization control (just specific clients can write new values) or to trigger 
+actions based on specific values (e.g. sanitize values). Since the monitor is 
+intended to be out of high-performance I/O paths, a general guideline is to make 
+use of this functionality infrequently and to assign small values to maps. 
+Malacology itself makes use of this functionality to register, version and 
+propagate dynamic code (Lua scripts) for new object interfaces defined in OSDs 
 (\S\ref{active-storage}) and load balancing policies in MDSs 
 (\S\ref{malacology:mds}).
 
@@ -364,9 +363,14 @@ content store in a byte stream.
 \begin{figure}[htbp]
 \centering
 \includegraphics{figures/implementation.png}
-\caption{Malacology re-uses Ceph subsystems to manage interface classes.
-After the proposal is accepted by the cluster of monitors, the
-script is redundantly and consistently distributed to OSDs.
+\caption{Malacology re-uses Ceph subsystems to allow users to dynamically define 
+new object interfaces and load balancing policies. It achieves this by extending 
+the OSD and MDS subsystems with an embedded Lua VM. To manage newly dynamic 
+interface classes, it exposes the core functionality of the Monitor to allow 
+arbitrary data to be associated to ODS and MDS cluster maps. After new 
+interfaces are submitted to the monitor and the associated Paxos proposal is 
+accepted by the monitor quorum, the script is redundantly and consistently 
+distributed to OSDs so this snippets persist.
 \label{fig:implementation}}
 \end{figure}
 
@@ -376,7 +380,7 @@ interface developers, Ceph requires distribution of compiled binaries for the
 correct architecture, adding a large barrier of entry for developers and
 system administrators. Second, having no way to dynamically unload modules,
 any changes require a full restart of an OSD which may have serious
-performance impacts due to a loss of cached data~\cite{facebook-mysql}. And
+performance impacts due to a loss of cached data. And
 finally, the security limitations of the framework limit the use of object
 classes to all but those with administrative level access and deep technical
 expertise.
@@ -385,7 +389,7 @@ To address these concerns, Malacology takes advantage of community contributed
 Lua extensions to Ceph allowing new object interfaces to be dynamically loaded
 into the system and modified at runtime, resulting in a object storage API
 with economy of expression, which at the same time provides the full set of
-features of the base object class~\cite{bdmc}. New object interfaces that are
+features of the base object class. New object interfaces that are
 expressed in thousands of lines of code can be implemented in approximately an
 order of magnitude less code~\cite{geambasu_comet_2010}.
 
@@ -577,7 +581,9 @@ we use this service to automatically install interfaces in OSDs, and install
 policies within the MDS such that clients and daemons are synchronized on
 correct implementations without restarting.
 
-\section{Services Built on Malacology}\label{services-built-on-malacology}
+\section{Services Built on Malacology}
+\label{sec:services}
+\label{services-built-on-malacology}
 
 \label{services}
 
@@ -641,12 +647,6 @@ round). Thus, Malacology only stores policies IDs which correspond to an object
 in a system-maintained pool. When MDSs read a policy, they first check latest 
 version from the MDS map, and then dereference the pointer by reading the 
 corresponding object in RADOS.
-
-\begin{figure}[htbp]
-\centering
-\includegraphics{figures/overview-mantle.png}
-\caption{This is Mantle.}
-\end{figure}
 
 \subsection{ZLog: A Fast Distributed Shared-Log}
 \label{sec:zlog}
@@ -714,7 +714,7 @@ able to cache the sequencer resource. This allows an administrator or
 application to control the trade-off between latency and throughput beyond the
 standard best-effort policy that is present in Ceph by default.
 
-In Section~\cite{evaluation} we quantify the trade-offs of throughput and
+In Section~\ref{evaluation} we quantify the trade-offs of throughput and
 latency for an approach based on a round-robin batching mode, and compare this
 mode to one in which the metadata server mediates access to the sequencer
 state when in it is being shared among multiple clients.
@@ -754,7 +754,8 @@ iterative process of contacting storage devices.  Recovery of the sequencer
 process itself may be handled in many ways, such as leader election using an
 auxiliary service such as PAXOS.
 
-\section{Evaluation}\label{evaluation}
+\section{Evaluation}
+\label{evaluation}
 We have conducted our evaluation on CloudLab as well as our own 20 node cluster. We follow the ``Popper Convention"~\cite{anonymous} so as to try and make our experiments as reproducible as possible. We have a GitHub repository with our source code,  experimental environment, configuration parameters, and workloads in a GitHub repository. Due to the double-blind policy, we have temporarily disabled the links to our graphs and experimental details.
 
 Much of this work focuses on the programmability of Ceph and the services that
@@ -925,7 +926,7 @@ but is reproduced here for the reader's convenience.
 \begin{figure}[t!]
 \centering
 \includegraphics{figures/mantle-cpu-utilization-annotate.png}
-\caption{The sequencer using Mantle in Figure~\ref{fig:mantle-seq-thruput.png}
+\caption{The sequencer using Mantle in Figure~\ref{fig:mantle-seq-thruput}
 migrates to a new MDS immediately because its uses a policy designed for bursty
 workloads. This is a trace of the same workload running twice: once with a
 single MDS and once with Mantle.}
