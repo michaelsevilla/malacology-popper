@@ -389,6 +389,8 @@ clients are allowed to access as well as what they may cache locally.  While
 designed for a fixed file abstraction, indexing, locking, and caching are all
 common services that are useful to large sets of applications.
 
+\paragraph*{Malacology:}
+
 \subsection{Metadata Load Balancing}
 
 % Straw man example
@@ -406,6 +408,8 @@ and pNFS~\cite{hildebrand:supercomputing2006-pNFS} hash the file
 system namespace across a dedicated cluster and cache metadata; Panasas~\cite{welch:fast2008-panasas} and CephFS~\cite{weil:sc2004-dyn-metadata} use subtree partitioning to carve up the namespace and distribute it across a cluster.
 
 CephFS moves units of the namespace called directory fragments and assigns them to servers using  its own metadata load balancer. It then uses a hard-coded policy to balance these fragments using a secularized load metric based on CPU, workload, and file system operation metrics~\cite{sevilla:sc15-mantle}.
+
+\paragraph*{Malacology:}
 
 \section{Malacology Implementation}
 \label{implementation}
