@@ -1005,13 +1005,6 @@ adaptable vs.~greedy vs.~fill\&spill 9 10 3. sequencer balancer 11 -
 just based on default traffic 12 13 3. OpenSSL compile
 \textasciitilde{}\\\label{evaluation}
 
-\subsection{Mantle}\label{mantle}
-
-\subsubsection{Experiment: FileBench}\label{experiment-filebench}
-
-\subsubsection{Experiment: OpenSSL
-Compile}\label{experiment-openssl-compile}
-
 \subsection{ZLog}
 
 \subsubsection{Sequencer}
@@ -1118,6 +1111,29 @@ load. By default Paxos proposals occur periodically with a 1 second interval in
 order to accumulate updates. In a minimum realistic quorum of 3 monitors using
 HDD-based storage, we were able to decrease this interval to an average of 222
 ms.
+
+\subsection{Mantle}
+
+\subsection{MDS as a Sequencer}
+\begin{figure}[h]
+\centering
+\includegraphics{figures/mantle-seq-thruput.png}
+\caption{A ZLog sequencer that uses the CephFS metadata cluster enjoys all the benefits of the MDS recovery ("Sequencer Recovery") and load balancing protocols (``Mantle Load Balancing''). The ``2 Seq'' curves are the throughputs of 1 sequencer when an additional sequencer is running in the background generating load. The ``Sequencer Baseline'' has no background sequencers.}
+\label{fig:mantle-seq-thruput.png}
+\end{figure}
+
+
+\begin{figure}[h]
+\centering
+\includegraphics{figures/mantle-cpu-utilization-annotate.png}
+\caption{The sequencer using Mantle in Figure~\ref{fig:mantle-seq-thruput.png} migrates to a new MDS immediately because its uses a policy designed for bursty workloads. This is a trace of the same workload running twice: once with a single MDS and once with Mantle.}
+\label{fig:mantle-cpu-utilization}
+\end{figure}
+
+\subsection{Load Balancing}
+
+\subsection{Recovery}
+
 
 %\subsubsection{Experiment: Object Class
 %Programmability}\label{experiment-object-class-programmability}
