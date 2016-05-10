@@ -424,30 +424,60 @@ code~\cite{geambasu_comet_2010}.
 % todo:
 %  - ellude to the need for policies to be avialable quickly to support
 %    our experiment about propogtation delay
-%
+% Original: inject strings
+% New: use C++ bindings
 
-{\bf Balancing Policy.}
+Malacogy adds interface hooks in strategic spots in the MDS to control the load balancing and capability subsystems. 
 
-Avoiding hard-coded balancing policies is important. First, it is difficult,
-nay impossible, to select a one-size-fits-all policy. System administrators
-may want to partition load based on SLAs, etc... Applications are often in
-a better position to know what to do.
+\subsubsection{Balancing Policy}
 
-{\bf Capabilities.}
-The metadata service tracks the state of clients, including the data they
-may have cached and any locks that they hold. The metadata service is
-responsible responding to client requests for capabilities by first
+For CephFS, designing a general POSIX metadata load balancer is difficult becuase the workloads are diverse and quickly changing. With CephFS, it is especially complicated because the system has variable sized migration units (i.e. file system namespace subtrees), which can be shipped anywhere (i.e., to any MDS of any capacity) at any time for any reason. Furthermore, the original balancer was designed with hard-coded policies and tunables. Both angles were difficult to understand. It is understandable why it was implemented this way -- it is difficult to pick a one-size-fits-all policy, system administrators may want to partition load based on SLAs, or applications are better equipped to make these decisions, etc. -- but we choose instead to expose a balancing API at strategic points in the balancing logic using Lua hooks. 
+
+These hooks embed Lua code in the MDS using the
+OSD subsystems. By re-using the OSD interface classes, the MDS gets the safety and robustness of loading dynamic code (including graceful failures and helpful errors), the ease of transferring state between object
+interfaces and the OSD internals, integration with testing and
+correctness suites, and \texttt{struct}s for interface data and
+handlers. 
+
+To facilitate the use of Lua in both the MDS and OSD, we modularize the LuaVM in a core sandbox wrapper and link against it, as shown in Figure~\ref{fig:cls-osd-mds}. This core Lua wrapper contains
+just the dependencies, symbols, and functions, needed to run the Lua VM and strips away all the functionality inherent to object classes (like placement group filters, cryptography functions, object metadata,  object data, object extended attributes, and object versions). Some functions of Ceph's more helpful subsystems, like the logging facilities for the daemons, were re-used in the MDS.  With this scheme, The OSD will dynamically open the shared library created by Lua object interface shared library while the MDS will dynamically open the Lua balancer interface shared
+library; both shared libraries will the Lua core.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{figures/cls-osd-mds.png}
+\caption{To generalize the LuaVM for use in both the OSD and MDS,
+Malacology detaches the core functionality into a Lua core module. The
+VM is dynamically loaded first (1) and then interfaces can execute (2).
+\label{fig:cls-osd-mds}}
+\end{figure}
+
+Both the object and balancer interfaces define functions and attach them
+to the core Lua sandbox. For example, the Lua object storage interface
+class attaches data, extended attribute, object map, and object version
+functions, to the Lua core functions, as shown in Figure
+\ref{fig:cls-osd-mds}. The advantages of this is that we avoid
+duplicating code, we provide a framework for putting Lua code in other
+parts of the system, and we remove components and APIs that are too
+integrated with the OSD.
+
+
+\subsubsection{Capabilities}
+
+The metadata service also manages sessions with its clients. This gives both subsystems (MDSs and clients) the ability cache data and grab locks. The metadata service is
+responsible for responding to client requests for capabilities by first
 revoking caps from other clients. Currently clients voluntarily
 release their capabilities, and the MDS maintains a queue of requests.
-Both clients and MDSs use a best-effort approach to handling capabilities.
+Both clients and MDSs use a best-effort approach to revoking or releasing capabilities.
 
-In our current we retain the best-effort, volutary release of caps within
+In our current we retain the best-effort, voluntary release of caps within
 clients, but generalize the queueing policies within the MDS to allow for
 centeralized policies such as fairness or priority.
 
 {\bf File Types.}
 We can reference PDSW12 DataMods, and talk about any new stuff here that we
 want to.
+
 
 \subsection{Cluster State}
 
@@ -463,12 +493,10 @@ Application specific recovery is critical.
 
 {\bf Durability.}
 
-\noindent \texttt{ceph\ mds\ set\ lua\_balancer\_class\ \textless{}version\textgreater{}}
-\noindent \texttt{ceph\ osd\ pool\ set-class\ \textless{}pool\textgreater{}\ \textless{}class\textgreater{}\ \textless{}script\textgreater{}}
 
 Metadata service policies and object storage interfaces are stored durability
 within RADOS and managed by storing references with the object maps. Since
-the cluster already propogates a consistent view of these data structures,
+the cluster already propagates a consistent view of these data structures,
 we use this service to automatically install interfaces in OSDs, and install
 policies within the MDS such that clients and daemons are synchronzied on
 correct implementations without restarting.
@@ -584,68 +612,12 @@ we will avoid discussion here.
 
 \subsection{New Interface Hooks}\label{new-interface-hooks}
 
-Malacogy adds interface hooks to the MDS in the load balancing and
-capability subsystems. In contrast to the Mantle implementation, which
-had a large function hard-coded into the balancer subsystem, Malacology
-embeds code in the MDS using OSD subsystems.
 
-Ceph has a whole
-infrastructure for getting dynamic code into the OSD. The
-\texttt{ClassHandler} class safely opens object interfaces, executes
-commands defined by the shared library, and fails gracefully with
-helpful errors if anything goes wrong. Instead of injecting strings
-directly into Ceph (like we did with the original Mantle
-implementation), the \texttt{ClassHandler} class safely opens shared
-code, even code with dependencies that are not in Ceph itself (e.g.,
-Lua).
-
-With the \texttt{ClassHandler}, the MDS gets the safety and robustness
-of loading dynamic code, the ease of transferring state between object
-interfaces and the OSD internals, integration with testing and
-correctness suites, and \texttt{struct}s for interface data and
-handlers. Using the OSD class handler hooks also gives the MDS the
-ability to load interfaces from the local file system.
-
-We generalize the Lua VM since it will be used in both the OSD and MDS.
-We put the core sandbox wrapper for the Lua object interface in a common
-directory in Ceph and link against it. This core Lua wrapper contains
-just the dependencies, symbols, and functions, need to run the Lua VM.
-Some of these functions include \texttt{clslua\_log()} for transferring
-logs to the daemon logs and \texttt{clslua\_pcall()} for calling Lua
-functions.
-
-Dependencies, symbols, and functions specific to the object or balancer
-interface are put in the \texttt{cls} or \texttt{bal} directories,
-respectively. For example, the Lua object interface uses functions that
-have placement group filters, cryptography functions, and object
-metadata (\emph{it i.e.} \texttt{cxx\_omap\_getvals()}, object data,
-object extended attributes, and object versions -- all these are
-dependencies, symbols, and functions are part of the OSD process but not
-the MDS process. As a result, we put interface code that uses these in
-\texttt{cls} directory. With this scheme, The OSD will \texttt{dlopen()}
-the shared library created by Lua object interface shared library while
-the MDS will \texttt{dlopen()} the Lua balancer interface shared
-library; both shared libraries will the Lua core.
 \fi
 
-\begin{figure}[htbp]
-\centering
-\includegraphics{figures/cls-osd-mds.png}
-\caption{To generalize the LuaVM for use in both the OSD and MDS,
-Malacology detaches the core functionality into a Lua core module. The
-VM is dynamically loaded first (1) and then interfaces can execute (2).
-\label{fig:cls-osd-mds}}
-\end{figure}
 
 \iffalse
-Both the object and balancer interfaces define functions and attach them
-to the core Lua sandbox. For example, the Lua object storage interface
-class attaches data, extended attribute, object map, and object version
-functions, to the Lua core functions, as shown in Figure
-\ref{fig:cls-osd-mds}. The advantages of this is that we avoid
-duplicating code, we provide a framework for putting Lua code in other
-parts of the system, and we remove components and APIs that are too
-integrated with the OSD.
+
 
 \subsection{Programmability and Durability}
 
@@ -736,6 +708,8 @@ using Mantle, one can implement a single node metadata service, a distributed
 metadata services with hashing, and a distributed metadata service with dynamic 
 subtree partitioning.
 
+\subsection{Re-Implementation}
+
 The Ceph team wants to merge Mantle because the scriptability is useful
 for debugging, controlling the metadata balancer, and examining
 trade-offs for different balancers. Unfortunately, this research quality
@@ -747,9 +721,26 @@ constructing the Lua script in C++ is clunky, and the administrator can
 inject really bad policies (e.g., while 1) that brings the whole system
 down.
 
-Mantle is a framework that allows balancing policies to be written in Lua,
-and supports such policies be specified at run-time.
-We implemented it using the components from section 3. I will tell you about them here.
+The API for Malacology is the same as the one exposed in~\cite{sevilla:sc15-mantle} but the hooks are put in different places using the interface hooks described in Section \S\ref{}.
+
+\subsection{Policy Versioning}
+
+For Mantle, we added new monitor command to change the metadata load balancers:
+
+\noindent \texttt{ mds\ set\ lua\_balancer\_class\ \textless{}version\textgreater{}}
+%\noindent \texttt{ceph\ osd\ pool\ set-class\ \textless{}pool\textgreater{}\ \textless{}class\textgreater{}\ \textless{}script\textgreater{}}
+
+This command assigns the current version of the metadata load balancer. In our case, it is simply the name of the balancer. The MONs take the version and store it in the MDS map. Similar to the PG map or MON maps, the MDS map has all the information about the topology and state of the MDS cluster. Leveraging the MONs helps ease the burden on the MDS to propagate the policy and ensure that everyone agrees.
+
+There are Ceph components that are obstacles to this approach, namely the size of the  MDS map, API changes, and security. The Ceph engineers want to avoid using the maps to exchange information; the maps should be lightweight and fast because the MONs need to be able to version MDS cluster state quickly. API changes can also be a burden, especially for the MDS map, since all clients need to have the same version of the CephFS library in order to properly interact with CephFS. Finally, Ceph tries to avoid injecting strings into the cluster because they are insecure and buggy. 
+
+\subsection{Policy Durability}
+
+- 
+
+- 
+
+- 
 
 
 \begin{figure}[htbp]
