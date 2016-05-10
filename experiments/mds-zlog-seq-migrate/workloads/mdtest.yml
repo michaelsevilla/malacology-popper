@@ -1,0 +1,28 @@
+---
+- hosts: clients
+  tasks:
+    - name: setup client convenience functions
+      set_fact:
+        ceph: "docker run --rm --entrypoint=ceph -v /etc/ceph:/etc/ceph {{ ceph_client_docker_username }}/{{ ceph_client_docker_imagename }}"
+
+    - name: allow multiple active MDSs
+      command: "{{ ceph }} mds set allow_multimds true --yes-i-really-mean-it"
+      run_once: True
+
+    - name: activate the standby MDSs
+      command: "{{ ceph }} mds set max_mds 5"
+      run_once: True
+
+    - name: turn off balancing
+      command: "{{ ceph }} mds set lua_balancer_script bal_greedyspill"
+      run_once: True
+
+    - name: start a client that demands a lot
+      shell: >
+             docker run  -d \
+               --name=client0 \
+               --volumes-from cephfs \
+               piha.soe.ucsc.edu:5000/michaelsevilla/mdtest \
+               -F -C -n 100000 -d /cephfs/test-{{ ansible_hostname }}
+
+    - pause: seconds=30

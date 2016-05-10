@@ -1,5 +1,5 @@
 #!/bin/bash
 set -ex
-cd ceph-deploy
+cd scale-clients
 ./run.sh
 cd -

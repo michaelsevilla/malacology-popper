@@ -1,0 +1,28 @@
+---
+- hosts: graphite
+  become: True
+  tasks: 
+    - name: copy the data into a spot where we can grab it
+      shell: docker exec graphite cp -r /opt/graphite/storage/whisper/ /tmp/graphite
+
+    - name: figure out which nodes we have
+      shell: ls /tmp/graphite/whisper | grep -v carbon
+      register: result
+
+    - name: tar it
+      shell: tar czf /tmp/graphite/whisper/{{ item }}.tar.gz /tmp/graphite/whisper/{{ item }}
+      with_items: 
+        - "{{ result.stdout_lines }}"
+    
+    - name: get those tars
+      fetch: src=/tmp/graphite/whisper/{{ item }}.tar.gz dest={{ playbook_dir }}/results/{{ item }}.tar.gz flat=yes
+      with_items:
+        - "{{ result.stdout_lines }}" 
+
+- hosts: mdss
+  tasks:
+    - name: dump the logs
+      shell: docker logs ceph-{{ ansible_hostname }}-mds > out 2>&1
+
+    - name: get those logs
+      fetch: src=out dest={{ playbook_dir }}/logs/{{ ansible_hostname }}-daemon.log flat=yes

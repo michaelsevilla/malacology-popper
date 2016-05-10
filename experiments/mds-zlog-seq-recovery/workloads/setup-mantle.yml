@@ -1,0 +1,38 @@
+---
+- hosts: mdss
+  become: True
+  tasks: 
+    - name: enable the RADOS dir
+      command: docker exec ceph-{{ ansible_hostname }}-mds chmod -R 777 /usr/share/ceph/rados-classes/
+
+- hosts: mons
+  become: True
+  tasks:
+    - name: setup mon convenience functions
+      set_fact:
+        ceph: "docker run --rm --entrypoint=ceph -v /etc/ceph:/etc/ceph {{ ceph_mon_docker_username }}/{{ ceph_mon_docker_imagename }}"
+        rados: "docker run --rm --entrypoint=rados -v /etc/ceph:/etc/ceph {{ ceph_mon_docker_username }}/{{ ceph_mon_docker_imagename }}"
+
+    - name: allow multiple active MDSs
+      command: "{{ ceph }} mds set allow_multimds true --yes-i-really-mean-it"
+      run_once: True
+      tags:
+        - config
+
+    - name: activate the standby MDSs
+      command: "{{ ceph }} mds set max_mds 5"
+      run_once: True
+      tags:
+        - config
+
+    - name: get the greedy balancer
+      copy: src={{ playbook_dir }}/cls_bal_seq.lua dest=/etc/ceph/cls_bal_seq.lua
+      #get_url: dest=/etc/ceph/cls_bal_greedyspill.lua url=https://raw.githubusercontent.com/michaelsevilla/ceph/cls-lua-mantle-jewel/src/mds/mantle/bal/greedyspill/cls_bal_greedyspill.lua
+
+    - name: put the balancer in RADOS
+      command: "{{ rados }} -p cephfs_metadata put cls_bal_seq.lua /etc/ceph/cls_bal_seq.lua" 
+
+    - name: turn on the sequencer balancer
+      command: "{{ ceph }} mds set lua_balancer_script bal_seq"
+      run_once: True
+   

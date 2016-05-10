@@ -1,0 +1,22 @@
+---
+journal_size: 10000
+osd_containerized_deployment: true
+ceph_osd_docker_username: piha.soe.ucsc.edu:5000/ivotron
+ceph_osd_docker_imagename: ceph-mantle:jewel
+
+#ceph_osd_docker_extra_env: "CEPH_DAEMON=OSD_CEPH_DISK_ACTIVATE,OSD_JOURNAL='{{ journal }}'"
+#ceph_osd_docker_prepare_env: "CEPH_DAEMON=OSD_CEPH_DISK_PREPARE,OSD_FORCE_ZAP=1,OSD_JOURNAL='{{ journal }}'"
+
+ceph_osd_docker_extra_env: "CEPH_DAEMON=OSD_CEPH_DISK_ACTIVATE"
+ceph_osd_docker_prepare_env: "CEPH_DAEMON=OSD_CEPH_DISK_PREPARE,OSD_FORCE_ZAP=1"
+ceph_osd_docker_devices:
+ - /dev/sdb
+ - /dev/sdc
+ - /dev/sdd
+
+ceph_osd_docker_journals:
+ - /dev/sde1
+ - /dev/sde2
+ - /dev/sde3
+
+journal: /dev/sde
