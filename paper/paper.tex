@@ -164,7 +164,7 @@ services.
 \begin{figure}[ht]
 \centering
 \includegraphics{figures/obj-int-dev-growth.png}
-\caption{Since 2010, the growth in the number of co-designed object
+\caption{[\href{https://github.com/double-blind-submitter/osdi16}{source}] Since 2010, the growth in the number of co-designed object
 storage interfaces in Ceph has been accelerating. This plot is the
 number of object classes (a group of interfaces), and the total number
 of methods (the actual API end-points).}
@@ -253,10 +253,10 @@ constructed within the Malacology framework (\S\ref{sec:services}),
 and evaluate our ideas within our prototype implementation
 (\S\ref{evaluation}). Finally we discuss related work and conclude.
 
-\section{Challenges}
-\label{sec:challenges}
-
-The challenges of introducing programmability into existing storage systems: (1) Programmability while keeping storage system available, (2) Finding and factoring out hard-wired policies and optimizations, (3) Bugs that were hidden because mechanisms were only exercised according to hard-wired policies and not in their full generality they were thought of -- programmability into a storage system turned out to be a great debugging tool, (4) version control and propagation of updates throughout the system without interrupting production workloads, (5) ...
+%\section{Challenges}
+%\label{sec:challenges}
+%
+%The challenges of introducing programmability into existing storage systems: (1) Programmability while keeping storage system available, (2) Finding and factoring out hard-wired policies and optimizations, (3) Bugs that were hidden because mechanisms were only exercised according to hard-wired policies and not in their full generality they were thought of -- programmability into a storage system turned out to be a great debugging tool, (4) version control and propagation of updates throughout the system without interrupting production workloads, (5) ...
 
 \section{Malacology}
 \label{sec:malacology}
@@ -744,12 +744,12 @@ auxiliary service such as PAXOS.
 
 \section{Evaluation}
 \label{evaluation}
-We have conducted our evaluation on CloudLab as well as our own 20 node cluster. We follow the ``Popper Convention"~\cite{anonymous} so as to try and make our experiments as reproducible as possible. We have a GitHub repository with our source code,  experimental environment, configuration parameters, and workloads in a GitHub repository. Due to the double-blind policy, we have temporarily disabled the links to our graphs and experimental details.
+We have conducted our evaluation on CloudLab as well as our own 20 node cluster. We follow the ``Popper Convention"~\cite{anonymous} so as to try and make our experiments as reproducible as possible. We have a GitHub repository with our source code, experimental environment, configuration parameters, and workloads but due to the double-blind policy, we have temporarily disabled the links to our graphs and experimental details.
 
 Much of this work focuses on the programmability of Ceph and the services that
 can be layered on top of Malacology. As such, we focus on the performance of the 
 components and subsystems exposed by the framework. Detailed system-wide performance
-measurements and analysis is forthcoming for both Mantle and ZLog~\cite{}, as we try
+measurements and analysis is forthcoming for both Mantle and ZLog, as we try
 to find the best metadata balancing policies and physical design implementation trade-offs
 respectively.
 
@@ -781,7 +781,7 @@ as shown by the nearly three orders of magnitude drop off in throughput.
 \begin{figure}[h]
 \centering
 \includegraphics{figures/caps-delay-thruput.png}
-\caption{Sequencer throughput by reusing various services.
+\caption{[\href{https://github.com/double-blind-submitter/osdi16}{source}] Sequencer throughput by re-using various services.
 The highest performance is achieved using a single client with
 exclusive, cacheable privilege. Round-robin sharing of the sequencer
 resource is affected by the amount of time the resource is held,
@@ -792,8 +792,7 @@ with best-effort performing the worst.}
 \begin{figure}[h]
 \centering
 \includegraphics{figures/caps-delay-latency.png}
-\caption{But if the clients hold their capabilities longer, it hurts
-latency for everyone.}
+\caption{[\href{https://github.com/double-blind-submitter/osdi16}{source}] The latency distribution shows that if the clients hold their capabilities longer, performance decreases. Changing the delay via policy can help the sequencer and clients strike a balance between throughput and latency.}
 \label{fig:capcdf}
 \end{figure}
 
@@ -834,7 +833,7 @@ focus on the cost of achieving distribution of consistent a interface version.
 \begin{figure}[h]
 \centering
 \includegraphics[trim={1 4 4 1.3cm},clip]{figures/iface-update-delay.pdf}
-\caption{Cluster-wide interface update latency, excluding the Paxos proposal cost for
+\caption{[\href{https://github.com/double-blind-submitter/osdi16}{source}] Cluster-wide interface update latency, excluding the Paxos proposal cost for
 interface commit. Each of the 120 OSDs used a RAM-based object store, while the
 3 OSDs used an HDD-backed object store.}
 \label{fig:propdelay}
@@ -883,7 +882,7 @@ and between 1 and 3 MDS nodes.
 \begin{figure}[t!]
 \centering
 \includegraphics{figures/mantle-seq-thruput.png}
-\caption{A ZLog sequencer that uses the CephFS MDS enjoys the load balancing
+\caption{[\href{https://github.com/double-blind-submitter/osdi16}{source}] A ZLog sequencer that uses the CephFS MDS enjoys the load balancing
 capabilities of the metadata cluster. The ``Sequencer Baseline'' has no
 background sequencers, while the ``2 Seq'' curves are the throughput
 of 1 sequencer when an additional sequencer is running in the background
@@ -914,7 +913,7 @@ but is reproduced here for the reader's convenience.
 \begin{figure}[t!]
 \centering
 \includegraphics{figures/mantle-cpu-utilization-annotate.png}
-\caption{The sequencer using Mantle in Figure~\ref{fig:mantle-seq-thruput}
+\caption{[\href{https://github.com/double-blind-submitter/osdi16}{source}] The sequencer using Mantle in Figure~\ref{fig:mantle-seq-thruput}
 migrates to a new MDS immediately because its uses a policy designed for bursty
 workloads. This is a trace of the same workload running twice: once with a
 single MDS and once with Mantle.}
