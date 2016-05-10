@@ -127,7 +127,7 @@ a storage system) and \emph{software-defined storage} (the control of
 thin-provisioning of storage).
 
 To illustrate the benefits and challenges of this approach we examine
-the programmability of Ceph~\cite{weil_ceph_2006}, the increasingly
+the programmability of Ceph~\cite{weil:osdi2006-ceph}, the increasingly
 popular, production-level open-source distributed storage system.
 Something of a storage swiss army knife, Ceph supports file, block, and
 object interfaces simultaneously in a single cluster~\cite{ceph_contributors_ceph_2010}. Ceph's Reliable Autonomous 
@@ -223,7 +223,7 @@ simplicity and performance enhancements, but ``bolt-on'' services often
 duplicate functionality, unnecessarily increasing the likelihood of bugs or
 introducing unpredictable performance problems. For example, we are developing
 a high-performance distributed shared-log on Ceph called ZLog, based on the
-CORFU protocol~\cite{corfu}. Without going into greater detail, the CORFU protocol, by separating the concern of correctness from the concern of performance, enables serialization using a \emph{volatile}
+CORFU protocol~\cite{balakrishnan_corfu_2012}. Without going into greater detail, the CORFU protocol, by separating the concern of correctness from the concern of performance, enables serialization using a \emph{volatile}
 ``sequencer'' service. This high-performance in-memory counter is used to assign a log
 position to each client that appends to the log. The sequencer is purely a performance optimization and does not have a role in correctness (if the sequencer fails, the tail of the log can always be retrieved by other means). Thus, it is the volatility of the sequencer that enables high performance. A ``bolt-on'' option for building
 a distributed log is to use PAXOS, or an out-of-the-box solution such as
@@ -425,9 +425,13 @@ responsible for integrating state changes into cluster maps, and responding to
 requests from out-of-date clients. As a fundamental building block of many
 system designs, consensus abstractions such as PAXOS are a common technique
 for maintaining consistent data versions, and are a useful system to expose.
+
 While Ceph does not expose this service directly, it does allow limited use by
 clients through a key-value service intended for low-volume, small size
-configuration information.
+configuration information. Unfortunately, while a key-value service is
+generally useful, it doesn't provide many of the useful services hidden within
+the monitoring framework that would be required for applications with more
+demanding requirements.
 
 \subsection{Durability}
 \label{sec:durability}
@@ -495,7 +499,7 @@ clients are allowed to access as well as what they may cache locally.  While
 designed for a fixed file abstraction, indexing, locking, and caching are all
 common services that are useful to large sets of applications.
 
-\subsection{Load Balancing}
+\subsection{Metadata Load Balancing}
 
 % Straw man example
 Migrating resources is an important part of load balancing but understanding the effects of different configurations and parameters is difficult. Systems already virtualize and migrate memory; soon systems will be able to migrate other resources, like CPU, disk, and memory. Figuring out how, when, and where to move these resources depends on complex metrics like utilization, configuration, and workload.
