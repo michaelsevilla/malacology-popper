@@ -6,6 +6,13 @@
 \usepackage{arydshln}
 \usepackage{amssymb,amsmath}
 \usepackage{ifxetex,ifluatex}
+\usepackage{amsmath}
+\usepackage{mathptmx}
+\usepackage{graphicx}
+\usepackage{listings}
+
+
+
 % use upquote if available, for straight quotes in verbatim environments
 \IfFileExists{upquote.sty}{\usepackage{upquote}}{}
 
@@ -746,7 +753,7 @@ to implement service-aware metadata load balancing policies.
 \subsection{Mantle: A Programmable Metadata Load Balancer}
 \label{sec:mantle}
 
-Mantle~\cite{sevilla:sc15-mantle} is a programmable metadata
+Mantle is a programmable metadata
 balancer for Ceph that separates the metadata balancing policies from their
 mechanisms. Administrators inject code to change how the metadata cluster
 distributes metadata. In ~\cite{sevilla:sc15-mantle} the authors showed how 
@@ -896,12 +903,14 @@ best-effort servers when sequencer performance suffers.
 What?
 
 \section{Evaluation}\label{evaluation}
+We have conducted our evaluation on CloudLab as well as our own 20 node cluster. We follow the ``Popper Convention"~\cite{} so as to try and make our experiments as reproducible as possible. We have a GitHub repository with our source code,  experimental environment, configuration parameters, and workloads in a GitHub repository. Due to the double-blind policy, we have temporarily disabled the links to our graphs and experimental details.
 
-1 Experiments: 2 3 1. mdtest separate directories 4 - just based on
-default traffic 5 - kill one of the MDSs 6 7 2. filebench profiles 8 -
-adaptable vs.~greedy vs.~fill\&spill 9 10 3. sequencer balancer 11 -
-just based on default traffic 12 13 3. OpenSSL compile
-\textasciitilde{}\\\label{evaluation}
+Much of this work focuses on the programmability of Ceph and the services that
+can be layered on top of Malacology. As such, we focus on the performance of the 
+components and subsystems exposed by the framework. Detailed system-wide performance
+measurements and analysis is forthcoming for both Mantle and ZLog~\cite{}, as we try
+to find the best metadata balancing policies and physical design implementation trade-offs
+respectively.
 
 \subsection{ZLog}
 
@@ -1010,16 +1019,89 @@ order to accumulate updates. In a minimum realistic quorum of 3 monitors using
 HDD-based storage, we were able to decrease this interval to an average of 222
 ms.
 
-\subsection{Mantle}
-
 \subsection{MDS as a Sequencer}
+
+The following experiments demonstrate the feasibility of using the Ceph MDS
+cluster as a sequencer. The goal of the workloads is to saturate the MDS
+cluster, so we design sequencers uses a more heavy-weight file system
+operation. The experiments use our internal cluster and there are 15 clients
+and between 1 and 3 MDS nodes. 
+
+WE NEED SOMETHING HERE DESCRIBING WHY AN INODE IS A GOOD ABSTRACTION
+
 \begin{figure}[h]
 \centering
 \includegraphics{figures/mantle-seq-thruput.png}
-\caption{A ZLog sequencer that uses the CephFS metadata cluster enjoys all the benefits of the MDS recovery ("Sequencer Recovery") and load balancing protocols (``Mantle Load Balancing''). The ``2 Seq'' curves are the throughputs of 1 sequencer when an additional sequencer is running in the background generating load. The ``Sequencer Baseline'' has no background sequencers.}
+\caption{A ZLog sequencer that uses the CephFS MDS enjoys the load balancing
+capabilities of the metadata cluster. The ``Sequencer Baseline'' has no
+background sequencers, while the the ``2 Seq'' curves are the throughputs
+of 1 sequencer when an additional sequencer is running in the background
+generating load.} 
 \label{fig:mantle-seq-thruput.png}
 \end{figure}
 
+\subsubsection{Load Balancing}
+
+We use a balancer policy specifically designed for the sequencer. The balancer aggressively sheds half its load to its neighbor as soon as it can.  It is based
+off the ``Greedy Spill Even" approach in the Mantle~\cite{sevilla:sc15-mantle} paper
+but is reproduced here for the reader's convenience. 
+
+\begin{figure}[h]
+\begin{lstlisting}
+  -- Metadata server load
+  mdsload = MDSs[i]["all"]
+  
+  -- When policy
+  if MDSs[whoami]["load"]>.01 and 
+    MDSs[whoami+1]["load"]<.01 then
+    
+  -- Where policy
+  targets[whoami+1]=allmetaload/2
+\end{lstlisting}
+    \caption{The sequencer balancing policy that works best for bursty workloads. \label{listing:greedy-spill}}
+\end{figure}
+
+Figure~\ref{fig:mantle-seq-thruput.png} gives a macro-level view of the
+performance of the Ceph components exposed by Malacology. Each curve shows the
+throughput from the perspective of one sequencer ({\it y} axis) over time ({\it
+x} axis). The ``Sequencer Baseline'' curve is one sequencer serving 7 clients.
+The sequencer operates on an MDS cluster where balancing is turned off and
+there are no other workloads running. ``2 Seq; No Load Balancing" adds another
+sequencer of equal load running in the background. The performance of the
+background sequencer is omitted. ``2 Seq; Mantle Load Balancing" uses a 3 MDS
+node cluster to provide the sequencer services, again with a background
+sequencer service. Finally, the ``Sequencer Recovery" curve shows the
+performance of the sequencer in a multi-MDS cluster with 2 standby MDS nodes.
+At 60 seconds, MDS 0 is killed. 
+
+Overall, the clients achieve lower performance than the capability experiments
+in Figure~\ref{fig:captp} because the sequencer uses a slower metadata
+operation to manage the capability.  ``Sequencer Baseline" is the best
+performance for this particular workload because there is no contention.
+Performance is stable and the MDS is underloaded because we do not see the
+spike at the end like the other curves. It appears the bottleneck is somewhere
+with the clients -- perhaps it is our 1GBit/s network link. ``2 Seq; No Load
+Balancing" shows an overloaded sequencer because the performance of our one
+sequencer is low and unstable (high variation in performance). We also deduce
+that it is overloaded by comparing to the ``2 Seq; Mantle Load Balancing"
+curve, which shows improved performance when load is migrated. At 10 seconds, 
+the sequencer balancer immediately starts balancing and decides that two
+sequencer streams should be split onto two MDSs. It migrates to its neighbor as
+per the policy. 
+
+\textbf{The Malacology Principle:} Re-uses the Ceph metadata migration, load
+balancing, cache coherence, and capabilities subsystems of the MDS. Applying
+Mantle's load balancing policy shows 2\(\times\) performance improvent and x\%
+of the baseline best-case performance. 
+
+\subsubsection{Recovery}
+
+- Describe the graph
+
+- We get recovery and load balancing with minimal implementation
+
+
+\subsection{Load Balancing}
 
 \begin{figure}[h]
 \centering
@@ -1028,7 +1110,12 @@ ms.
 \label{fig:mantle-cpu-utilization}
 \end{figure}
 
-\subsection{Load Balancing}
+- Sequencer specific policy
+
+- Describe the graph
+
+- We get tunable policies 
+
 
 \subsection{Recovery}
 
