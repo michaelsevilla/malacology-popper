@@ -1004,22 +1004,62 @@ just based on default traffic 12 13 3. OpenSSL compile
 \subsubsection{Experiment: OpenSSL
 Compile}\label{experiment-openssl-compile}
 
-\subsection{MDS as ZLog Sequencer}\label{mds-as-zlog-sequencer}
+\subsection{ZLog}
 
-\subsubsection{Experiment: Object Class
-Programmability}\label{experiment-object-class-programmability}
+\subsubsection{Sequencer}
 
-Add quote from CORFU paper that talks about what they had to hack
+We evaluated the performance of the ZLog Sequencer implemented in several
+different configurations by showing a trade-off between aggregate throughput
+achieved (shown in Figure~\ref{fig:captp}), and latency distribution (shown in
+Figure~\ref{fig:capcdf}).
 
-\subsubsection{Experiment: Multi-Client
-Burstiness}\label{experiment-multi-client-burstiness}
+In Figure~\ref{fig:captp} the highest throughput labeled $1C$ shows that a
+single client caching the sequencer resource may obtain new sequences at a rate
+of nearly 6 million positions per second. This is not surprising given that all
+state is cached locally in the client. When this resource is shared between two
+clients, the MDS uses a best-effort approach to granting the sequencer resource
+to each client (value $2C,BE$). This sharing has a large impact on performance,
+as shown by the nearly three orders of magnitude drop off in throughput.
 
-\begin{figure}[htbp]
+\begin{figure}[h]
 \centering
 \includegraphics{figures/caps-delay-thruput.png}
-\caption{Forcing the client to drop their capabilities later (delay)
-improves throughput}
+\caption{Sequencer throughput by reusing various services.
+The highest performance is achieved using a single client with
+exclusive, cacheable priviledge. Round-robin sharing of the sequencer
+resource is affected by the amount of time the resource is held,
+with best-effort performing the worst.}
+\label{fig:captp}
 \end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics{figures/caps-delay-latency.png}
+\caption{But if the clients hold their capabilities longer, it hurts
+latency for everyone.}
+\label{fig:capcdf}
+\end{figure}
+
+While a best-effort approach to sharing capabilities makes sense for a file
+system client, throughput drops significantly with two clients as the majority
+of the time neither client has the capapbitility as it ping-pongs between
+clients. This observation reveals a tuning parameter: how long a client
+maintains its capapbility lease. In throughputs labeled $2C,<time>$ we show
+aggregate throughput as we decrease the amount of time that a client holds its
+lease before responding to a request for the capapbility.  At lease times as
+low as 10ms throughputs achieve a significant proportion of the locally cached
+throughput.
+
+While the batching mechanism can achieve high-throughput, it is not appropriate
+for applications that require predictable latency. The throughput in
+Figure~\ref{fig:captp} labeled $2C,ZLog$ corresponds to a centeralized
+sequencer implementation. While throughput is lower for two clients (because of
+the synchronous network round-trip required for each request),
+Figure~\ref{fig:capcdf} shows that this approach achieves more predicable
+latency compared to all other approaches except for the single client locally
+cached mode.
+
+\subsubsection{Interface Propogation}
 
 In Section~\ref{} we described an interface management service that is
 responsible for the durable and consistent cluster-wide distribution of
@@ -1071,18 +1111,20 @@ order to accumulate updates. In a minimum realistic quorum of 3 monitors using
 HDD-based storage, we were able to decrease this interval to an average of 222
 ms.
 
-\begin{figure}[htbp]
-\centering
-\includegraphics{figures/caps-delay-latency.png}
-\caption{But if the clients hold their capabilities longer, it hurts
-latency for everyone.}
-\end{figure}
-
-\subsubsection{CUT THIS Experiment: Client v. MDS caps +
-Failures}\label{cut-this-experiment-client-v.-mds-caps-failures}
-
-\subsubsection{Experiment: Mantle Sequencer
-Balancer}\label{experiment-mantle-sequencer-balancer}
+%\subsubsection{Experiment: Object Class
+%Programmability}\label{experiment-object-class-programmability}
+%
+%Add quote from CORFU paper that talks about what they had to hack
+%
+%\subsubsection{Experiment: Multi-Client
+%Burstiness}\label{experiment-multi-client-burstiness}
+%
+%\begin{figure}[htbp]
+%\centering
+%\includegraphics{figures/caps-delay-thruput.png}
+%\caption{Forcing the client to drop their capabilities later (delay)
+%improves throughput}
+%\end{figure}
 
 \section{Related Work}
 
