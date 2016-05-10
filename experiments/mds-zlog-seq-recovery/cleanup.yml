@@ -1,0 +1,61 @@
+---
+# Adapted from ceph-ansible's purge_docker_cluster.yml
+# This playbook purges a containerized Ceph cluster
+# It removes: packages, configuration files and ALL THE DATA
+
+- hosts: localhost
+  tasks:
+  - name: delete the config directory on the ansible server
+    file: path="{{ playbook_dir }}/fetch" state=absent
+
+- hosts: all
+  become: True
+  roles:
+  - role: cleanup
+    images:
+    - piha.soe.ucsc.edu:5000/ivotron/ceph-mantle:jewel
+    - michaelsevilla/graphite
+    - michaelsevilla/collectl
+    - michaelsevilla/mdtest
+    delete:
+    - /etc/ceph/
+    - /var/lib/ceph
+    - /tmp/graphite
+  tasks:
+    - command: docker rm cephfs -f
+      ignore_errors: True
+
+- hosts: all
+  become: True
+  tasks:
+  - name: decimate all containers
+    shell: docker ps -aq --filter="ancestor=piha.soe.ucsc.edu:5000/ivotron/ceph-mantle:jewel"
+    register: containers
+  - name: delete ceph containers
+    shell: docker rm -f {{ item }}
+    with_items: containers.stdout_lines
+  - name: decimate all containers
+    shell: docker ps -aq --filter="ancestor=piha.soe.ucsc.edu:5000/michaelsevilla/mdtest"
+    register: containers
+  - name: delete ceph containers
+    shell: docker rm -f {{ item }}
+    with_items: containers.stdout_lines
+  - name: purge ceph directories
+    file: path={{ item }} state=absent
+    with_items:
+      - /etc/ceph/
+      - /var/lib/ceph/
+
+- hosts: osds
+  become: True
+  tasks:
+  - name: disk zap
+    command: sgdisk --zap-all --clear --mbrtogpt -g -- {{ item }}
+    with_items: ceph_osd_docker_devices
+  - name: disk zap again
+    command: sgdisk --zap-all --clear --mbrtogpt -g -- {{ item }}
+    with_items: ceph_osd_docker_devices
+  - name: journal zap
+    command: sgdisk --zap-all --clear --mbrtogpt -g -- {{ journal }}
+  - name: journal zap again
+    command: sgdisk --zap-all --clear --mbrtogpt -g -- {{ journal }}

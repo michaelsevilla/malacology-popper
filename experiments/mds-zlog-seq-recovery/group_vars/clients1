@@ -1,0 +1,3 @@
+---
+ceph_client_docker_username: piha.soe.ucsc.edu:5000/ivotron
+ceph_client_docker_imagename: ceph-mantle:jewel
