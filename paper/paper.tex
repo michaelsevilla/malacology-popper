@@ -620,12 +620,12 @@ There are Ceph components that are obstacles to this approach, namely the size o
 
 \subsection{Policy Durability}
 
-- 
-
-- 
-
-- 
-
+While storing the code snippets that define the policies in the MDS map is 
+possible, it is not recommended as it is an expensive operation (a PAXOS voting 
+round). Thus, Malacology only stores policies IDs which correspond to an object 
+in a system-maintained pool. When MDSs read a policy, they first check latest 
+version from the MDS map, and then dereference the pointer by reading the 
+corresponding object in RADOS.
 
 \begin{figure}[htbp]
 \centering
