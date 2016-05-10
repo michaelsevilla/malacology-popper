@@ -632,10 +632,11 @@ to achieve high throughput using a network counter service, called a
 
 While a full description of the CORFU system is beyond the scope of this
 paper, we'll briefly describe the custom storage device interface, sequencer
-service, and recovery protocol that form the core components of CORFU that we
-implement within Malacology:
+service, and recovery protocol, and how these services are instantiated in the
+Malacology framework.
 
-{\bf Sequencer.}
+\subsubsection{Sequencer}
+
 High-performance in CORFU is achived using a sequencer service that assigns
 log positions to clients by reading from a volatile, in-memory counter which
 can run at a very high throughput and at low-latency. And since the sequencer
@@ -647,16 +648,71 @@ an application-specific custom storage interface to discover the tail of the
 log, while simulatenously invalidating stale client requests using an
 epoch-based protocol.
 
-{\bf Storage Interface.} The storage interface is a critical component in the
-CORFU design. Clients independently map log positions onto storage devices,
-while storage devices provide an intelligent \emph{write}-once, random
-\emph{read} interface for accessing log entries. The key to correctness in
-CORFU lies with the enforcement of up-to-date epoch tags on client requests;
-requests tagged with out-of-date epoch values are rejected, and clients are
-expected to request a new tail from the sequencer after refreshing state from
-an auxillary service. This mechanism forms the basis for sequencer recovery.
+We implement the sequencer service in Malacology as an application-specific
+file type that associates a small amount of metadata, including the 64-bit log
+tail position, to the inode state managed by the Ceph metadata service. Since
+a sequencer is associated with a unique log, this approach has the added
+benefit of allowing the metadata service to also handle naming, by
+representing each log service instance within the standard POSIX hierarchical
+namespace.
 
-{\bf Sequencer Recovery.}
+{\bf Sequencer interface.} The sequencer resource supports the ability to
+\emph{read()} the current tail value as well get the \emph{next()} position in
+the log which also atomically increments the tail position. We implement this
+functionality as methods on ZLog inode resources. The primary challenge in
+mapping the sequencer resource to the metadata service is handling
+serialization correctly.
+
+Initially we sought to directly model the sequencer service in Ceph as a
+non-exclusive, non-cacheable resource, forcing clients to perform a round-trip
+access to the resource at the authoratiave metadata server for the sequencer
+inode.  Interestingly, we found that the capapbility system in Ceph uses a
+strategy to reduce metadata service load by allowing multiple clients that
+open a shared file to temporarily cache the inode resource, resulting in a
+round-robin, best-effort batching behavior. When a single client is accessing
+the sequencer resource it is able to cache state locally without interruption.
+
+While unexpected, this discovery allowed us to explore an implementation
+strategy that we had not previously considered. In particular, for bursty
+clients, and clients that can tolerate increased latency, this mode of operation may
+allow a system to achieve much higher throughput than a system with a
+centralized sequencer service.
+We utilize the programmability of the metadata service to define a new policy
+for handling capabilities that controls the amount of time that clients are
+able to cache the sequencer resource. This allows an administrator or
+application to control the trade-off between latency and throughput beyond the
+standard best-effort policy that is present in Ceph by default.
+
+In Section~\cite{evaluation} we quantify the trade-offs of throughput and
+latency for an approach based on a round-robin batching mode, and compare this
+mode to one in which the metadata server mediates access to the sequencer
+state when in it is being shared among multiple clients.
+
+{\bf Balancing policies.}
+As opposed to the batching mode for controlling access to the sequencer
+resource, more predictable latency can be achieved by treating the sequencer
+inode as a shared non-cacheable resource, forcing clients to make a round-trip
+to the metadata service. However, the shared nature of the metadata service
+may prevent the sequencer from achieving maximum throughput. To provide a
+solution to this issue we have taken advantage of the programmability of the
+metadata service load balancing to construct a service-specific load balancing
+policy. As opposed to a generic balancing policy that may strive for uniform
+load distribution, a ZLog-specific policy may utilize knowledge of inode types
+to migrate the sequencer service to provisioned hardware during periods of
+contention or high demand.
+
+\subsubsection{Storage Interface}
+
+The storage interface is a critical component in the CORFU design. Clients
+independently map log positions that they have obtained from a sequencer
+service (described in detail in the next seciton) onto storage devices, while
+storage devices provide an intelligent \emph{write}-once, random \emph{read}
+interface for accessing log entries. The key to correctness in CORFU lies with
+the enforcement of up-to-date epoch tags on client requests; requests tagged
+with out-of-date epoch values are rejected, and clients are expected to
+request a new tail from the sequencer after refreshing state from an auxillary
+service.  This mechanism forms the basis for sequencer recovery.
+
 In order to repopulate the cached tail value during recovery of a sequencer,
 the maximum position in the log must be obtained. To do this, the storage
 interface exposes an additional \emph{seal} method that atomically installs a
@@ -666,56 +722,6 @@ the end of the process, the validity of the tail can be guaranteed despite the
 iterative process of contacting storage devices.  Recovery of the sequencer
 process itself may be handled in many ways, such as leader election using an
 auxillary service such as PAXOS.
-
-\subsubsection{Sequencer}
-
-We implement the sequencer service in Malacology as an application-specific
-file type that associates a small amount of metadata, including the 64-bit log
-tail position, to the inode state managed by the Ceph metadata service.  Since
-a sequencer is associated with a unique log, this approach has the added
-benefit of allowing the metadata service to also handle naming, by
-representing each log service instance within the standard POSIX hierarchical
-namespace.
-
-{\bf Physical design.}
-The next component of our design is the low-level configuration of the
-sequencer inode type that achieves the correct semantics.  Initially we sought
-to directly model the sequencer service in Ceph as a non-exclusive,
-non-cacheable resource, forcing clients to perform a round-trip access to the
-resource at the authoratiave metadata server for the inode representing the
-sequencer.  Interestingly, we found that the capapbility system in Ceph uses a
-strategy to reduce metadata service load by allowing multiple clients that
-open a shared file to temporarily cache the inode resource, resulting in a
-round-robin, best-effort batching behavior. When a single client is accessing
-the sequencer resource it is able to cache state locally without interruption.
-
-While unexpected, this discovery allowed us to explore an implementation
-strategy that we had not previously considered. In particular, for bursty
-clients and clients that can tolerate high latency, this mode of operation may
-allow a system to achieve much higher throughput than a system with a
-centralized sequencer service.
-
-In Section we quantify the trade-offs of throughput and latency for an
-approach based on a round-robin batching mode, and compare this mode to one in
-which the metadata server mediates access to the sequencer state when in it is
-being shared among multiple clients.
-
-{\bf Capability policies.}
-We use capabilitity policies in the metadata service to tune the amount of
-time that clients may cache the sequencer resource. This allows us to control
-the trade-off between latency and throughput beyond the standard best-effort
-policy.
-
-{\bf Balancing policies.}
-While the metadata service is a shared resource, authority over metadata
-resources can be physically moved between servers using a dynamic, ZLog-aware
-policy expressed in Mantle. For instance, one or more metadata servers may be
-dedicated to supporting ZLog sequencer load. When the system load is low all
-resources are spread evenly, but non-ZLog resources may be migrated to
-best-effort servers when sequencer performance suffers.
-
-{\bf Recovery.}
-What?
 
 \section{Evaluation}\label{evaluation}
 We have conducted our evaluation on CloudLab as well as our own 20 node cluster. We follow the ``Popper Convention"~\cite{} so as to try and make our experiments as reproducible as possible. We have a GitHub repository with our source code,  experimental environment, configuration parameters, and workloads in a GitHub repository. Due to the double-blind policy, we have temporarily disabled the links to our graphs and experimental details.
