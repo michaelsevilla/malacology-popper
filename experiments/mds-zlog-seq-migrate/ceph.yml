@@ -33,6 +33,7 @@
   become: True
   roles:
   - ceph-mds
+  serial: 1 # Please make the MDSs come in a specific order
 
 - name: wait for the cluster to come up
   hosts: mons
@@ -62,10 +63,4 @@
 - hosts: clients1
   become: True
   roles:
-=======
-
-- hosts: clients
-  become: True
-  roles:
->>>>>>> 683717b... client: add ceph-fuse mount/shared stuff:experiments/ceph-deploy/ceph-ext4.yml
     - ceph-client
