@@ -69,6 +69,7 @@ that leverages flash devices.  RESULTS
 
 \section{Introduction}
 \label{introduction}
+\label{sec:intro}
 
 A storage system implements abstractions designed to persistently store
 data and must exhibit a high level of correctness to prevent data loss.
@@ -304,25 +305,24 @@ and the references stored within the data structure.
 \subsection{Logical Storage Devices}
 \label{active-storage}
 
-Allowing users to define custom code that executes in the storage nodes is a 
-useful technique for offloading computation closer to where the data is stored 
-in order to significantly reduce the amount of data moved between storage 
-servers and clients.
-Ceph provides object storage via 
-RADOS~\cite{weil_rados_2007}, the reliable distributed object store. 
-Ceph provides a rich plugin framework for defining new interfaces to objects
-stored within RADOS, effectively allowing developers to use co-design
-techniques to define logical storage devices tailored to their application
-domain.
+Briefly described in Section~\section{sec:intro}, Ceph supports the creation
+of application-specific object interfaces~\cite{weil_rados_2007}. The ability
+to offload computation can reduce data movement, and transactional interfaces can
+significantly simplify construction of complex storage interfaces that require
+uncoordinated parallel access. 
 
-An object interface plugin is structured in a similar way to that of an RPC in
-which a developer creates a named function within the cluster that clients may
-invoke upon an object. In Ceph these functions are defined by a composition of
-existing native interfaces that include reading and writing bytestream data
-and controlling snapshots and cloning, all of which may be transactionally
-composed with full access to a sorted key-value service allowing applications
-to fine tune storage interfaces, such as using a read-modify-write guard to
-protect shared data.
+An object interface is a plugin structured in a similar way to that of an RPC
+in which a developer creates a named function within the cluster that clients
+may invoke. In the case of Ceph each function is implicitly run within the
+context of an object specified when the function is invoked. Developers of
+object interfaces express behavior by creating a composition of native
+interfaces or other custom object interfaces, and handle serialization of
+function input and output. A wide range of native interfaces are available to
+developers, such as reading and writing to a bytestream, controlling snapshots
+and clones, all of which may be transactionally composed with access to a
+sorted key-value service allowing applications to create rich interfaces, such
+as using a read-modify-write guard to protect a shared index defined over
+content store in a byte stream.
 
 \begin{figure}[htbp]
 \centering
@@ -333,26 +333,49 @@ script is redundantly and consistently distributed to OSDs.
 \label{fig:implementation}}
 \end{figure}
 
-\paragraph*{Malacology:}  The implementation of Ceph's object abstraction, although powerful, has some 
-drawbacks.
-Supporting only C/C++ for object interface developers, Ceph requires
-distribution of compiled binaries for the correct architecture, adding a
-large barrier of entry for developers and system administrators. Second,
-having no way to dynamically unload modules, any changes require a full
-restart of an OSD which may have serious performance impacts due to a loss
-of cached data. And finally, the security limitations of the framework
-limit the use of object classes to all but those with administrative level
-access and technique expertise.
+\paragraph*{Malacology:} The implementation of Ceph's object abstraction,
+although powerful, has some drawbacks. Supporting only C/C++ for object
+interface developers, Ceph requires distribution of compiled binaries for the
+correct architecture, adding a large barrier of entry for developers and
+system administrators. Second, having no way to dynamically unload modules,
+any changes require a full restart of an OSD which may have serious
+performance impacts due to a loss of cached data~\cite{facebook-mysql}. And
+finally, the security limitations of the framework limit the use of object
+classes to all but those with administrative level access and deep technical
+expertise.
 
-By embedding the Lua runtime, Malacology makes the base RADOS API available in a 
-dynamic environment, resulting in a object storage API with economy of 
-expression, which at the same time provides the full set of features of the base 
-object class. New object interfaces that are expressed in thousands of lines of 
-code can be implemented in approximately an order of magnitude less 
-code~\cite{geambasu_comet_2010}.
+To address these concerns, Malacology takes advantage of community contributed
+Lua extensions to Ceph allowing new object interfaces to be dynamically loaded
+into the system and modified at runtime, resulting in a object storage API
+with economy of expression, which at the same time provides the full set of
+features of the base object class~\cite{bdmc}. New object interfaces that are
+expressed in thousands of lines of code can be implemented in approximately an
+order of magnitude less code~\cite{geambasu_comet_2010}.
 
-{\bf Recovery.}
-Application specific recovery is critical.
+All of these modifications work in tandem to implement the desired behavior,
+and are typically co-designed together such that each depends on the other to
+behave as expected. In highly dynamic environments such as a distributed
+storage system, changes to the system propagate at variable rates, requiring
+all components of the system to be able to adapt. Thus, system services
+realized through extensibility should be versioned together as a group,
+exposing the version to allow introspection and domain-specific treatment of
+version mismatch scenarios.
+
+And finally, it is important to not underestimate the importance of the
+preservation of the modifications that enable a new system service. In many
+(if not all) cases, interfaces defining access to data are just as important
+as the data itself by virtue of inherently providing structural context. Thus,
+all components of a system service must be kept to the same standards of
+protection as data in the system itself.
+
+To this end we have extended the monitoring service using the framework
+described in Section~\ref{sec:mon} to provide an interface for registration
+and verification of dynamically defined object interfaces. Using this service
+guarantees that interface definitions are not only made durable, but are
+transparently and consistently propogated throughput the cluster and that
+clients are properly synchronousized with the latest interfaces.
+
+{\bf Recovery.} Application specific recovery is critical.
 
 \subsection{Distributed Metadata Services}
 \label{malacology:mds}
