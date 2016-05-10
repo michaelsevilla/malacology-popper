@@ -260,14 +260,63 @@ Malacology to synthesize entirely new storage services on an existing
 system through configuration and small changes (\S\ref{services}). We
 conclude by evaluating real-world use cases (\S\ref{evaluation}).
 
-\section{Components of Ceph Suitable for Reusability}\label{re-usable-components-in-ceph}
+\section{Malacology}
+\label{sec:malacology}
 
-\label{background}
+Malacology is both a prototype for a programmable storage system and a design approach to evolve storage systems efficiently and without
+jeopardizing years of code-hardening and performance optimization
+efforts. The guiding principle is to re-use existing services and extend them so that these services can be \emph{programmed}. We accomplish programmability of a service by exporting bindings (or ``hooks'') for an interpreted programming language so that programming can occur without having to restart the storage system (see also below,~\S\ref{sec:durability}). 
 
-Ceph is a production-quality distributed storage system and in this section we
-touch on some of the subsystems it uses to provide a general-purpose
-storage system. In the next section, we describe how Malacology exposes these
-subsystems in order to make them reusable and enable the creation of new services on top of them.
+There are multiple reasons that make Lua an attractive runtime for implementing 
+Malacology. Lua is a portable, embedded
+scripting language that offers superious performance and productivity
+trade-offs, including a JIT-based implementation that is well known for near
+native performance. Additionally, Lua has been used extensively in game engines, 
+and systems research \cite{neto:dls14-luaos}, including storage systems where it 
+has been effectively used both on
+\cite{grawinkel:pdsw2012-lua,watkins2013:bdmc13-in-vivo,geambasu_comet_2010} and 
+off
+\cite{sevilla:sc15-mantle} the performance critical path. Finally, the 
+flexibility of the runtime allows to sandbox applications in order to address 
+security and performance concerns. We now describe how Malacology exposes each 
+subcomponent in Ceph.
+
+We will now discuss the subsystems Ceph uses to provide a general-purpose
+storage system and how Malacology makes them programmable.
+
+\subsection{Durability}
+\label{sec:durability}
+
+Ceph provides storage by striping and replicating data across
+RADOS~\cite{weil_rados_2007}, the reliable distributed object store. RADOS
+uses many techniques to ensure that data is not corrupted or lost, such as
+erasure coding, replication, and data scrubbing. Furthermore, many of these
+techniques try to be autonomous so that work is distributed across the
+cluster. For example, when placement groups change, the OSDs rebalance and
+re-shard data in the background in a process called placement group splitting.
+
+In order to reduce load on the monitoring service, Ceph OSDs use a gossip
+protocol to efficiently propagate changes to cluster maps throughout the
+system, and automonmously initiate recovery mechansims when failures are
+discovered.
+
+\paragraph*{Malacology:} The implementation of Ceph's object abstraction, although powerful, has some 
+drawbacks.
+Supporting only C/C++ for object interface developers, Ceph requires
+distribution of compiled binaries for the correct architecture, adding a
+large barrier of entry for developers and system administrators. Second,
+having no way to dynamically unload modules, any changes require a full
+restart of an OSD which may have serious performance impacts due to a loss
+of cached data. And finally, the security limitations of the framework
+limit the use of object classes to all but those with administrative level
+access and technique expertise.
+
+By embedding the Lua runtime, Malacology makes the base RADOS API available in a 
+dynamic environment, resulting in a object storage API with economy of 
+expression, which at the same time provides the full set of features of the base 
+object class. New object interfaces that are expressed in thousands of lines of 
+code can be implemented in approximately an order of magnitude less 
+code~\cite{geambasu_comet_2010}.
 
 \subsection{Cluster State Management}
 \label{consistencyversioning-of-cluster-state}
@@ -292,21 +341,11 @@ generally useful, it doesn't provide many of the useful services hidden within
 the monitoring framework that would be required for applications with more
 demanding requirements.
 
-\subsection{Durability}
-\label{sec:durability}
+\paragraph*{Malacology:} Map modification for propogation of state. We allow applications to augment
+these data structures with application-specific metdata. In order to keep the
+size of these data structures small application state may be stored elsewhere
+and the references stored within the data structure.
 
-Ceph provides storage by striping and replicating data across
-RADOS~\cite{weil_rados_2007}, the reliable distributed object store. RADOS
-uses many techniques to ensure that data is not corrupted or lost, such as
-erasure coding, replication, and data scrubbing. Furthermore, many of these
-techniques try to be autonomous so that work is distributed across the
-cluster. For example, when placement groups change, the OSDs rebalance and
-re-shard data in the background in a process called placement group splitting.
-
-In order to reduce load on the monitoring service, Ceph OSDs use a gossip
-protocol to efficiently propogate changes to cluster maps throughout the
-system, and automonmously initiate recovery mechansims when failures are
-discovered.
 
 \subsection{Logical Storage Devices}
 \label{active-storage}
@@ -338,11 +377,13 @@ script is redundantly and consistently distributed to OSDs.
 \label{fig:implementation}}
 \end{figure}
 
+\paragraph*{Malacology:} 
+
 \subsection{File System Indexing and Locking}
 
 The distributed metadata service in Ceph provides clients with a POSIX file
 system abstraction. Distributed file systems are complex, but fundamentally
-provide durable hierarhical indexing and distributed locking service.  The
+provide durable hierarchical indexing and distributed locking service.  The
 locking service implements a capabilities that express what data and metadata
 clients are allowed to access as well as what they may cache locally.  While
 designed for a fixed file abstraction, indexing, locking, and caching are all
