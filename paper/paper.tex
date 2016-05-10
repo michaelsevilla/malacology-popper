@@ -312,10 +312,10 @@ application-specific logic that can be executed for particular maps (or values
 in a map).
 
 \paragraph*{Malacology:} Malacology exposes Ceph's PAXOS-based monitoring 
-service in two ways. First, a Lua VM is embedded in the monitors that implements 
-a generic API for creating maps and associating arbitrary data to them. This API 
-also allows clients to specify small snippets of Lua code that can be executed 
-on monitors. As a consequence of this, applications can define simple but useful 
+service by embedding a Lua VM in the monitors that implements a generic API for 
+creating maps and associating arbitrary data to them. This API also allows 
+clients to specify small snippets of Lua code that can be executed on monitors. 
+As a consequence of this, applications can define simple but useful 
 domain-specific logic to the PAXOS quorum, such as authorization control (just 
 specific clients can write new values) or to trigger actions based on specific 
 values (e.g. sanitize values). Since the monitor is intended to be out of 
