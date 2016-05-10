@@ -223,7 +223,7 @@ simplicity and performance enhancements, but ``bolt-on'' services often
 duplicate functionality, unnecessarily increasing the likelihood of bugs or
 introducing unpredictable performance problems. For example, we are developing
 a high-performance distributed shared-log on Ceph called ZLog, based on the
-CORFU protocol~\cite{corfu}. Without going into greater detail, the CORFU protocol by separating the concern of correctness from the concern of performance enables serialization using a \emph{volatile}
+CORFU protocol~\cite{corfu}. Without going into greater detail, the CORFU protocol, by separating the concern of correctness from the concern of performance, enables serialization using a \emph{volatile}
 ``sequencer'' service. This high-performance in-memory counter is used to assign a log
 position to each client that appends to the log. The sequencer is purely a performance optimization and does not have a role in correctness (if the sequencer fails, the tail of the log can always be retrieved by other means). Thus, it is the volatility of the sequencer that enables high performance. A ``bolt-on'' option for building
 a distributed log is to use PAXOS, or an out-of-the-box solution such as
@@ -406,20 +406,24 @@ classes.
 
 \label{background}
 
-Ceph is a production-quality distributed system and in this section we
+Ceph is a production-quality distributed storage system and in this section we
 touch on some of the subsystems it uses to provide a general-purpose
-storage system. In the next section, we describe how we leverage these
-subsystems to build new services. This is the an exhuastive list of services.
+storage system. In the next section, we describe how Malacology exposes these
+subsystems in order to enable the creation of new services.
 
 \subsection{Cluster State Management}
 \label{consistencyversioning-of-cluster-state}
 
-A consistent view of cluster state among Ceph daemons and clients is critical
-to provide strong consistency guarantees to clients.  Ceph maintains cluster
+% straw man example
+Keeping track of the state of a distributed system is an essential part of any 
+successful service and a necessary component in order to diagnose and detect 
+failures, when they occur. In the case of Ceph, a consistent view of cluster 
+state among server daemons and clients is critical
+to provide strong consistency guarantees to clients. Ceph maintains cluster
 state information in per-subsystem ``maps'' (e.g. OSD map, MDS map) that
 record membership and status information. A PAXOS-based monitoring service is
 responsible for integrating state changes into cluster maps, and responding to
-requests from out-of-date clients.  As a fundamental building block of many
+requests from out-of-date clients. As a fundamental building block of many
 system designs, consensus abstractions such as PAXOS are a common technique
 for maintaining consistent data versions, and are a useful system to expose.
 While Ceph does not expose this service directly, it does allow limited use by
@@ -445,7 +449,11 @@ discovered.
 \subsection{Logical Storage Devices}
 \label{active-storage}
 
-Ceph provides a rich plugin framework for defining new interfaces to objects
+Allowing users to define custom code that executes in the storage nodes is a 
+useful technique for offloading computation closer to where the data is stored 
+in order to significantly reduce the amount of data moved between storage 
+servers and clients. Ceph provides a rich plugin framework for defining new 
+interfaces to objects
 stored within RADOS, effectively allowing developers to use co-design
 techniques to define logical storage devices tailored to their application
 domain.
@@ -540,9 +548,6 @@ Avoiding hard-coded balancing policies are important. First, it is difficult,
 nay impossible, to select a one-size-fits-all policy. System administrators
 may want to partition load based on SLAs, etc... Applications are often in
 a better position to know what to do.
-
-Mantle is a framework that allows balancing policies to be written in Lua,
-and supports such policies be specified at run-time.
 
 {\bf Capabilities.}
 The metadata service tracks the state of clients, including the data they
@@ -847,8 +852,6 @@ Seq.    & MDS file types & log management \\
 \label{table:implementation}
 \end{table}
 
-
-
 In this section we describe two services built on top of Malacology. The first
 is Mantle, a framework for dynamically specifying metadata load balancing
 policies. The second system, ZLog, is a high-performance distributed shared-log.
@@ -860,9 +863,10 @@ to implement service-aware metadata load balancing policies.
 Mantle~\cite{sevilla:sc15-mantle} is a programmable metadata
 balancer for Ceph that separates the metadata balancing policies from their
 mechanisms. Administrators inject code to change how the metadata cluster
-distributes metadata. In the paper, we showed how to implement a single
-node metadata service, a distributed metadata services with hashing, and
-a distributed metadata service with dynamic subtree ipartitioning.
+distributes metadata. In ~\cite{sevilla:sc15-mantle} the authors showed how 
+using Mantle, one can implement a single node metadata service, a distributed 
+metadata services with hashing, and a distributed metadata service with dynamic 
+subtree partitioning.
 
 The Ceph team wants to merge Mantle because the scriptability is useful
 for debugging, controlling the metadata balancer, and examining
@@ -875,6 +879,8 @@ constructing the Lua script in C++ is clunky, and the administrator can
 inject really bad policies (e.g., while 1) that brings the whole system
 down.
 
+Mantle is a framework that allows balancing policies to be written in Lua,
+and supports such policies be specified at run-time.
 We implemented it using the components from section 3. I will tell you about them here.
 
 
