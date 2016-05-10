@@ -245,15 +245,13 @@ are:
     An application of Mantle to manage load-balancing of sequencers.
   \end{enumerate}
 
-First, we describe existing techniques for adapting storage systems
-(\S\ref{sec:evidence}). Next, we discuss the ``distributed systems'' inspired
-abstractions employed by Ceph (\S\ref{background}) and allude to their
-re-usability as components in other services. The next section
-enumerates the abstractions that Malacology exposes in the
-implementation section (\S\ref{implementation}). We then show how we use
-Malacology to synthesize entirely new storage services on an existing
-system through configuration and small changes (\S\ref{services}). We
-conclude by evaluating real-world use cases (\S\ref{evaluation}).
+The remainder of this paper is structured as follows. First we describe
+Malacology by presenting the subsystems within Ceph that we re-purpose, and
+briefly describe how those system are used within Malacology
+(\S\ref{sec:malacology}). Next we describe the services that we have
+constructed within the Malacology framework (\S\ref{sec:services}),
+and evaluate our ideas within our prototype implementation
+(\S\ref{evaluation}). Finally we discuss related work and conclude.
 
 \section{Challenges}
 \label{sec:challenges}
@@ -284,6 +282,7 @@ We will now discuss the subsystems Ceph uses to provide a general-purpose
 storage system and how Malacology makes them programmable.
 
 \subsection{Cluster State Management}
+\label{sec:mon}
 \label{consistencyversioning-of-cluster-state}
 
 % straw man example
@@ -369,7 +368,7 @@ interface developers, Ceph requires distribution of compiled binaries for the
 correct architecture, adding a large barrier of entry for developers and
 system administrators. Second, having no way to dynamically unload modules,
 any changes require a full restart of an OSD which may have serious
-performance impacts due to a loss of cached data~\cite{facebook-mysql}. And
+performance impacts due to a loss of cached data. And
 finally, the security limitations of the framework limit the use of object
 classes to all but those with administrative level access and deep technical
 expertise.
@@ -378,7 +377,7 @@ To address these concerns, Malacology takes advantage of community contributed
 Lua extensions to Ceph allowing new object interfaces to be dynamically loaded
 into the system and modified at runtime, resulting in a object storage API
 with economy of expression, which at the same time provides the full set of
-features of the base object class~\cite{bdmc}. New object interfaces that are
+features of the base object class. New object interfaces that are
 expressed in thousands of lines of code can be implemented in approximately an
 order of magnitude less code~\cite{geambasu_comet_2010}.
 
@@ -570,7 +569,9 @@ we use this service to automatically install interfaces in OSDs, and install
 policies within the MDS such that clients and daemons are synchronized on
 correct implementations without restarting.
 
-\section{Services Built on Malacology}\label{services-built-on-malacology}
+\section{Services Built on Malacology}
+\label{sec:services}
+\label{services-built-on-malacology}
 
 \label{services}
 
@@ -701,7 +702,7 @@ able to cache the sequencer resource. This allows an administrator or
 application to control the trade-off between latency and throughput beyond the
 standard best-effort policy that is present in Ceph by default.
 
-In Section~\cite{evaluation} we quantify the trade-offs of throughput and
+In Section~\ref{evaluation} we quantify the trade-offs of throughput and
 latency for an approach based on a round-robin batching mode, and compare this
 mode to one in which the metadata server mediates access to the sequencer
 state when in it is being shared among multiple clients.
@@ -741,7 +742,8 @@ iterative process of contacting storage devices.  Recovery of the sequencer
 process itself may be handled in many ways, such as leader election using an
 auxiliary service such as PAXOS.
 
-\section{Evaluation}\label{evaluation}
+\section{Evaluation}
+\label{evaluation}
 We have conducted our evaluation on CloudLab as well as our own 20 node cluster. We follow the ``Popper Convention"~\cite{anonymous} so as to try and make our experiments as reproducible as possible. We have a GitHub repository with our source code,  experimental environment, configuration parameters, and workloads in a GitHub repository. Due to the double-blind policy, we have temporarily disabled the links to our graphs and experimental details.
 
 Much of this work focuses on the programmability of Ceph and the services that
@@ -912,7 +914,7 @@ but is reproduced here for the reader's convenience.
 \begin{figure}[t!]
 \centering
 \includegraphics{figures/mantle-cpu-utilization-annotate.png}
-\caption{The sequencer using Mantle in Figure~\ref{fig:mantle-seq-thruput.png}
+\caption{The sequencer using Mantle in Figure~\ref{fig:mantle-seq-thruput}
 migrates to a new MDS immediately because its uses a policy designed for bursty
 workloads. This is a trace of the same workload running twice: once with a
 single MDS and once with Mantle.}
