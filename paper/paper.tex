@@ -616,7 +616,7 @@ This command assigns the current version of the metadata load balancer. In our c
 
 There are Ceph components that are obstacles to this approach, namely the size of the  MDS map, API changes, and security. The Ceph engineers want to avoid using the maps to exchange information; the maps should be lightweight and fast because the MONs need to be able to version MDS cluster state quickly. API changes can also be a burden, especially for the MDS map, since all clients need to have the same version of the CephFS library in order to properly interact with CephFS. Finally, Ceph tries to avoid injecting strings into the cluster because they are insecure and buggy. 
 
-\subsection{Policy Durability}
+\subsection{Making Policies Durable}
 
 While storing the code snippets that define the policies in the MDS map is 
 possible, it is not recommended as it is an expensive operation (a PAXOS voting 
@@ -738,7 +738,7 @@ process itself may be handled in many ways, such as leader election using an
 auxillary service such as PAXOS.
 
 \section{Evaluation}\label{evaluation}
-We have conducted our evaluation on CloudLab as well as our own 20 node cluster. We follow the ``Popper Convention"~\cite{} so as to try and make our experiments as reproducible as possible. We have a GitHub repository with our source code,  experimental environment, configuration parameters, and workloads in a GitHub repository. Due to the double-blind policy, we have temporarily disabled the links to our graphs and experimental details.
+We have conducted our evaluation on CloudLab as well as our own 20 node cluster. We follow the ``Popper Convention"~\cite{anonymous} so as to try and make our experiments as reproducible as possible. We have a GitHub repository with our source code,  experimental environment, configuration parameters, and workloads in a GitHub repository. Due to the double-blind policy, we have temporarily disabled the links to our graphs and experimental details.
 
 Much of this work focuses on the programmability of Ceph and the services that
 can be layered on top of Malacology. As such, we focus on the performance of the 
@@ -801,6 +801,7 @@ lease before responding to a request for the capapbility.  At lease times as
 low as 10ms throughputs achieve a significant proportion of the locally cached
 throughput.
 
+\textbf{The Malacology Approach:} Re-use the capability management features of the MDS.
 While the batching mechanism can achieve high-throughput, it is not appropriate
 for applications that require predictable latency. The throughput in
 Figure~\ref{fig:captp} labeled $2C,ZLog$ corresponds to a centeralized
@@ -809,6 +810,7 @@ the synchronous network round-trip required for each request),
 Figure~\ref{fig:capcdf} shows that this approach achieves more predicable
 latency compared to all other approaches except for the single client locally
 cached mode.
+
 
 \subsubsection{Interface Propogation}
 
@@ -853,6 +855,9 @@ of a disk I/O is larger than the same I/O executed against the in-memory
 device, the predominant cost in a lightly loaded cluster appears to be the
 number of OSDs.
 
+\textbf{The Malacology Approach:} Re-use Ceph's Monitor functionality to 
+propagate application-specific state that needs to be highly-available and 
+strongly consistent.
 The real cost of interface management, in addition to cluster-wide propagation
 of interface updates, includes the network round-trip to the interface
 management service, the PAXOS commit protocol, and other factors such as system
@@ -861,7 +866,7 @@ order to accumulate updates. In a minimum, realistic quorum of 3 monitors using
 HDD-based storage, we were able to decrease this interval to an average of 222
 ms.
 
-\subsection{MDS as a Sequencer}
+\subsection{MDS as a ZLog Sequencer}
 
 The following experiments demonstrate the feasibility of using the Ceph MDS
 cluster as a sequencer. The goal of the workloads is to saturate the MDS
@@ -947,7 +952,7 @@ the sequencer balancer immediately starts balancing and decides that two
 sequencer streams should be split onto two MDSs. It migrates to its neighbor as
 per the policy. 
 
-\textbf{The Malacology Principle:} Re-uses the Ceph metadata migration, load
+\textbf{The Malacology Approach:} Re-use the Ceph metadata migration, load
 balancing, cache coherence, and capabilities subsystems of the MDS. Applying
 Mantle's load balancing policy shows 2.02\(\times\) performance improvement and
 16\% degradation in performance over the baseline, even though the baseline has
@@ -976,7 +981,7 @@ axis) over time (\(x\) axis). When MDS 0 dies, the MON cluster notices and
 quickly assigns a new MDS to handle the namespace. This is when MDS 1 takes
 over the sequencer duties and starts handing out tokens.
 
-\textbf{The Malacology Principle:} Re-uses the Ceph metadata protocols for
+\textbf{The Malacology Approach:} Re-use the Ceph metadata protocols for
 failure detection and recovery. The sequencer recovers in 15 seconds on a new
 MDS and it maintains the same throughput that it had before the failure.
 
