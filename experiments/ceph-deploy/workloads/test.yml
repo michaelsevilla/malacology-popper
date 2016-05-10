@@ -1,0 +1,10 @@
+---
+- hosts: clients
+  tasks:
+    - name: start client
+      shell: >
+             docker run --rm \
+               --name=client0 \
+               --volumes-from cephfs \
+               piha.soe.ucsc.edu:5000/michaelsevilla/mdtest \
+               -F -C -n 1000 -d /cephfs/test0

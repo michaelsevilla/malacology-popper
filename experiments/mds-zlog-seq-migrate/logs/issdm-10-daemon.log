@@ -1,0 +1,462 @@
+static: does not generate config
+HEALTH_WARN too few PGs per OSD (2 < min 30)
+static: does not generate admin key
+pool 'cephfs_data' created
+pool 'cephfs_metadata' already exists
+filesystem 'cephfs' already exists
+2016-05-10 03:35:20.029521 7f2cf0ad2180  0 set uid:gid to 64045:64045 (ceph:ceph)
+starting mds.mds-issdm-10 at :/0
+2016-05-10 03:35:20.029575 7f2cf0ad2180  0 ceph version 9.0.0-11612-ga018acb (a018acbd46aefacf3a540e94a850ce3aaae4312d), process ceph-mds, pid 194
+2016-05-10 03:35:20.030117 7f2cf0ad2180  0 pidfile_write: ignore empty --pid-file
+2016-05-10 04:06:50.803970 7f2ce992d700  0 mds.1.cache creating system inode with ino:101
+2016-05-10 04:06:50.804265 7f2ce992d700  0 mds.1.cache creating system inode with ino:60a
+2016-05-10 04:06:50.804665 7f2ce992d700  0 mds.1.cache creating system inode with ino:60b
+2016-05-10 04:06:50.804789 7f2ce992d700  0 mds.1.cache creating system inode with ino:60c
+2016-05-10 04:06:50.804995 7f2ce992d700  0 mds.1.cache creating system inode with ino:60d
+2016-05-10 04:06:50.805382 7f2ce992d700  0 mds.1.cache creating system inode with ino:60e
+2016-05-10 04:06:50.805554 7f2ce992d700  0 mds.1.cache creating system inode with ino:60f
+2016-05-10 04:06:50.805820 7f2ce992d700  0 mds.1.cache creating system inode with ino:610
+2016-05-10 04:06:50.805994 7f2ce992d700  0 mds.1.cache creating system inode with ino:611
+2016-05-10 04:06:50.806103 7f2ce992d700  0 mds.1.cache creating system inode with ino:612
+2016-05-10 04:06:50.806277 7f2ce992d700  0 mds.1.cache creating system inode with ino:613
+2016-05-10 04:06:51.883646 7f2ce3112700  0 -- 192.168.140.130:6800/194 >> 192.168.140.248:6800/194 pipe(0x7f2cfbd28000 sd=24 :6800 s=0 pgs=0 cs=0 l=0 c=0x7f2cfbb4a580).accept connect_seq 0 vs existing 0 state connecting
+2016-05-10 04:07:04.361848 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:07:04.363610 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:07:04.363656 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=0.0 < 0.021267 0.0 95739.0 0.0 14.744233 -1 >
+2016-05-10 04:07:04.363844 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 0.0 0.0 0.542294 -1 >
+2016-05-10 04:07:04.363968 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 0.0 0.0 0.48167 -1 >
+2016-05-10 04:07:14.363239 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:07:14.364294 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:07:14.364327 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=0.0 < 0.0 0.0 95739.0 0.0 14.744233 -1 >
+2016-05-10 04:07:14.364352 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 0.0 0.0 0.542294 -1 >
+2016-05-10 04:07:14.364370 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 0.0 0.0 0.48167 -1 >
+2016-05-10 04:07:24.361316 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:07:24.362338 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:07:24.362372 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=0.0 < 0.0 0.0 95739.0 0.0 14.744233 -1 >
+2016-05-10 04:07:24.362392 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 0.0 0.0 0.542294 -1 >
+2016-05-10 04:07:24.362410 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 0.0 0.0 0.48167 -1 >
+2016-05-10 04:07:34.362688 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:07:34.363711 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:07:34.363751 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=0.0 < 0.0 0.0 95739.0 0.0 14.744233 -1 >
+2016-05-10 04:07:34.363776 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 0.0 0.0 0.542294 -1 >
+2016-05-10 04:07:34.363804 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 0.0 0.0 0.48167 -1 >
+2016-05-10 04:07:44.363646 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:07:44.364691 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:07:44.364725 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=0.0 < 0.0 0.0 95739.0 0.0 14.744233 -1 >
+2016-05-10 04:07:44.364746 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 0.0 0.0 0.542294 -1 >
+2016-05-10 04:07:44.364770 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 0.0 0.0 0.48167 -1 >
+2016-05-10 04:07:54.363619 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:07:54.364674 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:07:54.364710 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=0.0 < 0.0 0.0 95739.0 0.0 14.744233 -1 >
+2016-05-10 04:07:54.364737 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 0.0 0.0 0.542294 -1 >
+2016-05-10 04:07:54.364765 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 0.0 0.0 0.48167 -1 >
+2016-05-10 04:08:04.363545 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:08:04.364617 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:08:04.364653 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=0.0 < 0.0 0.0 95739.0 0.0 14.744233 -1 >
+2016-05-10 04:08:04.364678 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 0.0 0.0 0.542294 -1 >
+2016-05-10 04:08:04.364696 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 0.0 0.0 0.48167 -1 >
+2016-05-10 04:08:14.363349 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:08:14.364432 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:08:14.364468 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=0.0 < 0.0 0.0 95739.0 0.0 14.744233 -1 >
+2016-05-10 04:08:14.364487 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 0.0 0.0 0.542294 -1 >
+2016-05-10 04:08:14.364511 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 0.0 0.0 0.48167 -1 >
+2016-05-10 04:08:24.363440 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:08:24.364493 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:08:24.364528 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=0.0 < 0.0 0.0 95739.0 0.0 14.744233 -1 >
+2016-05-10 04:08:24.364546 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 0.0 0.0 0.542294 -1 >
+2016-05-10 04:08:24.364569 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 0.0 0.0 0.297006 -1 >
+2016-05-10 04:08:34.364461 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:08:34.365456 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:08:34.365491 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=0.0 < 0.0 0.0 95739.0 0.0 14.744233 -1 >
+2016-05-10 04:08:34.365512 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 0.0 0.0 0.542294 -1 >
+2016-05-10 04:08:34.365529 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 0.0 0.0 0.297006 -1 >
+2016-05-10 04:08:44.363933 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:08:44.365040 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:08:44.365078 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=0.0 < 0.0 0.0 95739.0 0.0 14.744233 -1 >
+2016-05-10 04:08:44.365097 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 0.0 0.0 0.542294 -1 >
+2016-05-10 04:08:44.365114 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 0.0 0.0 0.297006 -1 >
+2016-05-10 04:08:54.364818 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:08:54.365926 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:08:54.365963 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=0.0 < 0.0 0.0 95739.0 0.0 0.194459 -1 >
+2016-05-10 04:08:54.365980 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 0.0 0.0 0.542294 -1 >
+2016-05-10 04:08:54.365997 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 0.0 0.0 0.297006 -1 >
+2016-05-10 04:09:04.364272 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:09:04.365292 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:09:04.365327 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=0.0 < 0.0 0.0 95739.0 0.0 0.194459 -1 >
+2016-05-10 04:09:04.365345 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 0.0 0.0 0.21234 -1 >
+2016-05-10 04:09:04.365370 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 0.0 0.0 0.297006 -1 >
+2016-05-10 04:09:14.364360 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:09:14.365357 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:09:14.365391 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=0.0 < 0.0 0.0 95739.0 0.0 0.194459 -1 >
+2016-05-10 04:09:14.365409 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 0.0 0.0 0.21234 -1 >
+2016-05-10 04:09:14.365434 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 0.0 0.0 0.297006 -1 >
+2016-05-10 04:09:24.363715 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:09:24.364778 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:09:24.364811 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=0.0 < 0.0 0.0 95739.0 0.0 0.194459 -1 >
+2016-05-10 04:09:24.364837 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 0.0 0.0 0.21234 -1 >
+2016-05-10 04:09:24.364855 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 0.0 0.0 0.297006 -1 >
+2016-05-10 04:09:34.370571 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:09:34.371575 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:09:34.371630 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=0.0 < 0.0 0.0 95739.0 0.0 0.194459 -1 >
+2016-05-10 04:09:34.371656 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 0.0 0.0 0.21234 -1 >
+2016-05-10 04:09:34.371753 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 0.0 0.0 0.297006 -1 >
+2016-05-10 04:09:44.365773 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:09:44.366784 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:09:44.366817 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=0.0 < 0.0 0.0 95739.0 0.0 0.194459 -1 >
+2016-05-10 04:09:44.366835 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 0.0 0.0 0.21234 -1 >
+2016-05-10 04:09:44.366861 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 0.0 0.0 0.297006 -1 >
+2016-05-10 04:09:54.364394 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:09:54.365430 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:09:54.365465 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=0.0 < 0.0 0.0 95739.0 0.0 0.194459 -1 >
+2016-05-10 04:09:54.365491 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 0.0 0.0 0.21234 -1 >
+2016-05-10 04:09:54.365516 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 0.0 0.0 0.297006 -1 >
+2016-05-10 04:10:04.365149 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:10:04.366185 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:10:04.366221 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=0.0 < 0.0 0.0 95739.0 0.0 0.194459 -1 >
+2016-05-10 04:10:04.366246 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 0.0 0.0 0.21234 -1 >
+2016-05-10 04:10:04.366263 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 0.0 0.0 0.242993 -1 >
+2016-05-10 04:10:14.365374 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:10:14.366390 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:10:14.366423 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=0.0 < 0.0 0.0 95739.0 0.0 0.194459 -1 >
+2016-05-10 04:10:14.366441 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 0.0 0.0 0.21234 -1 >
+2016-05-10 04:10:14.366465 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 0.0 0.0 0.242993 -1 >
+2016-05-10 04:10:24.365442 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:10:24.367056 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:10:24.367120 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=0.0 < 0.0 0.0 95739.0 0.0 0.194459 -1 >
+2016-05-10 04:10:24.367146 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 0.0 0.0 0.21234 -1 >
+2016-05-10 04:10:24.367196 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 0.0 0.0 0.242993 -1 >
+2016-05-10 04:10:34.365580 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:10:34.366599 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:10:34.366633 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=0.0 < 0.0 0.0 95739.0 0.0 0.194459 -1 >
+2016-05-10 04:10:34.366660 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 0.0 0.0 0.21234 -1 >
+2016-05-10 04:10:34.366678 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 0.0 0.0 0.242993 -1 >
+2016-05-10 04:10:44.365683 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:10:44.366690 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:10:44.366739 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=0.0 < 0.0 0.0 95739.0 0.0 0.194459 -1 >
+2016-05-10 04:10:44.366765 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 0.0 0.0 0.21234 -1 >
+2016-05-10 04:10:44.366789 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 0.0 0.0 0.242993 -1 >
+2016-05-10 04:10:54.365911 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:10:54.366918 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:10:54.366953 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=0.0 < 0.0 0.0 95739.0 0.0 0.194459 -1 >
+2016-05-10 04:10:54.366974 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 0.0 0.0 0.21234 -1 >
+2016-05-10 04:10:54.366991 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 0.0 0.0 0.242993 -1 >
+2016-05-10 04:11:04.366242 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:11:04.367274 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:11:04.367311 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=0.0 < 0.0 0.0 95739.0 0.0 0.204257 -1 >
+2016-05-10 04:11:04.367561 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 0.0 0.0 0.220198 -1 >
+2016-05-10 04:11:04.367607 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 0.0 0.0 0.242993 -1 >
+2016-05-10 04:11:14.366254 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:11:14.367276 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:11:14.367360 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=0.0 < 0.0 0.0 95739.0 0.0 0.204257 -1 >
+2016-05-10 04:11:14.367495 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 0.0 0.0 0.220198 -1 >
+2016-05-10 04:11:14.367561 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 0.0 0.0 0.242993 -1 >
+2016-05-10 04:11:24.366373 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:11:24.367404 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:11:24.367437 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=0.0 < 0.0 0.0 95739.0 0.0 0.204257 -1 >
+2016-05-10 04:11:24.367462 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 0.0 0.0 0.220198 -1 >
+2016-05-10 04:11:24.367480 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 0.0 0.0 0.242993 -1 >
+2016-05-10 04:11:34.366598 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:11:34.367627 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:11:34.367660 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=0.0 < 0.0 0.0 95739.0 0.0 0.204257 -1 >
+2016-05-10 04:11:34.367686 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 0.0 0.0 0.220198 -1 >
+2016-05-10 04:11:34.367703 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 0.0 0.0 0.242993 -1 >
+2016-05-10 04:11:44.365843 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:11:44.366878 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:11:44.366911 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=0.0 < 0.0 0.0 95739.0 0.0 0.204257 -1 >
+2016-05-10 04:11:44.366929 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 0.0 0.0 0.220198 -1 >
+2016-05-10 04:11:44.366974 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 0.0 0.0 0.242993 -1 >
+2016-05-10 04:11:54.367183 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:11:54.368272 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:11:54.368307 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=0.0 < 0.0 0.0 95739.0 0.0 0.204257 -1 >
+2016-05-10 04:11:54.368331 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 0.0 0.0 0.220198 -1 >
+2016-05-10 04:11:54.368350 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 0.0 0.0 0.242993 -1 >
+2016-05-10 04:12:04.367173 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:12:04.368240 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:12:04.368273 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=0.0 < 0.0 0.0 95739.0 0.0 0.204257 -1 >
+2016-05-10 04:12:04.368291 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 0.0 0.0 0.220198 -1 >
+2016-05-10 04:12:04.368315 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 0.0 0.0 0.235407 -1 >
+2016-05-10 04:12:14.372872 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:12:14.373893 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:12:14.373924 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=7.387897 < 7.387897 7.387897 95750.0 0.0 0.204257 -1 >
+2016-05-10 04:12:14.373951 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 0.0 0.0 0.220198 -1 >
+2016-05-10 04:12:14.373968 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 0.0 0.0 0.235407 -1 >
+2016-05-10 04:12:24.369398 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:12:24.370592 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:12:24.370633 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=97.228156 < 461.637479 97.228156 96738.0 0.0 0.457379 -1 >
+2016-05-10 04:12:24.370680 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 18.0 0.0 0.220198 -1 >
+2016-05-10 04:12:24.370699 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 6.0 0.0 0.235407 -1 >
+2016-05-10 04:12:34.367478 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:12:34.368534 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:12:34.368571 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=104.3984 < 607.380608 104.3984 97726.0 0.0 4.097311 -1 >
+2016-05-10 04:12:34.368590 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 30.0 0.0 0.220198 -1 >
+2016-05-10 04:12:34.368608 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 15.0 0.0 0.235407 -1 >
+2016-05-10 04:12:44.368956 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:12:44.370088 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:12:44.370126 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=129.876788 < 388.592748 129.876788 99005.0 0.0 4.200611 -1 >
+2016-05-10 04:12:44.370148 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=7.948324 < 7.948324 7.948324 30.0 0.0 0.298007 -1 >
+2016-05-10 04:12:44.370169 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 15.0 0.0 0.235407 -1 >
+2016-05-10 04:12:44.370189 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: --> migrating! (total load=137.825112)
+2016-05-10 04:12:54.387022 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:12:54.388186 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:12:54.388225 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=128.776438 < 336.836801 128.776438 100311.0 9.0 3.601533 -1 >
+2016-05-10 04:12:54.388247 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=1.982947 < 1.982947 1.982947 30.0 0.0 0.298007 -1 >
+2016-05-10 04:12:54.388265 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 15.0 0.0 0.235407 -1 >
+2016-05-10 04:12:54.388286 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: --> migrating! (total load=130.759385)
+2016-05-10 04:13:04.369652 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:13:04.370785 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:13:04.370823 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=127.207177 < 320.696026 127.207177 101600.0 7.0 4.182606 -1 >
+2016-05-10 04:13:04.370845 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.496805 < 0.496805 0.496805 30.0 0.0 1.577878 -1 >
+2016-05-10 04:13:04.370863 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 15.0 0.0 0.235407 -1 >
+2016-05-10 04:13:04.370885 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: --> migrating! (total load=127.703982)
+2016-05-10 04:13:14.374544 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:13:14.375545 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:13:14.375583 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=128.437291 < 314.503644 128.437291 102892.0 0.0 4.414391 -1 >
+2016-05-10 04:13:14.375605 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.124109 < 0.124109 0.124109 30.0 0.0 1.577878 -1 >
+2016-05-10 04:13:14.375624 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 15.0 0.0 0.235407 -1 >
+2016-05-10 04:13:14.375644 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: --> migrating! (total load=128.5614)
+2016-05-10 04:13:24.383271 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:13:24.384414 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:13:24.384454 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=126.449446 < 310.089275 126.449446 104172.0 2.0 4.14126 -1 >
+2016-05-10 04:13:24.384477 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.025622 < 0.025622 0.025622 30.0 0.0 1.549118 -1 >
+2016-05-10 04:13:24.384496 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 15.0 0.0 0.235407 -1 >
+2016-05-10 04:13:24.384517 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: --> migrating! (total load=126.475068)
+2016-05-10 04:13:34.372598 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:13:34.373776 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:13:34.373818 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=129.935759 < 313.155742 129.935759 105459.0 6.0 3.275333 -1 >
+2016-05-10 04:13:34.373852 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 30.0 0.0 1.549118 -1 >
+2016-05-10 04:13:34.373871 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 15.0 0.0 0.235407 -1 >
+2016-05-10 04:13:44.383998 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:13:44.385108 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:13:44.385147 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=183.832007 < 69.63715 183.832007 107370.0 0.0 3.550447 -1 >
+2016-05-10 04:13:44.385169 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 30.0 0.0 1.739788 -1 >
+2016-05-10 04:13:44.385187 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 15.0 0.0 0.235407 -1 >
+2016-05-10 04:13:54.381857 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:13:54.382903 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:13:54.382941 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=183.832007 < 69.63715 183.832007 107370.0 0.0 3.550447 -1 >
+2016-05-10 04:13:54.382962 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 30.0 0.0 1.739788 -1 >
+2016-05-10 04:13:54.382999 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 15.0 0.0 0.235407 -1 >
+2016-05-10 04:14:04.385754 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:14:04.386771 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:14:04.386811 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=191.112328 < 4.352141 191.112328 111174.0 0.0 5.287239 -1 >
+2016-05-10 04:14:04.386832 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 30.0 0.0 3.092522 -1 >
+2016-05-10 04:14:04.386850 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 15.0 0.0 0.237525 -1 >
+2016-05-10 04:14:14.395352 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:14:14.396881 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:14:14.396934 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=184.141229 < 1.088013 184.141229 113011.0 0.0 3.318866 -1 >
+2016-05-10 04:14:14.396958 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 30.0 0.0 3.298655 -1 >
+2016-05-10 04:14:14.396980 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 15.0 0.0 0.237525 -1 >
+2016-05-10 04:14:24.386744 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:14:24.387998 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:14:24.388036 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=193.006033 < 0.271996 193.006033 114878.0 0.0 3.831515 -1 >
+2016-05-10 04:14:24.388086 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 30.0 0.0 2.585551 -1 >
+2016-05-10 04:14:24.388106 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 15.0 0.0 0.237525 -1 >
+2016-05-10 04:14:34.380710 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:14:34.381897 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:14:34.381937 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=185.653628 < 0.067997 185.653628 116738.0 6.0 3.586874 -1 >
+2016-05-10 04:14:34.381958 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 30.0 0.0 2.6109 -1 >
+2016-05-10 04:14:34.381978 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 15.0 0.0 0.237525 -1 >
+2016-05-10 04:14:44.377531 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:14:44.378674 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:14:44.378715 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=191.26458 < 0.016999 191.26458 118666.0 2.0 4.248862 -1 >
+2016-05-10 04:14:44.378735 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 30.0 0.0 2.694459 -1 >
+2016-05-10 04:14:44.378753 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 15.0 0.0 0.237525 -1 >
+2016-05-10 04:14:54.374902 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:14:54.376002 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:14:54.376041 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=185.991494 < 0.0 185.991494 120575.0 8.0 3.568697 -1 >
+2016-05-10 04:14:54.376097 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 30.0 0.0 2.964277 -1 >
+2016-05-10 04:14:54.376119 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 15.0 0.0 0.237525 -1 >
+2016-05-10 04:15:04.372378 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:15:04.373624 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:15:04.373662 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=330.443498 < 0.0 330.443498 122453.0 0.0 4.143223 -1 >
+2016-05-10 04:15:04.373683 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 30.0 0.0 2.670397 -1 >
+2016-05-10 04:15:04.373701 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 15.0 0.0 0.237525 -1 >
+2016-05-10 04:15:14.372679 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:15:14.373772 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:15:14.373810 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=187.836107 < 0.0 187.836107 124351.0 7.0 3.711235 -1 >
+2016-05-10 04:15:14.373831 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 30.0 0.0 3.162955 -1 >
+2016-05-10 04:15:14.373866 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 15.0 0.0 0.237525 -1 >
+2016-05-10 04:15:24.377897 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:15:24.379031 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:15:24.379069 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=181.069259 < 0.0 181.069259 126211.0 0.0 3.366488 -1 >
+2016-05-10 04:15:24.379090 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 30.0 0.0 2.564103 -1 >
+2016-05-10 04:15:24.379108 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 15.0 0.0 0.237525 -1 >
+2016-05-10 04:15:34.377277 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:15:34.378503 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:15:34.378541 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=190.913548 < 0.0 190.913548 128071.0 0.0 3.485118 -1 >
+2016-05-10 04:15:34.378562 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 30.0 0.0 2.588407 -1 >
+2016-05-10 04:15:34.378580 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 15.0 0.0 0.237525 -1 >
+2016-05-10 04:15:44.372996 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:15:44.374374 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:15:44.374415 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=347.335996 < 0.0 347.335996 129977.0 0.0 3.369926 -1 >
+2016-05-10 04:15:44.374436 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 30.0 0.0 2.636917 -1 >
+2016-05-10 04:15:44.374457 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 15.0 0.0 0.237525 -1 >
+2016-05-10 04:15:54.373857 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:15:54.375061 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:15:54.375100 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=179.164775 < 0.0 179.164775 131777.0 0.0 3.359633 -1 >
+2016-05-10 04:15:54.375121 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 30.0 0.0 2.630913 -1 >
+2016-05-10 04:15:54.375138 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 15.0 0.0 0.848616 -1 >
+2016-05-10 04:16:04.373311 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:16:04.374508 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:16:04.374552 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=185.27696 < 0.0 185.27696 133643.0 0.0 4.179409 -1 >
+2016-05-10 04:16:04.374573 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 30.0 0.0 3.394984 -1 >
+2016-05-10 04:16:04.374597 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 15.0 0.0 0.848616 -1 >
+2016-05-10 04:16:14.377775 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:16:14.378785 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:16:14.378823 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=193.30768 < 0.0 193.30768 135481.0 1.0 3.610475 -1 >
+2016-05-10 04:16:14.378844 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 30.0 0.0 3.394984 -1 >
+2016-05-10 04:16:14.378887 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 15.0 0.0 0.848616 -1 >
+2016-05-10 04:16:24.378688 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:16:24.379863 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:16:24.379902 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=182.596505 < 0.0 182.596505 137340.0 0.0 3.33588 -1 >
+2016-05-10 04:16:24.379945 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 30.0 0.0 2.894438 -1 >
+2016-05-10 04:16:24.379963 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 15.0 0.0 0.848616 -1 >
+2016-05-10 04:16:34.375672 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:16:34.376722 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:16:34.376763 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=190.703812 < 0.0 190.703812 139225.0 0.0 4.075949 -1 >
+2016-05-10 04:16:34.376789 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 30.0 0.0 2.894438 -1 >
+2016-05-10 04:16:34.376807 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 15.0 0.0 0.848616 -1 >
+2016-05-10 04:16:44.380664 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:16:44.381738 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:16:44.381786 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=187.382818 < 0.0 187.382818 141137.0 0.0 3.763988 -1 >
+2016-05-10 04:16:44.381807 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 30.0 0.0 3.214794 -1 >
+2016-05-10 04:16:44.381824 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 15.0 0.0 0.848616 -1 >
+2016-05-10 04:16:54.377060 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:16:54.378191 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:16:54.378230 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=188.360933 < 0.0 188.360933 143035.0 1.0 3.51145 -1 >
+2016-05-10 04:16:54.378253 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 30.0 0.0 2.817974 -1 >
+2016-05-10 04:16:54.378270 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 15.0 0.0 0.848616 -1 >
+2016-05-10 04:17:04.387775 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:17:04.389365 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:17:04.389431 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=188.071475 < 0.0 188.071475 144904.0 1.0 4.161348 -1 >
+2016-05-10 04:17:04.389453 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 30.0 0.0 3.115502 -1 >
+2016-05-10 04:17:04.389470 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 15.0 0.0 0.848616 -1 >
+2016-05-10 04:17:14.389559 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:17:14.390758 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:17:14.390797 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=190.064648 < 0.0 190.064648 146801.0 6.0 3.392857 -1 >
+2016-05-10 04:17:14.390817 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 30.0 1.0 3.115502 -1 >
+2016-05-10 04:17:14.390834 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 15.0 0.0 0.848616 -1 >
+2016-05-10 04:17:24.386440 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:17:24.387451 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:17:24.387487 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=187.654371 < 0.0 187.654371 148706.0 0.0 3.447395 -1 >
+2016-05-10 04:17:24.387507 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 30.0 0.0 3.160592 -1 >
+2016-05-10 04:17:24.387525 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 15.0 0.0 0.848616 -1 >
+2016-05-10 04:17:34.396295 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:17:34.397658 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:17:34.397696 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=189.130053 < 0.0 189.130053 150604.0 4.0 3.615071 -1 >
+2016-05-10 04:17:34.397717 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 30.0 0.0 3.160592 -1 >
+2016-05-10 04:17:34.397735 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 15.0 0.0 0.245387 -1 >
+2016-05-10 04:17:44.378358 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:17:44.379412 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:17:44.379450 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=185.823896 < 0.0 185.823896 152450.0 0.0 10.876747 -1 >
+2016-05-10 04:17:44.379471 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 30.0 0.0 2.495993 -1 >
+2016-05-10 04:17:44.379488 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 15.0 0.0 0.245387 -1 >
+2016-05-10 04:17:54.376007 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:17:54.377072 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:17:54.377115 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=331.780181 < 0.0 331.780181 154295.0 0.0 3.94637 -1 >
+2016-05-10 04:17:54.377137 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 30.0 0.0 12.537917 -1 >
+2016-05-10 04:17:54.377154 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 15.0 0.0 0.245387 -1 >
+2016-05-10 04:18:04.383020 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:18:04.384031 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:18:04.384101 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=186.172694 < 0.0 186.172694 156169.0 0.0 4.396442 -1 >
+2016-05-10 04:18:04.384123 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 30.0 0.0 3.005051 -1 >
+2016-05-10 04:18:04.384141 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 15.0 0.0 0.245387 -1 >
+2016-05-10 04:18:14.382786 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:18:14.384033 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:18:14.384105 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=188.764911 < 0.0 188.764911 158063.0 11.0 3.74141 -1 >
+2016-05-10 04:18:14.384126 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 30.0 0.0 2.822991 -1 >
+2016-05-10 04:18:14.384144 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 15.0 0.0 0.245387 -1 >
+2016-05-10 04:18:24.393861 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:18:24.394872 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:18:24.394912 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=185.10996 < 0.0 185.10996 159919.0 0.0 3.70935 -1 >
+2016-05-10 04:18:24.394933 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 30.0 0.0 3.009611 -1 >
+2016-05-10 04:18:24.394951 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 15.0 0.0 0.245387 -1 >
+2016-05-10 04:18:34.374692 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:18:34.375950 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:18:34.375990 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=188.47312 < 0.0 188.47312 161779.0 0.0 3.685816 -1 >
+2016-05-10 04:18:34.376011 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 30.0 0.0 2.537886 -1 >
+2016-05-10 04:18:34.376031 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 15.0 0.0 0.245387 -1 >
+2016-05-10 04:18:44.381587 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:18:44.382616 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:18:44.382653 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=190.873127 < 0.0 190.873127 163684.0 2.0 3.688629 -1 >
+2016-05-10 04:18:44.382677 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 30.0 0.0 2.88827 -1 >
+2016-05-10 04:18:44.382695 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 15.0 0.0 0.245387 -1 >
+2016-05-10 04:18:54.394185 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:18:54.395393 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:18:54.395438 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=174.290304 < 0.0 174.290304 165521.0 1.0 3.612312 -1 >
+2016-05-10 04:18:54.395461 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 30.0 0.0 2.88827 -1 >
+2016-05-10 04:18:54.395479 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 15.0 0.0 0.245387 -1 >
+2016-05-10 04:19:04.389055 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:19:04.390122 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:19:04.390183 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=195.047793 < 0.0 195.047793 167426.0 2.0 4.212407 -1 >
+2016-05-10 04:19:04.390248 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 30.0 0.0 3.509272 -1 >
+2016-05-10 04:19:04.390291 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 15.0 0.0 0.245387 -1 >
+2016-05-10 04:19:14.377320 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:19:14.378485 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:19:14.378524 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=197.481175 < 0.0 197.481175 169279.0 1.0 3.532402 -1 >
+2016-05-10 04:19:14.378545 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 30.0 0.0 2.731411 -1 >
+2016-05-10 04:19:14.378563 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 15.0 0.0 0.252544 -1 >
+2016-05-10 04:19:24.393122 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:19:24.394380 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:19:24.394422 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=197.481175 < 0.0 197.481175 169279.0 1.0 3.532402 -1 >
+2016-05-10 04:19:24.394444 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 30.0 0.0 2.731411 -1 >
+2016-05-10 04:19:24.394462 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 15.0 0.0 0.252544 -1 >
+2016-05-10 04:19:34.384552 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:19:34.385654 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:19:34.385694 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=188.838873 < 0.0 188.838873 173087.0 1.0 3.220859 -1 >
+2016-05-10 04:19:34.385741 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 30.0 0.0 2.938941 -1 >
+2016-05-10 04:19:34.385763 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 15.0 0.0 0.252544 -1 >
+2016-05-10 04:19:44.389795 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:19:44.390988 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:19:44.391025 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=186.39998 < 0.0 186.39998 174952.0 10.0 3.660397 -1 >
+2016-05-10 04:19:44.391046 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 30.0 0.0 2.938941 -1 >
+2016-05-10 04:19:44.391067 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 15.0 0.0 0.252544 -1 >
+2016-05-10 04:19:54.377982 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:19:54.378989 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:19:54.379028 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=187.770501 < 0.0 187.770501 176830.0 10.0 4.109589 -1 >
+2016-05-10 04:19:54.379049 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 30.0 0.0 2.402196 -1 >
+2016-05-10 04:19:54.379067 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 15.0 0.0 0.252544 -1 >
+2016-05-10 04:20:04.378992 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:20:04.380185 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:20:04.380224 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=185.609927 < 0.0 185.609927 178705.0 0.0 3.852041 -1 >
+2016-05-10 04:20:04.380246 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 30.0 0.0 2.708192 -1 >
+2016-05-10 04:20:04.380272 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 15.0 0.0 0.252544 -1 >
+2016-05-10 04:20:14.388163 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:20:14.389337 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:20:14.389377 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=193.026602 < 0.0 193.026602 180580.0 0.0 3.564155 -1 >
+2016-05-10 04:20:14.389398 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 30.0 0.0 2.641605 -1 >
+2016-05-10 04:20:14.389444 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 15.0 0.0 0.252544 -1 >
+2016-05-10 04:20:24.377865 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:20:24.378896 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:20:24.378935 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=195.701595 < 0.0 195.701595 182554.0 0.0 3.54411 -1 >
+2016-05-10 04:20:24.378956 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 30.0 0.0 2.709547 -1 >
+2016-05-10 04:20:24.378974 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 15.0 0.0 0.252544 -1 >
+2016-05-10 04:20:34.377023 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:20:34.378147 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:20:34.378184 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=193.201623 < 0.0 193.201623 184416.0 0.0 3.535996 -1 >
+2016-05-10 04:20:34.378206 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 30.0 0.0 2.351011 -1 >
+2016-05-10 04:20:34.378225 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 15.0 0.0 0.252544 -1 >
+2016-05-10 04:20:44.377238 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:20:44.378224 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:20:44.378259 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=60.068925 < 0.0 60.068925 184416.0 0.0 3.535996 -1 >
+2016-05-10 04:20:44.378279 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 30.0 0.0 2.351011 -1 >
+2016-05-10 04:20:44.378297 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 15.0 0.0 0.252544 -1 >
+2016-05-10 04:20:54.375765 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:20:54.377270 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:20:54.377325 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=15.017058 < 0.0 15.017058 184416.0 0.0 3.535996 -1 >
+2016-05-10 04:20:54.377347 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 30.0 0.0 2.351011 -1 >
+2016-05-10 04:20:54.377365 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 15.0 0.0 0.252544 -1 >
+2016-05-10 04:21:04.378104 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:21:04.379081 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:21:04.379116 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=3.754098 < 0.0 3.754098 184416.0 0.0 3.535996 -1 >
+2016-05-10 04:21:04.379137 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 30.0 0.0 2.351011 -1 >
+2016-05-10 04:21:04.379155 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 15.0 0.0 0.256795 -1 >
+2016-05-10 04:21:14.377663 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:21:14.378862 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:21:14.378898 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=0.938517 < 0.0 0.938517 184416.0 0.0 3.535996 -1 >
+2016-05-10 04:21:14.378928 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 30.0 0.0 2.351011 -1 >
+2016-05-10 04:21:14.378967 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 15.0 0.0 0.256795 -1 >
+2016-05-10 04:21:24.377993 7f2ce992d700  0 _load_class could not stat class /usr/lib/rados-classes/libcls_bal_seq.so: (2) No such file or directory
+2016-05-10 04:21:24.378980 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165: load metrics: whoami=1 < auth all req q cpu mem >
+2016-05-10 04:21:24.379013 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS0 load=0.234627 < 0.0 0.234627 184416.0 0.0 3.535996 -1 >
+2016-05-10 04:21:24.379034 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS1 load=0.0 < 0.0 0.0 30.0 0.0 2.351011 -1 >
+2016-05-10 04:21:24.379051 7f2ce992d700  0 <cls> lua_core/lua_core.cc:165:   MDS2 load=0.0 < 0.0 0.0 15.0 0.0 0.256795 -1 >

@@ -1,0 +1,39 @@
+static: does not generate config
+HEALTH_ERR 3351 pgs are stuck inactive for more than 300 seconds; 2858 pgs peering; 3351 pgs stuck inactive; 59 pgs stuck unclean; 35 requests are blocked > 32 sec
+static: does not generate admin key
+2016-05-09 23:51:16.444214 7fe01ca5c180  0 set uid:gid to 64045:64045 (ceph:ceph)
+2016-05-09 23:51:16.444253 7fe01ca5c180  0 ceph version 9.0.0-11612-ga018acb (a018acbd46aefacf3a540e94a850ce3aaae4312d), process ceph-mds, pid 85
+starting mds.mds-issdm-15 at :/0
+2016-05-09 23:51:16.444756 7fe01ca5c180  0 pidfile_write: ignore empty --pid-file
+2016-05-09 23:55:39.372708 7fe0107ac700  0 mds.0.cache creating system inode with ino:100
+2016-05-09 23:55:39.372897 7fe0107ac700  0 mds.0.cache creating system inode with ino:1
+2016-05-09 23:55:40.386264 7fe0158b7700  0 log_channel(cluster) log [DBG] : reconnect by client.4313 192.168.140.230:0/1153969581 after 0.009386
+2016-05-09 23:55:40.388234 7fe0158b7700  0 log_channel(cluster) log [DBG] : reconnect by client.4314 192.168.140.164:0/1236522274 after 0.011428
+2016-05-09 23:55:40.392320 7fe0158b7700  0 log_channel(cluster) log [DBG] : reconnect by client.4315 192.168.140.150:0/3212007943 after 0.015512
+2016-05-09 23:55:40.410433 7fe0158b7700  0 log_channel(cluster) log [DBG] : reconnect by client.4316 192.168.140.240:0/517129595 after 0.033627
+2016-05-09 23:55:40.411794 7fe0158b7700  0 log_channel(cluster) log [DBG] : reconnect by client.4317 192.168.140.152:0/3141975275 after 0.034970
+2016-05-09 23:55:40.412681 7fe0158b7700  0 log_channel(cluster) log [DBG] : reconnect by client.4318 192.168.140.149:0/987771487 after 0.035880
+2016-05-09 23:55:40.413862 7fe0158b7700  0 log_channel(cluster) log [DBG] : reconnect by client.4320 192.168.140.197:0/1553288730 after 0.037061
+2016-05-09 23:55:40.416611 7fe0158b7700  0 log_channel(cluster) log [DBG] : reconnect by client.4319 192.168.140.155:0/1560624023 after 0.039802
+2016-05-09 23:55:40.454967 7fe0158b7700  0 log_channel(cluster) log [DBG] : reconnect by client.4321 192.168.140.148:0/4083913330 after 0.078113
+2016-05-09 23:55:40.457527 7fe0158b7700  0 log_channel(cluster) log [DBG] : reconnect by client.4322 192.168.140.176:0/1214216782 after 0.080670
+2016-05-09 23:55:40.462820 7fe0158b7700  0 log_channel(cluster) log [DBG] : reconnect by client.4323 192.168.140.187:0/1802615615 after 0.085979
+2016-05-09 23:55:40.464269 7fe0158b7700  0 log_channel(cluster) log [DBG] : reconnect by client.4324 192.168.140.185:0/3701652083 after 0.087464
+2016-05-09 23:55:40.464587 7fe0158b7700  0 log_channel(cluster) log [DBG] : reconnect by client.4325 192.168.140.156:0/2716378477 after 0.087789
+2016-05-09 23:55:40.503496 7fe0158b7700  0 log_channel(cluster) log [DBG] : reconnect by client.4326 192.168.140.238:0/4158679807 after 0.126693
+2016-05-09 23:55:40.504325 7fe0158b7700  0 log_channel(cluster) log [DBG] : reconnect by client.4328 192.168.140.230:0/3359083767 after 0.127521
+2016-05-09 23:55:40.505103 7fe0158b7700  0 log_channel(cluster) log [DBG] : reconnect by client.4327 192.168.140.245:0/2514137664 after 0.128306
+2016-05-09 23:55:40.505717 7fe0158b7700  0 log_channel(cluster) log [DBG] : reconnect by client.4329 192.168.140.240:0/2243662432 after 0.128913
+2016-05-09 23:55:40.506309 7fe0158b7700  0 log_channel(cluster) log [DBG] : reconnect by client.4330 192.168.140.164:0/3134586682 after 0.129510
+2016-05-09 23:55:40.507257 7fe0158b7700  0 log_channel(cluster) log [DBG] : reconnect by client.4331 192.168.140.150:0/565658082 after 0.130454
+2016-05-09 23:55:40.507884 7fe0158b7700  0 log_channel(cluster) log [DBG] : reconnect by client.4332 192.168.140.152:0/2545870101 after 0.131081
+2016-05-09 23:55:40.508547 7fe0158b7700  0 log_channel(cluster) log [DBG] : reconnect by client.4333 192.168.140.149:0/1846657236 after 0.131716
+2016-05-09 23:55:40.509096 7fe0158b7700  0 log_channel(cluster) log [DBG] : reconnect by client.4336 192.168.140.148:0/1469026441 after 0.132294
+2016-05-09 23:55:40.509694 7fe0158b7700  0 log_channel(cluster) log [DBG] : reconnect by client.4337 192.168.140.176:0/442030820 after 0.132894
+2016-05-09 23:55:40.510394 7fe0158b7700  0 log_channel(cluster) log [DBG] : reconnect by client.4338 192.168.140.187:0/2414248678 after 0.133591
+2016-05-09 23:55:40.511032 7fe0158b7700  0 log_channel(cluster) log [DBG] : reconnect by client.4339 192.168.140.185:0/1682891267 after 0.134233
+2016-05-09 23:55:40.511522 7fe0158b7700  0 log_channel(cluster) log [DBG] : reconnect by client.4341 192.168.140.245:0/3894639860 after 0.134717
+2016-05-09 23:55:40.512445 7fe0158b7700  0 log_channel(cluster) log [DBG] : reconnect by client.4335 192.168.140.197:0/511613090 after 0.135619
+2016-05-09 23:55:40.513036 7fe0158b7700  0 log_channel(cluster) log [DBG] : reconnect by client.4340 192.168.140.156:0/2148816878 after 0.136237
+2016-05-09 23:55:40.514282 7fe0158b7700  0 log_channel(cluster) log [DBG] : reconnect by client.4334 192.168.140.155:0/3493264904 after 0.137479
+2016-05-09 23:55:40.515219 7fe0158b7700  0 log_channel(cluster) log [DBG] : reconnect by client.4342 192.168.140.238:0/587924253 after 0.138416
