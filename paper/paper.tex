@@ -936,46 +936,52 @@ auxillary service such as PAXOS.
 \subsubsection{Sequencer}
 
 We implement the sequencer service in Malacology as an application-specific
-file type that attaches a 64-bit value to the inode state within the Ceph
-metadata service.
+file type that associates a small amount of metadata, including the 64-bit log
+tail position, to the inode state managed by the Ceph metadata service.  Since
+a sequencer is associated with a unique log, this approach has the added
+benefit of allowing the metadata service to also handle naming, by
+representing each log service instance within the standard POSIX hierarchical
+namespace.
 
-The zlog sequencer is volatile, shared resource that requires serialized
-access. in corfu the sequencer is a fast, centeralized network counter
-resource.
+{\bf Physical design.}
+The next component of our design is the low-level configuration of the
+sequencer inode type that achieves the correct semantics.  Initially we sought
+to directly model the sequencer service in Ceph as a non-exclusive,
+non-cacheable resource, forcing clients to perform a round-trip access to the
+resource at the authoratiave metadata server for the inode representing the
+sequencer.  Interestingly, we found that the capapbility system in Ceph uses a
+strategy to reduce metadata service load by allowing multiple clients that
+open a shared file to temporarily cache the inode resource, resulting in a
+round-robin, best-effort batching behavior. When a single client is accessing
+the sequencer resource it is able to cache state locally without interruption.
 
-Initially we saught to directly model the sequencer in ceph as a non-exclusive,
-non-cacheable resource, forcing clients to perform round-trip access the
-resource at the authoratiave MDS for the inode representing the sequencer.
-However, we found that the capapbility system in Ceph is used to batch access
-to cacheable resources, providing clients best-effort access to the capability
-and allowing them to burst. While unexpected, this alternative mode provides
-a different approach to sequencer implementation.
+While unexpected, this discovery allowed us to explore an implementation
+strategy that we had not previously considered. In particular, for bursty
+clients and clients that can tolerate high latency, this mode of operation may
+allow a system to achieve much higher throughput than a system with a
+centralized sequencer service.
 
-In Section we quantify the trade-offs of throughput and latency for the
-centeralized sequencer and the batching mechanism based on capabilities.
+In Section we quantify the trade-offs of throughput and latency for an
+approach based on a round-robin batching mode, and compare this mode to one in
+which the metadata server mediates access to the sequencer state when in it is
+being shared among multiple clients.
 
-The MDS has a queue of locks that it uses to revoke capabilities from
-the clients. If we put a Mantle-style hook here, we can control when
-those revoke messages go out.
+{\bf Capability policies.}
+We use capabilitity policies in the metadata service to tune the amount of
+time that clients may cache the sequencer resource. This allows us to control
+the trade-off between latency and throughput beyond the standard best-effort
+policy.
 
-Mantle is used to implement a zlog file type specific policy for maximizing
-throughput to the sequencer by migration the resource between metadata servers.
+{\bf Balancing policies.}
+While the metadata service is a shared resource, authority over metadata
+resources can be physically moved between servers using a dynamic, ZLog-aware
+policy expressed in Mantle. For instance, one or more metadata servers may be
+dedicated to supporting ZLog sequencer load. When the system load is low all
+resources are spread evenly, but non-ZLog resources may be migrated to
+best-effort servers when sequencer performance suffers.
 
-Sequencer recovery is handled by tapping into existing recovery mechanisms
-that recover inode state. file type specific recovery augments the existing
-recovery procedure.
-
-\subsubsection{Log Management}
-
-log management is supported by mds using a special directory layout
-and file types.
-
-\subsubsection{Storage Interface Management}
-
-lua snippet
-
-The lua implementation of the interfaces are encoded into cluster maps
-for automatic verisoning and dissemtation across the cluster.
+{\bf Recovery.}
+What?
 
 \section{Evaluation}\label{evaluation}
 
