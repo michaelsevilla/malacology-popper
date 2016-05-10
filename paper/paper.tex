@@ -67,7 +67,8 @@ file system metadata load balancer and a high-performance distributed shared-log
 that leverages flash devices.  RESULTS
 \end{abstract}
 
-\section{Introduction}\label{introduction}
+\section{Introduction}
+\label{introduction}
 
 A storage system implements abstractions designed to persistently store
 data and must exhibit a high level of correctness to prevent data loss.
@@ -127,7 +128,7 @@ a storage system) and \emph{software-defined storage} (the control of
 thin-provisioning of storage).
 
 To illustrate the benefits and challenges of this approach we examine
-the programmability of Ceph~\cite{weil:osdi2006-ceph}, the increasingly
+the programmability of Ceph~\cite{weil:osdi2006-ceph,ceph}, the increasingly
 popular, production-level open-source distributed storage system.
 Something of a storage swiss army knife, Ceph supports file, block, and
 object interfaces simultaneously in a single cluster~\cite{ceph_contributors_ceph_2010}. Ceph's Reliable Autonomous 
@@ -159,17 +160,17 @@ abstractions contained in Ceph. We build the framework in Ceph by
 leveraging a broad spectrum of existing services, including distributed
 locking and caching services provided by MDSs, durability and logical
 storage devices provided by RADOS, and propogation of consistent cluster
-state provided by the monitoring service (see \ref{fig:overview}). As we will show in this paper, this framework is expressive enough to provide the
+state provided by the monitoring service (see Figure~\ref{fig:overview}). As we will show in this paper, this framework is expressive enough to provide the
 functionality necessary for implementing new services. Our contributions
 are:
 
-\paragraph*{A programmable storage system implementation} that re-uses and extends existing abstractions. It includes:
+\paragraph*{A programmable storage system} that re-uses and extends existing abstractions and services of Ceph, a common production-level storage system. It includes:
 
   \begin{enumerate}
 %  \def\labelenumi{\arabic{enumi}.}
 %  \itemsep1pt\parskip0pt\parsep0pt
   \item
-    An extension of file system metadata by a new type of ``sequencer'' inode that together with Ceph's capability subsystem implements high-performance, non-durable access serialization
+    An extension of file system metadata by a new type of ``sequencer'' inode that together with Ceph's capability subsystem implements high-performance, non-durable access serialization:
   \item
     The use of Ceph's PAXOS-based consensus infrastructure for versioning of metadata service load-balancing policies
   \item
@@ -178,7 +179,7 @@ are:
     An extension of the object interface classes for new logical storage/metadata devices
   \end{enumerate}
 
-\paragraph*{Two example implementations and evaluations} for feasibility of services that use this framework
+\paragraph*{A distributed shared log service} to demonstrate the feasibility of services using the programmable storage approach:
 
   \begin{enumerate}
 %  \def\labelenumi{\arabic{enumi}.}
@@ -188,11 +189,10 @@ are:
   \item
     A re-implementation of the programmable Mantle metadata load balancing service~\cite{sevilla:sc15-mantle} using Malacology
   \item 
-    An application of the Mantle metadata load balancing service to manage the placement of new sequencer inodes
+    An application of Mantle to manage load-balancing of sequencers.
   \end{enumerate}
 
-First, we describe existing techniques for bridging the gap between the
-performance of storage systems and the requirements of applications
+First, we describe existing techniques for adapting storage systems
 (\S\ref{problem}). Next, we discuss the ``distributed systems'' inspired
 abstractions employed by Ceph (\S\ref{background}) and allude to their
 re-usability as components in other services. The next section
@@ -202,35 +202,33 @@ Malacology to synthesize entirely new storage services on an existing
 system through configuration and small changes (\S\ref{services}). We
 conclude by evaluating real-world use cases (\S\ref{evaluation}).
 
-\section{Highly Tailored and Application-Specifc Storage
-Systems}\label{highly-tailored-and-application-specifc-storage-systems}
+\section{Adapting Storage Systems}
 
 \label{problem}
 
 A consequence of complicated data management requirements and faster storage
 devices is that storage systems may fail to meet the needs of applications.
-Application workarounds for meeting performance goals roughly fall into one of
-three categories: ``bolt-on'' services, application changes, and changes to
-the storage system itself.
+Short of changing the appalication itself, approaches for meeting performance goals roughly fall into ``bolt-on'' services and changes to the storage system itself.
 
-\subsection{\texorpdfstring{``Bolt-on''
-services}{Bolt-on services}}\label{bolt-on-services}
+\subsection{Bolt-on services}
+\label{bolt-on-services}
 
-So called ``bolt-on'' services are third-party solutions integrated into a
+Bolt-on services are third-party solutions integrated into a
 system to provide functionality and improve performance for common use-cases
 (e.g. a metadata service). The introduction of additional services may provide
 simplicity and performance enhancements, but ``bolt-on'' services often
 duplicate functionality, unnecessarily increasing the likelihood of bugs or
 introducing unpredictable performance problems. For example, we are developing
 a high-performance distributed shared-log on Ceph called ZLog, based on the
-CORFU protocol~\cite{balakrishnan_corfu_2012}. Without going into greater detail, the CORFU protocol, by separating the concern of correctness from the concern of performance, enables serialization using a \emph{volatile}
+CORFU protocol~\cite{balakrishnan_corfu_2012}. The CORFU protocol separates the concern of correctness from the concern of performance, enables serialization using a \emph{volatile}
 ``sequencer'' service. This high-performance in-memory counter is used to assign a log
-position to each client that appends to the log. The sequencer is purely a performance optimization and does not have a role in correctness (if the sequencer fails, the tail of the log can always be retrieved by other means). Thus, it is the volatility of the sequencer that enables high performance. A ``bolt-on'' option for building
+position to each client that appends to the log. The sequencer is purely a performance optimization and does not have a role in correctness (if the sequencer fails, the tail of the log can always be retrieved by other means). Thus, it is the volatility of the sequencer that enables high performance (see Section~\ref{sec:zlog} for more detail). A ``bolt-on'' option for building
 a distributed log is to use PAXOS, or an out-of-the-box solution such as
 Zookeeper. However, these systems adhere to the preconceived notions of
 storage, namely that data is safe from data loss, which is exactly the feature
 that causes traditional approaches to run at significantly reduced speed. 
 
+\if{false}
 \subsection{Application Changes}\label{application-changes}
 
 The second approach that applications may use to adapt to a storage system
@@ -247,12 +245,11 @@ improve locality, performance, and increase the number of early results. %This i
 However, changing applications creates a coupling that is highly tied to the
 underlying physical properties of the system, making it difficult to
 adapt to future changes at the storage system level.
+\fi
 
 \subsection{Storage System Changes}\label{storage-changes}
 
-When both the bolt-on approach and changing applications fail to meet the needs of the application,
-developers turn their attention to the storage system itself.
-Traditionally, storage system behaviour can be altered using two
+Storage system behaviour can be altered using two
 techniques: tuning the system or introducing changes to the system.
 %The
 %difficulty of both of these approaches has given rise to a third
@@ -279,7 +276,7 @@ the space of parameters in order to be feasible, similar to the approach used in
 
 \subsubsection{Software Changes}\label{software-changes}
 
-As a last resort, the application developer can alter the storage system
+To go beyond tuning one has to alter the storage system
 itself. In the best case a developer is using an open-source system in which
 case one must become familiar with often enormous code-bases before being able
 to make changes, but then face the task of approaching a community to
@@ -867,6 +864,7 @@ In addition to these services, we'll demonstrate how we combine ZLog and Mantle
 to implement service-aware metadata load balancing policies.
 
 \subsection{Mantle: A Programmable Metadata Load Balancer}
+\label{sec:mantle}
 
 Mantle~\cite{sevilla:sc15-mantle} is a programmable metadata
 balancer for Ceph that separates the metadata balancing policies from their
@@ -899,6 +897,7 @@ We implemented it using the components from section 3. I will tell you about the
 \end{figure}
 
 \subsection{ZLog: A Fast Distributed Shared-Log}
+\label{sec:zlog}
 
 The second service implemented on Malacology is ZLog, a high-performance
 distributed shared-log that is based on the CORFU
