@@ -268,39 +268,6 @@ security and performance concerns.
 We will now discuss the subsystems Ceph uses to provide a general-purpose
 storage system and how Malacology makes them programmable.
 
-\subsection{Cluster State Management}
-\label{consistencyversioning-of-cluster-state}
-
-% straw man example
-Keeping track of the state of a distributed system is an essential part of any 
-successful service and a necessary component in order to diagnose and detect 
-failures, when they occur. In the case of Ceph, a consistent view of cluster 
-state among server daemons and clients is critical
-to provide strong consistency guarantees to clients. Ceph maintains cluster
-state information in per-subsystem ``maps'' (e.g. OSD map, MDS map) that
-record membership and status information. A PAXOS-based monitoring service is
-responsible for integrating state changes into cluster maps, and responding to
-requests from out-of-date clients. As a fundamental building block of many
-system designs, consensus abstractions such as PAXOS are a common technique
-for maintaining consistent data versions, and are a useful system to expose.
-
-While Ceph does not expose this service directly, it does allow limited use by
-clients through a key-value service intended for low-volume, small size
-configuration information. Unfortunately, while a key-value service is
-generally useful, it doesn't provide many of the useful services hidden within
-the monitoring framework that would be required for applications with more
-demanding requirements.
-
-\paragraph*{Malacology:} Malacology exposes the monitoring service in two ways. 
-First, Malacology APIs for object storage (\S\ref{active-storage}) and the MDS 
-(\S\ref{malacology:mds}) have functions available to them that allow them to 
-store application-specific data in the highly-available, consistent store 
-associated to the Ceph monitors. As mentioned
-Map modification for propogation of state. We allow applications to augment
-these data structures with application-specific metadata. In order to keep the
-size of these data structures small application state may be stored elsewhere
-and the references stored within the data structure.
-
 \subsection{Logical Storage Devices}
 \label{active-storage}
 
@@ -345,7 +312,7 @@ limit the use of object classes to all but those with administrative level
 access and technique expertise.
 
 By embedding the Lua runtime, Malacology makes the base RADOS API available in a 
-dynamic environment, resulting in a object storage API with economy of 
+dynamic environment, resulting in an object storage API with economy of 
 expression, which at the same time provides the full set of features of the base 
 object class. New object interfaces that are expressed in thousands of lines of 
 code can be implemented in approximately an order of magnitude less 
@@ -354,50 +321,62 @@ code~\cite{geambasu_comet_2010}.
 {\bf Recovery.}
 Application specific recovery is critical.
 
-\subsection{Distributed Metadata Services}
-\label{malacology:mds}
+\subsection{Durability}
+\label{sec:durability}
 
-% Straw man example
-Migrating resources is an important part of load balancing but understanding the effects of different configurations and parameters is difficult. Systems already virtualize and migrate memory; soon systems will be able to migrate other resources, like CPU, disk, and memory. Figuring out how, when, and where to move these resources depends on complex metrics like utilization, configuration, and workload.
+Ceph provides storage by striping and replicating data across
+RADOS~\cite{weil_rados_2007}, the reliable distributed object store. RADOS
+uses many techniques to ensure that data is not corrupted or lost, such as
+erasure coding, replication, and data scrubbing. Furthermore, many of these
+techniques try to be autonomous so that work is distributed across the
+cluster. For example, when placement groups change, the OSDs rebalance and
+re-shard data in the background in a process called placement group splitting.
 
-These problems are general, distributed systems load balancing problems and share many of the same properties as the POSIX metadata wall~\cite{alam:pdsw2011-metadata-scaling,ghemawat:sosp2003-gfs,hildebrand:msst2005-pnfs,weil_ceph_2006,welch:fast2008-panasas,shvachko:login2012-hdfs-scalability}. Many distributed file systems decouple metadata and data I/O so that
-these services can scale independently. Despite
-this optimization, scaling the metadata services is still difficult
-because metadata accesses impose small and frequent requests on the
-underlying storage system~\cite{roselli:atec2000-FS-workloads}. Many
-techniques for designing the metadata services have been proposed to
-accommodate this workload: Lustre~\cite{konstantinos:pdsw2014-lustre-metadata}, GFS~\cite{ghemawat:sosp2003-gfs}, and HDFS~\cite{shvachko:login2012-hdfs-scalability} keep all metadata on one
-server; GIGA+~\cite{patil:fast2011-giga}, IndexFS~\cite{ren:sc2014-indexfs}, Lazy Hybrid~\cite{brandt:msst2003-lh}, GPFS~\cite{schmuck:fast2002-gpfs},
-and pNFS~\cite{hildebrand:supercomputing2006-pNFS} hash the file
-system namespace across a dedicated cluster and cache metadata; Panasas~\cite{welch:fast2008-panasas} and CephFS~\cite{weil:sc2004-dyn-metadata} use subtree partitioning to carve up the namespace and distribute it across a cluster.
+In order to reduce load on the monitoring service, Ceph OSDs use a gossip
+protocol to efficiently propagate changes to cluster maps throughout the
+system, and autonomously initiate recovery mechanisms when failures are
+discovered.
 
-CephFS moves units of the namespace called directory fragments and assigns them to servers using  its own metadata load balancer. It then uses a hard-coded policy to balance these fragments using a secularized load metric based on CPU, workload, and file system operation metrics~\cite{sevilla:sc15-mantle}.
+\paragraph*{Malacology:} Metadata service policies and object storage interfaces are stored durably
+within RADOS and managed by storing references with the object maps. Since
+the cluster already propagates a consistent view of these data structures,
+we use this service to automatically install interfaces in OSDs, and install
+policies within the MDS such that clients and daemons are synchronzied on
+correct implementations without restarting.
 
-\paragraph*{Malacology:}
 
-For CephFS, designing a general POSIX metadata load balancer is difficult becuase the workloads are diverse and quickly changing. With CephFS, it is especially complicated because the system has variable sized migration units (i.e. file system namespace subtrees), which can be shipped anywhere (i.e., to any MDS of any capacity) at any time for any reason. Furthermore, the original balancer was designed with hard-coded policies and tunables. Both angles were difficult to understand. It is understandable why it was implemented this way -- it is difficult to pick a one-size-fits-all policy, system administrators may want to partition load based on SLAs, or applications are better equipped to make these decisions, etc. -- but we choose instead to expose a balancing API at strategic points in the balancing logic using Lua hooks. 
+\subsection{Cluster State Management}
+\label{consistencyversioning-of-cluster-state}
 
-\begin{figure}[htbp]
-\centering
-\includegraphics{figures/cls-osd-mds.png}
-\caption{To generalize the LuaVM for use in both the OSD and MDS,
-Malacology detaches the core functionality into a Lua core module. The
-VM is dynamically loaded first (1) and then interfaces can execute (2).
-\label{fig:cls-osd-mds}}
-\end{figure}
+% straw man example
+Keeping track of the state of a distributed system is an essential part of any 
+successful service and a necessary component in order to diagnose and detect 
+failures, when they occur. In the case of Ceph, a consistent view of cluster 
+state among server daemons and clients is critical
+to provide strong consistency guarantees to clients. Ceph maintains cluster
+state information in per-subsystem ``maps'' (e.g. OSD map, MDS map) that
+record membership and status information. A PAXOS-based monitoring service is
+responsible for integrating state changes into cluster maps, and responding to
+requests from out-of-date clients. As a fundamental building block of many
+system designs, consensus abstractions such as PAXOS are a common technique
+for maintaining consistent data versions, and are a useful system to expose.
 
-Both the object and balancer interfaces define functions and attach them
-to the core Lua sandbox. For example, the Lua object storage interface
-class attaches data, extended attribute, object map, and object version
-functions, to the Lua core functions, as shown in Figure
-\ref{fig:cls-osd-mds}. The advantages of this is that we avoid
-duplicating code, we provide a framework for putting Lua code in other
-parts of the system, and we remove components and APIs that are too
-integrated with the OSD.
+While Ceph does not expose this service directly, it does allow limited use by
+clients through a key-value service intended for low-volume, small size
+configuration information. Unfortunately, while a key-value service is
+generally useful, it doesn't provide many of the useful services hidden within
+the monitoring framework that would be required for applications with more
+demanding requirements.
 
-To facilitate the use of Lua in both the MDS and OSD, we modularize the LuaVM in a core sandbox wrapper and link against it, as shown in Figure~\ref{fig:cls-osd-mds}. This core Lua wrapper contains
-just the dependencies, symbols, and functions, needed to run the Lua VM and strips away all the functionality inherent to object classes (like placement group filters, cryptography functions, object metadata,  object data, object extended attributes, and object versions). Some functions of Ceph's more helpful subsystems, like the logging facilities for the daemons, were re-used in the MDS.  With this scheme, The OSD will dynamically open the shared library created by Lua object interface shared library while the MDS will dynamically open the Lua balancer interface shared
-library; both shared libraries will the Lua core.
+\paragraph*{Malacology:} Malacology exposes the monitoring service in two ways. 
+First, Malacology APIs for object storage (\S\ref{active-storage}) and the MDS 
+(\S\ref{malacology:mds}) have functions available to them that allow them to 
+store application-specific data in the highly-available, consistent store 
+associated to the Ceph monitors. As mentioned
+Map modification for propogation of state. We allow applications to augment
+these data structures with application-specific metadata. In order to keep the
+size of these data structures small application state may be stored elsewhere
+and the references stored within the data structure.
 
 \subsection{File System Indexing and Locking}
 
@@ -432,31 +411,50 @@ centeralized policies such as fairness or priority.
 We can reference PDSW12 DataMods, and talk about any new stuff here that we
 want to.
 
+\subsection{Metadata Load Balancing}
+\label{malacology:mds}
 
-\subsection{Durability}
-\label{sec:durability}
+% Straw man example
+Migrating resources is an important part of load balancing but understanding the effects of different configurations and parameters is difficult. Systems already virtualize and migrate memory; soon systems will be able to migrate other resources, like CPU, disk, and memory. Figuring out how, when, and where to move these resources depends on complex metrics like utilization, configuration, and workload.
 
-Ceph provides storage by striping and replicating data across
-RADOS~\cite{weil_rados_2007}, the reliable distributed object store. RADOS
-uses many techniques to ensure that data is not corrupted or lost, such as
-erasure coding, replication, and data scrubbing. Furthermore, many of these
-techniques try to be autonomous so that work is distributed across the
-cluster. For example, when placement groups change, the OSDs rebalance and
-re-shard data in the background in a process called placement group splitting.
+These problems are general, distributed systems load balancing problems and share many of the same properties as the POSIX metadata wall~\cite{alam:pdsw2011-metadata-scaling,ghemawat:sosp2003-gfs,hildebrand:msst2005-pnfs,weil_ceph_2006,welch:fast2008-panasas,shvachko:login2012-hdfs-scalability}. Many distributed file systems decouple metadata and data I/O so that
+these services can scale independently. Despite
+this optimization, scaling the metadata services is still difficult
+because metadata accesses impose small and frequent requests on the
+underlying storage system~\cite{roselli:atec2000-FS-workloads}. Many
+techniques for designing the metadata services have been proposed to
+accommodate this workload: Lustre~\cite{konstantinos:pdsw2014-lustre-metadata}, GFS~\cite{ghemawat:sosp2003-gfs}, and HDFS~\cite{shvachko:login2012-hdfs-scalability} keep all metadata on one
+server; GIGA+~\cite{patil:fast2011-giga}, IndexFS~\cite{ren:sc2014-indexfs}, Lazy Hybrid~\cite{brandt:msst2003-lh}, GPFS~\cite{schmuck:fast2002-gpfs},
+and pNFS~\cite{hildebrand:supercomputing2006-pNFS} hash the file
+system namespace across a dedicated cluster and cache metadata; Panasas~\cite{welch:fast2008-panasas} and CephFS~\cite{weil:sc2004-dyn-metadata} use subtree partitioning to carve up the namespace and distribute it across a cluster.
 
-In order to reduce load on the monitoring service, Ceph OSDs use a gossip
-protocol to efficiently propagate changes to cluster maps throughout the
-system, and autonomously initiate recovery mechanisms when failures are
-discovered.
+CephFS moves units of the namespace called directory fragments and assigns them to servers using its own metadata load balancer. It then uses a hard-coded policy to balance these fragments using a secularized load metric based on CPU, workload, and file system operation metrics~\cite{sevilla:sc15-mantle}.
 
-\paragraph*{Malacology:} Metadata service policies and object storage interfaces are stored durability
-within RADOS and managed by storing references with the object maps. Since
-the cluster already propagates a consistent view of these data structures,
-we use this service to automatically install interfaces in OSDs, and install
-policies within the MDS such that clients and daemons are synchronzied on
-correct implementations without restarting.
+\paragraph*{Malacology:}
 
+For CephFS, designing a general POSIX metadata load balancer is difficult becuase the workloads are diverse and quickly changing. With CephFS, it is especially complicated because the system has variable sized migration units (i.e. file system namespace subtrees), which can be shipped anywhere (i.e., to any MDS of any capacity) at any time for any reason. Furthermore, the original balancer was designed with hard-coded policies and tunables. Both angles were difficult to understand. It is understandable why it was implemented this way -- it is difficult to pick a one-size-fits-all policy, system administrators may want to partition load based on SLAs, or applications are better equipped to make these decisions, etc. -- but we choose instead to expose a balancing API at strategic points in the balancing logic using Lua hooks. 
 
+\begin{figure}[htbp]
+\centering
+\includegraphics{figures/cls-osd-mds.png}
+\caption{To generalize the LuaVM for use in both the OSD and MDS,
+Malacology detaches the core functionality into a Lua core module. The
+VM is dynamically loaded first (1) and then interfaces can execute (2).
+\label{fig:cls-osd-mds}}
+\end{figure}
+
+Both the object and balancer interfaces define functions and attach them
+to the core Lua sandbox. For example, the Lua object storage interface
+class attaches data, extended attribute, object map, and object version
+functions, to the Lua core functions, as shown in Figure
+\ref{fig:cls-osd-mds}. The advantages of this is that we avoid
+duplicating code, we provide a framework for putting Lua code in other
+parts of the system, and we remove components and APIs that are too
+integrated with the OSD.
+
+To facilitate the use of Lua in both the MDS and OSD, we modularize the LuaVM in a core sandbox wrapper and link against it, as shown in Figure~\ref{fig:cls-osd-mds}. This core Lua wrapper contains
+just the dependencies, symbols, and functions, needed to run the Lua VM and strips away all the functionality inherent to object classes (like placement group filters, cryptography functions, object metadata,  object data, object extended attributes, and object versions). Some functions of Ceph's more helpful subsystems, like the logging facilities for the daemons, were re-used in the MDS.  With this scheme, The OSD will dynamically open the shared library created by Lua object interface shared library while the MDS will dynamically open the Lua balancer interface shared
+library; both shared libraries will the Lua core.
 
 \section{Services Built on Malacology}\label{services-built-on-malacology}
 
@@ -619,7 +617,7 @@ which the metadata server mediates access to the sequencer state when in it is
 being shared among multiple clients.
 
 {\bf Capability policies.}
-We use capabilitity policies in the metadata service to tune the amount of
+We use capability policies in the metadata service to tune the amount of
 time that clients may cache the sequencer resource. This allows us to control
 the trade-off between latency and throughput beyond the standard best-effort
 policy.
@@ -681,17 +679,17 @@ latency for everyone.}
 
 While a best-effort approach to sharing capabilities makes sense for a file
 system client, throughput drops significantly with two clients as the majority
-of the time neither client has the capapbitility as it ping-pongs between
+of the time neither client has the capability as it ping-pongs between
 clients. This observation reveals a tuning parameter: how long a client
-maintains its capapbility lease. In throughputs labeled $2C,<time>$ we show
+maintains its capability lease. In throughputs labeled $2C,<time>$ we show
 aggregate throughput as we decrease the amount of time that a client holds its
-lease before responding to a request for the capapbility.  At lease times as
+lease before responding to a request for the capability.  At lease times as
 low as 10ms throughputs achieve a significant proportion of the locally cached
 throughput.
 
 While the batching mechanism can achieve high-throughput, it is not appropriate
 for applications that require predictable latency. The throughput in
-Figure~\ref{fig:captp} labeled $2C,ZLog$ corresponds to a centeralized
+Figure~\ref{fig:captp} labeled $2C,ZLog$ corresponds to a centralized
 sequencer implementation. While throughput is lower for two clients (because of
 the synchronous network round-trip required for each request),
 Figure~\ref{fig:capcdf} shows that this approach achieves more predicable
@@ -807,14 +805,14 @@ respectively.
 Programmable storage is a viable method for eliminating duplication of
 complex error prone software that are used as workarounds for storage
 system deficiencies. However, this duplication has real-world problems
-related to reliability. We propose that system expose their services in
-a safe way allowing application developers to customize system behavior
+related to reliability. We propose that systems expose their services in
+a safe way, allowing application developers to customize system behavior
 to meet their needs while not sacrificing correctness.
 
 We are intend to pursue this work towards the goal of constructing a set
 of customization points that allow a wide variety of storage system
 services to be configured on-the-fly in existing systems. This work is
-one point along that path in which we have looked an a target
+one point along that path in which we have looked at a target
 special-purpose storage system. Ultimately we want to utilize
 declarative methods for expressing new services.
 
