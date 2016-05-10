@@ -997,6 +997,12 @@ MDS and it maintains the same throughput that it had before the failure.
    % - lots of good refs to check out
 % Information and control in gray-box systems
 
+Programmability of operating systems and networking resources, including distributed storage systems is not new, but we are not aware of work that makes generalization of existing services into programmable resourses a key principle in storage systems design. 
+
+Programmable storage systems can be viewed as an infrastructure for creating abstractions to better separate policies from mechanisms. This idea is not new. Software-defined networks (SDNs) create such an abstraction by separating the control plane from the data plane (see for example~\cite{jain:sigcomm13}). This notion of control/data separation was also applied in software-defined storage (SDS)~\cite{arpaci:sosp01,thereska:sosp13,stefanovici:fast16}. Similarly, IOStack~\cite{gracia:internet16} is providing policy-based provisioning and filtering in OpenStack Swift. 
+
+Another view of programmable storage systems is one of tailoring systems resources to applications~\cite{arpaci:sosp01}. Related work includes work around the Exokernel~\cite{engler:sosp95} and SPIN~\cite{bershad:sosp95} and Vino~\cite{seltzer:osdi96}, the latter two addressed the ability of injecting code into the kernel to specialize resource management. Another approach is to pass hints between the different layers of the IO stack to bridge the semantic gap between applications and storage~\cite{arpaci:sosp01,sivathanu:fast03,mesnier:sosp11}).
+
 Malacology uses the same Active and Typed Storage module presented in
 DataMods~\cite{watkins_datamods_2012}; Asynchronous Service and File
 Manifolds can be implemented with small changes to the Malacology
