@@ -749,6 +749,14 @@ respectively.
 
 \subsection{ZLog}
 
+We evaluate the mapping of ZLog onto Malacology by examining the costs of
+utilizing the metadata service as a sequencer, and propogating interface
+changes throughout the cluster using the monitoring service. We have omitted
+evaluation of the overhead costs of adding object interfaces themselves due to
+lack of space, and the fact that they are heavily tested and used already in
+production with acceptable performance, introducing a small constant overhead
+per operation but otherwise does not affect scalability.
+
 \subsubsection{Sequencer}
 
 We evaluated the performance of the ZLog Sequencer implemented in several
