@@ -139,7 +139,7 @@ using replication, erasure-coding, and scrubbing~\cite{weil_rados_2007}.
 % programmability concepts into Ceph, we can build new services by
 % carefully exposing internal storage services to applications.
 
-
+\if{false}
 For example, a Ceph cluster contains a small number of
 monitoring nodes (MONs) that use PAXOS to maintain a consistent view of
 system-wide metadata such as data distribution parameters and cluster
@@ -152,6 +152,64 @@ We contend that re-using and re-purposing these code-hardened subsystems
 is paramount to successfully adapting storage systems to new APIs and
 new storage devices without losing the benefits from years of
 code-hardening work.
+\fi
+
+Ceph also provides empirical evidence that developers embrace programmable storage: Ceph already supports the
+implementation of domain-specific logical object interfaces by composing
+existing interfaces. These interfaces are written in C++ and are statically
+loaded into the system. Figure~\ref{fig:obj-int-dev-growth} shows a dramatic growth in the production use of
+domain-specific interfaces in the Ceph community since 2010.  What is most
+remarkable is that this trend contradicts the notion that API changes are a
+burden for users.
+Rather it appears that a gap in existing interfaces are
+being addressed through programmability. In fact, Table~\ref{table:objclasses}
+categorizes existing interfaces and we clearly see a trend towards reusable
+services.
+
+\begin{figure}[ht]
+\centering
+\includegraphics{figures/obj-int-dev-growth.png}
+\caption{Since 2010, the growth in the number of co-designed object
+storage interfaces in Ceph has been accelerating. This plot is the
+number of object classes (a group of interfaces), and the total number
+of methods (the actual API end-points).}
+\label{fig:obj-int-dev-growth}
+\end{figure}
+
+\begin{table}[ht]
+\centering
+  \begin{tabular}{l|l|l}
+    Category & Specialization& \# \\ \hline
+    \multirow{2}{*}{Locking} & Shared & \multirow{2}{*}{6} \\
+                             & Exclusive & \\ \hdashline
+    \multirow{3}{*}{Logging} & Replica & 3 \\
+                             & State & 4 \\
+                             & Timestamped & 4 \\ \hdashline
+    \multirow{4}{*}{Metadata Managment} 
+                             & RADOS Block Device  & 37 \\
+                             & RADOS Gatway & 27 \\
+                             & User & 5 \\
+                             & Version & 5 \\ \hdashline
+    Garbage Collection       & Reference Counting & 4 \\
+\end{tabular}
+\caption{A variety of RADOS object storage classes exist to expose interfaces
+    to applications. \# is the number of methods that use these categories.
+}
+\label{table:objclasses}
+\end{table}
+
+The popularity of the custom object interface facility of Ceph hint at three
+trends in the Ceph community: (1) increasingly, the default
+algorithms/tunables of the storage system are insufficient for the
+application's performance goals, (2) programmers are becoming more aware
+of their application's behavior, and (3) programmers know how to manage
+resources to improve performance. Programmers gravitate towards object
+interfaces because it gives them the ability to tell the storage system
+about their application: if it is CPU or IO bound, if it has locality,
+if its size has the potential to overload a single proxy node, etc. The
+programmers know what the problem is and how to solve it, but until
+the ability to modify object interfaces, they had no way to express to the storage system how to handle
+their data.
 
 To illustrate the benefits and challenges of this approach we have
 designed and evaluated Malacology, a programmable storage system for
@@ -193,7 +251,7 @@ are:
   \end{enumerate}
 
 First, we describe existing techniques for adapting storage systems
-(\S\ref{problem}). Next, we discuss the ``distributed systems'' inspired
+(\S\ref{sec:evidence}). Next, we discuss the ``distributed systems'' inspired
 abstractions employed by Ceph (\S\ref{background}) and allude to their
 re-usability as components in other services. The next section
 enumerates the abstractions that Malacology exposes in the
@@ -201,202 +259,6 @@ implementation section (\S\ref{implementation}). We then show how we use
 Malacology to synthesize entirely new storage services on an existing
 system through configuration and small changes (\S\ref{services}). We
 conclude by evaluating real-world use cases (\S\ref{evaluation}).
-
-\section{Adapting Storage Systems}
-
-\label{problem}
-
-A consequence of complicated data management requirements and faster storage
-devices is that storage systems may fail to meet the needs of applications.
-Short of changing the appalication itself, approaches for meeting performance goals roughly fall into ``bolt-on'' services and changes to the storage system itself.
-
-\subsection{Bolt-on services}
-\label{bolt-on-services}
-
-Bolt-on services are third-party solutions integrated into a
-system to provide functionality and improve performance for common use-cases
-(e.g. a metadata service). The introduction of additional services may provide
-simplicity and performance enhancements, but ``bolt-on'' services often
-duplicate functionality, unnecessarily increasing the likelihood of bugs or
-introducing unpredictable performance problems. For example, we are developing
-a high-performance distributed shared-log on Ceph called ZLog, based on the
-CORFU protocol~\cite{balakrishnan_corfu_2012}. The CORFU protocol separates the concern of correctness from the concern of performance, enables serialization using a \emph{volatile}
-``sequencer'' service. This high-performance in-memory counter is used to assign a log
-position to each client that appends to the log. The sequencer is purely a performance optimization and does not have a role in correctness (if the sequencer fails, the tail of the log can always be retrieved by other means). Thus, it is the volatility of the sequencer that enables high performance (see Section~\ref{sec:zlog} for more detail). A ``bolt-on'' option for building
-a distributed log is to use PAXOS, or an out-of-the-box solution such as
-Zookeeper. However, these systems adhere to the preconceived notions of
-storage, namely that data is safe from data loss, which is exactly the feature
-that causes traditional approaches to run at significantly reduced speed. 
-
-\if{false}
-\subsection{Application Changes}\label{application-changes}
-
-The second approach that applications may use to adapt to a storage system
-limitation is to extend the responsibility of the application. This means
-changing the application itself by adding more data management intelligence or
-using domain-specific middleware (e.g., a new data layout). For instance, an
-application may be changed to exploit data locality or I/O parallelism in a
-distributed storage system.
-In SciHadoop~\cite{buck:hpc2011-scihadoop,buck:sc2013-scidr} both the Hadoop
-application and the Hadoop framework itself are changed to leverage the structure of
-scientific data (3D array-based data, more specifically) to
-improve locality, performance, and increase the number of early results. %This is not a
-%bad proposition, but 
-However, changing applications creates a coupling that is highly tied to the
-underlying physical properties of the system, making it difficult to
-adapt to future changes at the storage system level.
-\fi
-
-\subsection{Storage System Changes}\label{storage-changes}
-
-Storage system behaviour can be altered using two
-techniques: tuning the system or introducing changes to the system.
-%The
-%difficulty of both of these approaches has given rise to a third
-%technique called active storage.
-
-\subsubsection{Tuning}\label{tuning}
-
-Tuning large and complicated systems is difficult because of the number
-of parameters (e.g., Hadoop 2.7.1 has 210 tunables) and because the
-tunables are difficult to understand or quantify (e.g., Ceph tunables~\cite{sevilla:sc15-mantle}). To succesfully tune the system, a
-developer must have domain and system-specific knowledge. Without this
-intimate knowledge, the tuning turns into somewhat of a black art, where
-the only way to figure out the best settings is trial and error.
-
-Auto-tuning techniques attempt to find a good solution among a huge space of
-available system configurations. However, in practice auto-tuning is limited
-to only the configuration tunables that the storage system exposes and can be
-overwhelmed with too many parameters.  For instance, auto-tuning may be
-capable of identifying instances in which new data layouts would benefit a
-workload, but unless the system can provide such a transformation, the option
-is left off the table.  Starfish~\cite{herodotou:cidr2011-starfish} made
-an attempt at this for Hadoop but this technique would need to severely limit
-the space of parameters in order to be feasible, similar to the approach used in~\cite{behzad:sc2013-autotuning}.
-
-\subsubsection{Software Changes}\label{software-changes}
-
-To go beyond tuning one has to alter the storage system
-itself. In the best case a developer is using an open-source system in which
-case one must become familiar with often enormous code-bases before being able
-to make changes, but then face the task of approaching a community to
-integrate changes, or be forced to maintain an in-house version and risk
-maintaining features that become incompatible.  A successful example of this
-is the work that focused on HDFS scalability for metadata-intensive workloads~\cite{shvachko_hdfs_2010}. This has lead to modifications to its
-architecture or API~\cite{balmin:sigmod2012-clydesdale} to improve
-performance.
-
-Alternatively, some systems have formal support for introducing additional
-functionality, often in the form of a plugin infrastructure. Ceph provides the
-ability to create domain-specific logical object interfaces by composing
-existing interfaces. These interfaces are written in C++ and are statically
-loaded into the system. %An example usage may be to atomically combine a
-%``write'' with an index update to create a content-addressable object
-%interface.
-
-\if{false}
-As an example use-case, ZLog needs to
-store metadata information with each object, so for each operation, it
-checks the epoch value and write capability (2 metadata reads) and
-writes the index (metadata write).
-\fi
-
-For example, Figure~\ref{fig:datavsxattr} compares the throughput
-(\emph{y} axis) over time (\emph{x} axis) of two OSD implementations of the same storage object interface for
-storing metadata: either in the header of the byte stream (data) or in the
-object extended attributes (XATTR). The speed for appending data without
-any metadata operations (data raw) is also shown as a baseline for
-comparison. For append-heavy workloads, storing metadata as a header in
-the data performs about 1.5x better than storing metadata as an extended
-attribute.
-
-\begin{figure}[htbp]
-\centering
-\includegraphics{figures/cls_xattr-vs-data.png}
-\caption{{[}\href{https://github.com/michaelsevilla/malacology-popper/blob/master/experiments/figure1/visualize.ipynb}{source}{]}
-When appending data to objects, the object class that stores metadata in
-a header in the data byte stream (data) performs 1.5x better than the
-object class that stores metdata in the extended attributes of the
-object (XATTR); it is almost as fast as appending data without updating
-metadata (data raw).}
-\label{fig:datavsxattr}
-\end{figure}
-
-The object interface facility provided by Ceph is more than
-a proof-of-concept implementation resembling active storage.  Figure~\ref{fig:obj-int-dev-growth} shows a dramatic growth in the production use of
-domain-specific interfaces in the Ceph community since 2010.  What is most
-remarkable is that this trend contradicts the notion that API changes are a
-burden for users.
-Rather it appears that a gap in existing interfaces are
-being addressed through programmability. In fact, Table~\ref{table:objclasses}
-categorizes existing interfaces and we clearly see a trend towards reusable
-services.
-
-\begin{figure}[ht]
-\centering
-\includegraphics{figures/obj-int-dev-growth.png}
-\caption{Since 2010, the growth in the number of co-designed object
-storage interfaces in Ceph has been accelerating. This plot is the
-number of object classes (a group of interfaces), and the total number
-of methods (the actual API end-points).}
-\label{fig:obj-int-dev-growth}
-\end{figure}
-
-\begin{table}[ht]
-\centering
-  \begin{tabular}{l|l|l}
-    Category & Specialization& \# \\ \hline
-    \multirow{2}{*}{Locking} & Shared & \multirow{2}{*}{6} \\
-                             & Exclusive & \\ \hdashline
-    \multirow{3}{*}{Logging} & Replica & 3 \\
-                             & State & 4 \\
-                             & Timestamped & 4 \\ \hdashline
-    \multirow{4}{*}{Metadata Managment} 
-                             & RADOS Block Device  & 37 \\
-                             & RADOS Gatway & 27 \\
-                             & User & 5 \\
-                             & Version & 5 \\ \hdashline
-    Garbage Collection       & Reference Counting & 4 \\
-\end{tabular}
-\caption{A variety of RADOS object storage classes exist to expose interfaces
-    to applications. \# is the number of methods that use these categories.
-}
-\label{table:objclasses}
-\end{table}
-
-\if{false}
-\begin{figure}[htbp]
-\centering
-\includegraphics{figures/obj-int-dev-churn.png}
-\caption{Source code changes over time indicate the dynamic interface
-development will need to support a high frequency of interface churn.
-Each dot represents a Ceph commit with a corresponding number of lines
-of code changed. \label{fig:obj-int-dev-churn}}
-\end{figure}
-\fi
-
-The popularity of the custom object interface facility of Ceph hint at three
-trends in the Ceph community: (1) increasingly, the default
-algorithms/tunables of the storage system are insufficient for the
-application's performance goals, (2) programmers are becoming more aware
-of their application's behavior, and (3) programmers know how to manage
-resources to improve performance. Programmers gravitate towards object
-interfaces because it gives them the ability to tell the storage system
-about their application: if it is CPU or IO bound, if it has locality,
-if its size has the potential to overload a single proxy node, etc. The
-programmers know what the problem is and how to solve it, but until
-the ability to modify object interfaces, they had no way to express to the storage system how to handle
-their data.
-
-\if{false}
-These implementations use the active storage interfaces in Ceph. We
-refer to this as \emph{storage programmability} which is a method by
-which an application communicates its requirements to the storage system
-in a way that allows the application to realize a new behavior without
-sacrificing the correctness of the underlying system. This evaluation
-and resulting implementation would have been a burden without object
-classes.
-\fi
 
 \section{Components of Ceph Suitable for Reusability}\label{re-usable-components-in-ceph}
 
