@@ -119,7 +119,7 @@ to the storage system.
 In this paper we investigate an approach that focusses on generalizing
 existing storage system resources, services, and abstractions that in
 generalized form can be used to \emph{program} new services. By doing so
-one can reuse subsystems and their optimizations and leverage their
+one can reuse subsystems and leverage their optimizations,
 established correctness, robustness, and efficiency. We will refer to
 this programmability as \emph{programmable storage}, which differs from
 \emph{active storage} (the injection and execution of arbitrary code in
@@ -154,10 +154,10 @@ code-hardening work.
 
 To illustrate the benefits and challenges of this approach we have
 designed and evaluated Malacology, a programmable storage system for
-constructing new functionality by re-purposing existing subsystem
-abstractions contained in Ceph. We build the framework on Ceph by
+constructing new services by re-purposing existing subsystem
+abstractions contained in Ceph. We build the framework in Ceph by
 leveraging a broad spectrum of existing services, including distributed
-locking and caching services provides by MDSs, durability and logical
+locking and caching services provided by MDSs, durability and logical
 storage devices provided by RADOS, and propogation of consistent cluster
 state provided by the monitoring service (see \ref{fig:overview}). As we will show in this paper, this framework is expressive enough to provide the
 functionality necessary for implementing new services. Our contributions
@@ -234,19 +234,17 @@ that causes traditional approaches to run at significantly reduced speed.
 \subsection{Application Changes}\label{application-changes}
 
 The second approach that applications may use to adapt to a storage system
-limitation is to
-extend the responsibility of the application. This means changing the
-application itself by adding more data management intelligence or
+limitation is to extend the responsibility of the application. This means
+changing the application itself by adding more data management intelligence or
 using domain-specific middleware (e.g., a new data layout). For instance, an
-application may be changed to exploit data locality or I/O
-parallelism in a distributed storage system.
-
-For example, SciHadoop~\cite{buck:hpc2011-scihadoop,buck:sc2013-scidr} changes both the Hadoop
-application and the Hadoop framework itself to leverage the structure of
-scientific data (3D array-based data, more specifically) to increase
-performance, locality, and the number of early results. %This is not a
+application may be changed to exploit data locality or I/O parallelism in a
+distributed storage system.
+In SciHadoop~\cite{buck:hpc2011-scihadoop,buck:sc2013-scidr} both the Hadoop
+application and the Hadoop framework itself are changed to leverage the structure of
+scientific data (3D array-based data, more specifically) to
+improve locality, performance, and increase the number of early results. %This is not a
 %bad proposition, but 
-Changing applications creates a coupling that is highly tied to the
+However, changing applications creates a coupling that is highly tied to the
 underlying physical properties of the system, making it difficult to
 adapt to future changes at the storage system level.
 
@@ -255,9 +253,10 @@ adapt to future changes at the storage system level.
 When both the bolt-on approach and changing applications fail to meet the needs of the application,
 developers turn their attention to the storage system itself.
 Traditionally, storage system behaviour can be altered using two
-techniques: tuning the system or introducing changes to the system. The
-difficulty of both of these approaches has given rise to a third
-technique called active storage.
+techniques: tuning the system or introducing changes to the system.
+%The
+%difficulty of both of these approaches has given rise to a third
+%technique called active storage.
 
 \subsubsection{Tuning}\label{tuning}
 
@@ -327,7 +326,7 @@ metadata (data raw).}
 \end{figure}
 
 The object interface facility provided by Ceph is more than
-a proof-of-concept active storage implementation.  Figure~\ref{fig:obj-int-dev-growth} shows a dramatic growth in the production use of
+a proof-of-concept implementation resembling active storage.  Figure~\ref{fig:obj-int-dev-growth} shows a dramatic growth in the production use of
 domain-specific interfaces in the Ceph community since 2010.  What is most
 remarkable is that this trend contradicts the notion that API changes are a
 burden for users.
@@ -379,7 +378,7 @@ of code changed. \label{fig:obj-int-dev-churn}}
 \end{figure}
 \fi
 
-The popularity of the active storage component of Ceph hint at three
+The popularity of the custom object interface facility of Ceph hint at three
 trends in the Ceph community: (1) increasingly, the default
 algorithms/tunables of the storage system are insufficient for the
 application's performance goals, (2) programmers are becoming more aware
@@ -872,7 +871,7 @@ The Ceph team wants to merge Mantle because the scriptability is useful
 for debugging, controlling the metadata balancer, and examining
 trade-offs for different balancers. Unfortunately, this research quality
 system is not as robust as Ceph and the Ceph team wants more safety,
-durability, and consistency for the new functionality. For example, the
+durability, and consistency for the new services. For example, the
 original Mantle API is fragile: the API is not enforced by the runtime,
 the system allows injectable strings through the admin daemon,
 constructing the Lua script in C++ is clunky, and the administrator can
