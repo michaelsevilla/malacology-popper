@@ -288,31 +288,42 @@ storage system and how Malacology makes them programmable.
 Keeping track of the state of a distributed system is an essential part of any 
 successful service and a necessary component in order to diagnose and detect 
 failures, when they occur. In the case of Ceph, a consistent view of cluster 
-state among server daemons and clients is critical
-to provide strong consistency guarantees to clients. Ceph maintains cluster
-state information in per-subsystem ``maps'' (e.g. OSD map, MDS map) that
-record membership and status information. A PAXOS-based monitoring service is
-responsible for integrating state changes into cluster maps, and responding to
-requests from out-of-date clients. As a fundamental building block of many
-system designs, consensus abstractions such as PAXOS are a common technique
-for maintaining consistent data versions, and are a useful system to expose.
+state among server daemons and clients is critical to provide strong consistency 
+guarantees to clients. Ceph maintains cluster state information in per-subsystem 
+``maps'' (e.g. OSD map, MDS map) that record membership and status information. 
+A PAXOS-based monitoring service (termed, the Monitor) is responsible for 
+integrating state changes into cluster maps, responding to requests from 
+out-of-date clients and synchronizing members of the cluster whenever there is a 
+change in a map so that they all observe the same system state. As a fundamental 
+building block of many system designs, consensus abstractions such as PAXOS are 
+a common technique for maintaining consistent data versions, and are a useful 
+system to expose.
 
-While Ceph does not expose this service directly, it does allow limited use by
-clients through a key-value service intended for low-volume, small size
-configuration information. Unfortunately, while a key-value service is
-generally useful, it doesn't provide many of the useful services hidden within
-the monitoring framework that would be required for applications with more
-demanding requirements.
+The default behavior of the monitor can be seen as a PAXOS-based notification 
+system, similar to the one introduced in~\cite{burrows_chubby_2006}, allowing 
+clients to identify when new values (termed epochs in Ceph) are associated to 
+given maps. While Ceph does not expose this service directly, it does allow 
+limited use by clients through a key-value service intended for low-volume, 
+small size read-only configuration information. While a key-value service is 
+generally useful, it doesn't provide many of the useful services hidden within 
+the monitoring framework that would be required for applications with more 
+demanding requirements, such as creating arbitrary maps or associating 
+application-specific logic that can be executed for particular maps (or values 
+in a map).
 
-\paragraph*{Malacology:} Malacology exposes the monitoring service in two ways. 
-First, Malacology APIs for object storage (\S\ref{active-storage}) and the MDS 
-(\S\ref{malacology:mds}) have functions available to them that allow them to 
-store application-specific data in the highly-available, consistent store 
-associated to the Ceph monitors. As mentioned
-Map modification for propogation of state. We allow applications to augment
-these data structures with application-specific metadata. In order to keep the
-size of these data structures small application state may be stored elsewhere
-and the references stored within the data structure.
+\paragraph*{Malacology:} Malacology exposes Ceph's PAXOS-based monitoring 
+service in two ways. First, a Lua VM is embedded in the monitors that implements 
+a generic API for creating maps and associating arbitrary data to them. This API 
+also allows clients to specify small snippets of Lua code that can be executed 
+on monitors. As a consequence of this, applications can define simple but useful 
+domain-specific logic to the PAXOS quorum, such as authorization control (just 
+specific clients can write new values) or to trigger actions based on specific 
+values (e.g. sanitize values). Since the monitor is intended to be out of 
+high-performance I/O paths, a general guideline is to make use of this 
+functionality infrequently and to assign small values to maps. Malacology itself 
+makes use of this functionality to version object interfaces defined in OSDs 
+(\S\ref{active-storage}) and load balancing policies in MDSs 
+(\S\ref{malacology:mds}).
 
 \subsection{Logical Storage Devices}
 \label{active-storage}
