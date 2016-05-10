@@ -12,3 +12,4 @@ fetch
 *.pdf
 *.synctex.gz
 *.dvi
+*.out
