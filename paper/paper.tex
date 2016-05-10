@@ -311,10 +311,10 @@ demanding requirements, such as creating arbitrary maps or associating
 application-specific logic that can be executed for particular maps (or values 
 in a map).
 
-\paragraph*{Malacology:} Malacology exposes Ceph's PAXOS-based monitoring 
-service by embedding a Lua VM in the monitors that implements a generic API for 
-creating maps and associating arbitrary data to them. This API also allows 
-clients to specify small snippets of Lua code that can be executed on monitors. 
+\paragraph*{Malacology:} Malacology exposes Ceph's PAXOS-based monitoring
+service by embedding a Lua VM in the monitors that implements a generic API
+for creating dynamic interfaces around existing subsystems that may associated
+additional state with a subsystem map.
 As a consequence of this, applications can define simple but useful 
 domain-specific logic to the PAXOS quorum, such as authorization control (just 
 specific clients can write new values) or to trigger actions based on specific 
@@ -397,8 +397,6 @@ and verification of dynamically defined object interfaces. Using this service
 guarantees that interface definitions are not only made durable, but are
 transparently and consistently propogated throughput the cluster and that
 clients are properly synchronousized with the latest interfaces.
-
-{\bf Recovery.} Application specific recovery is critical.
 
 \subsection{Distributed Metadata Services}
 \label{malacology:mds}
