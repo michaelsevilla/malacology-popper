@@ -401,14 +401,14 @@ and resulting implementation would have been a burden without object
 classes.
 \fi
 
-\section{Re-Usable Components in Ceph}\label{re-usable-components-in-ceph}
+\section{Components of Ceph Suitable for Reusability}\label{re-usable-components-in-ceph}
 
 \label{background}
 
 Ceph is a production-quality distributed storage system and in this section we
 touch on some of the subsystems it uses to provide a general-purpose
 storage system. In the next section, we describe how Malacology exposes these
-subsystems in order to enable the creation of new services.
+subsystems in order to make them reusable and enable the creation of new services on top of them.
 
 \subsection{Cluster State Management}
 \label{consistencyversioning-of-cluster-state}
@@ -470,16 +470,6 @@ composed with full access to a sorted key-value service allowing applications
 to fine tune storage interfaces, such as using a read-modify-write guard to
 protect shared data.
 
-Although this feature is powerful, the current implementation has drawbacks.
-Supporting only C/C++ for object interface developers, Ceph requires
-distribution of compiled binaries for the correct architecture, adding a
-large barrier of entry for developers and system administrators. Second,
-having no way to dynamically unload modules, any changes require a full
-restart of an OSD which may have serious performance impacts due to a loss
-of cached data. And finally, the security limitations of the framework
-limit the use of object classes to all but those with administrative level
-access and technique expertise.
-
 \begin{figure}[htbp]
 \centering
 \includegraphics{figures/implementation.png}
@@ -520,24 +510,55 @@ CephFS moves units of the namespace called directory fragments and assigns them 
 \section{Malacology Implementation}
 \label{implementation}
 
-In this section we describe how Malacology exposes and builds upon existing
-services within Ceph. While we strive for implementation independent
-approaches within Malacology, our prototype implementation makes heavy use of
-the embedded language Lua to enable dynamic features without relying on
-complex and heavy-weight code generation techniques.
+In this section we describe how Malacology builds upon existing
+services within Ceph. The main idea behind Malacology is to take the subsystems 
+described in the previous section and expose APIs on top of them that allow 
+users to dynamically inject code, allowing them to customize the behavior of 
+these components. Supporting dynamic reconfiguration and programmability 
+efficiently is critical in real systems that must adapt to a changing 
+environment where potentially
+conflicting policies arise. We've adopted Lua as the dynamic runtime  to
+implement dynamic components in Malacology.
 
-{\bf Lua integration.}
-Supporting dynamic reconfiguration and programmabiilty is critical in real
-systems that must adapt to a changing environment where potentially
-conflicting policies arise. We've adopted Lua as a scripting language to
-implement dynamic components in Malacology.  Lua is a portable, embedded
+There are multiple reasons that make Lua an attractive runtime for implementing 
+Malacology. Lua is a portable, embedded
 scripting language that offers superious performance and productivity
 trade-offs, including a JIT-based implementation that is well known for near
-native performance. Lua has been used extensively in game engines, and systems
-research \cite{neto:dls14-luaos}, including storage systems where it has been
-effectively used both on
-\cite{grawinkel:pdsw2012-lua,watkins2013:bdmc13-in-vivo} and off
-\cite{sevilla:sc15-mantle} the performance critical path.
+native performance. Additionally, Lua has been used extensively in game engines, 
+and systems research \cite{neto:dls14-luaos}, including storage systems where it 
+has been effectively used both on
+\cite{grawinkel:pdsw2012-lua,watkins2013:bdmc13-in-vivo,geambasu_comet_2010} and 
+off
+\cite{sevilla:sc15-mantle} the performance critical path. Finally, the 
+flexibility of the runtime allows to sandbox applications in order to address 
+security and performance concerns. We now describe how Malacology exposes each 
+subcomponent in Ceph.
+
+\subsection{Object Storage}
+
+% todo:
+%  - ellude to the need for interfaces to be avialable quickly to support
+%    our experiment about propogtation delay
+%
+
+The implementation of Ceph's object abstraction, although powerful, has some 
+drawbacks.
+Supporting only C/C++ for object interface developers, Ceph requires
+distribution of compiled binaries for the correct architecture, adding a
+large barrier of entry for developers and system administrators. Second,
+having no way to dynamically unload modules, any changes require a full
+restart of an OSD which may have serious performance impacts due to a loss
+of cached data. And finally, the security limitations of the framework
+limit the use of object classes to all but those with administrative level
+access and technique expertise.
+
+By embedding the Lua runtime, Malacology makes the base RADOS API available in a 
+dynamic environment, resulting in a object storage API with economy of 
+expression, which at the same time provides the full set of features of the base 
+object class. New object interfaces that are expressed in thousands of lines of 
+code can be implemented in approximately an order of magnitude less 
+code~\cite{geambasu_comet_2010}.
+
 
 \subsection{Metadata Services}
 
@@ -547,7 +568,8 @@ effectively used both on
 %
 
 {\bf Balancing Policy.}
-Avoiding hard-coded balancing policies are important. First, it is difficult,
+
+Avoiding hard-coded balancing policies is important. First, it is difficult,
 nay impossible, to select a one-size-fits-all policy. System administrators
 may want to partition load based on SLAs, etc... Applications are often in
 a better position to know what to do.
@@ -567,23 +589,6 @@ centeralized policies such as fairness or priority.
 {\bf File Types.}
 We can reference PDSW12 DataMods, and talk about any new stuff here that we
 want to.
-
-\subsection{Object Storage}
-
-% todo:
-%  - ellude to the need for interfaces to be avialable quickly to support
-%    our experiment about propogtation delay
-%
-
-Lua integration. Overhead?
-
-Although these OSD interfaces are powerful, the current implementation
-has drawbacks. OSD interfaces are written in C/C++ and compiled into a
-shared library, so the developer must account for different target
-architectures. Second, C/C++ provides more functionality than is
-necessary since the snippets of interface code mainly set policies and
-perform simple operations. Finally, developing these interfaces in C/C++
-has high overhead. The developer must learn how the OSD dynamically
 
 \subsection{Cluster State}
 
