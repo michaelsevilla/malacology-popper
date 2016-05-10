@@ -11,4 +11,3 @@ fetch
 *.log
 *.pdf
 *.synctex.gz
-*.out
