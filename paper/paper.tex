@@ -37,7 +37,7 @@
 \hypersetup{breaklinks=true,
             bookmarks=true,
             pdfauthor={},
-            pdftitle={Malacology: A Programmable Storage System Built on Ceph},
+            pdftitle={Malacology: A Programmable Storage System},
             colorlinks=true,
             citecolor=blue,
             urlcolor=blue,
@@ -49,7 +49,7 @@
 %\setlength{\emergencystretch}{3em}  % prevent overfull lines
 \setcounter{secnumdepth}{5}
 
-\title{Malacology: A Programmable Storage System Built on Ceph}
+\title{Malacology: A Programmable Storage System}
 \author{Paper \# 123}
 \date{}
 \begin{document}
@@ -72,7 +72,7 @@ code-hardened subsystems.  We illustrate the advantages and challenges of
 programmability by constructing two services out of existing abstractions: a
 file system metadata load balancer and a high-performance distributed shared-log
 that leverages flash devices. The evaluation demonstrates that our services 
-inherit desirable qualities of Ceph, including the ability to make trade-offs 
+inherit desirable qualities of the back-end storage system, including the ability to make trade-offs 
 for lease capabilities, balance load (2\(\times\) improvement), propagate interfaces 
 (average of 222ms) and recover (15 second down time).  
 \end{abstract}
@@ -108,16 +108,15 @@ software have established and are continuing to establish new, \emph{de-facto} A
 \begin{figure}[tb]
 \centering
 \includegraphics{figures/overview.png}
-\caption{A Ceph installation consists of a cluster running mostly
-storage daemons (OSDs) to ensure data durability, a few monitor daemons
-(MONs) to reach consensus of the cluster state and to ensure its
-consistent versioning, and a few metadata service daemons (MDSs) for
-scalable metadata service. Ceph's APIs include object, block, file
-abstractions. Malacology enables the programmability of these
-abstractions and services (indicated by bold arrows). To illustrate Malacology we implement two
-services on Ceph, ZLog and Mantle, by programming Ceph's durability,
-consistent versioning, consensus, and metadata subsystems.
-\label{fig:overview}}
+
+\caption{Scalable storage systems consist of object storage daemons (OSD) which
+store data fragments, monitor daemons (MON) that maintain cluster state, and
+service-specific daemons such as file system metadata servers (MDS). Malacology
+enables the programmability of internal abstractions and services (indicated by
+bold arrows) in order to leverage the back-end system's durability, consistent
+versioning, consensus, and metadata subsystems.  With Malacology, we add two
+new services, ZLog and Mantle, that sit alongside the traditional user-facing
+APIs (file, block, and object) in the storage stack.  \label{fig:overview}}
 \end{figure}
 
 These three trends put evolutionary pressure on storage systems and
@@ -294,7 +293,7 @@ off
 flexibility of the runtime allows to sandbox applications in order to address 
 security and performance concerns.
 
-We will now discuss the subsystems Ceph uses to provide a general-purpose
+We will now discuss the common subsystems used to manage
 storage system and how Malacology makes them programmable.
 
 \subsection{Cluster State Management}
@@ -612,45 +611,97 @@ policies. The second system, ZLog, is a high-performance distributed shared-log.
 In addition to these services, we'll demonstrate how we combine ZLog and Mantle
 to implement service-aware metadata load balancing policies.
 
-\subsection{Mantle: A Programmable Metadata Load Balancer}
+\subsection{Mantle: Programmable Load Balancer}
 \label{sec:mantle}
 
-Mantle is a programmable metadata
-balancer for Ceph that separates the metadata balancing policies from their
-mechanisms. Administrators inject code to change how the metadata cluster
-distributes metadata. In ~\cite{sevilla:sc15-mantle} the authors showed how 
-using Mantle, one can implement a single node metadata service, a distributed 
-metadata services with hashing, and a distributed metadata service with dynamic 
-subtree partitioning.
+Mantle is a programmable load balancer that separates the metadata balancing
+policies from their mechanisms. Administrators inject code to change how the
+metadata cluster distributes metadata. In ~\cite{sevilla:sc15-mantle} the
+authors showed how using Mantle, one can implement a single node metadata
+service, a distributed metadata services with hashing, and a distributed
+metadata service with dynamic subtree partitioning. 
 
-\subsection{Re-Implementation}
+The original implementation was ``hard-coded" into Ceph and lacked robustness
+(lacking things such as versioning, durability, or reliable policy
+distribution).  Re-implemented using Malacology, Mantle now enjoys (1) the
+versioning of MONs and (2) the durability and distribution provided by RADOS.
+The version of the load balancer, which is stored in the MDS map, corresponds
+to an object name in RADOS that houses the load balancer code.
 
-The Ceph team wants to merge Mantle because the scriptability is useful for
-debugging, controlling the metadata balancer, and examining trade-offs for
-different balancers. Unfortunately, this research quality system is not as
-robust as Ceph and the Ceph team wants more safety, durability, and consistency
-for the new services.  The API for Malacology is the same as the one exposed
-in~\cite{sevilla:sc15-mantle} but the hooks are put in different places.
+\subsubsection{Versioning Balancer Policies}
 
-\subsection{Policy Versioning}
+Ensuring that the version of the current load balancer is consistent across the
+MDS cluster was ignored in the original implementation. The user had to set the
+version on each individual MDS and it was trivial to make the version
+inconsistent across MDS nodes.
 
-For Mantle, we added new monitor command to change the metadata load balancers:
+With Malacology, Mantle stores the version of the current load balancer in the
+MDS map.  Similar to the PG map or MON maps, the MDS map has all the
+information about the topology and state of the MDS cluster.  Recall that the
+MONs propogate these maps across the cluster and ensure that the map versions
+are consistent with PAXOS.  While storing the code snippets that define the
+policies in the MDS map is possible, it is not recommended as it is an
+expensive operation (a PAXOS voting round).
 
-\noindent \texttt{ mds\ set\ lua\_balancer\_class\ \textless{}version\textgreater{}}
-%\noindent \texttt{ceph\ osd\ pool\ set-class\ \textless{}pool\textgreater{}\ \textless{}class\textgreater{}\ \textless{}script\textgreater{}}
+The user changes the version of the load balancer using a new CLI command:
 
-This command assigns the current version of the metadata load balancer. In our case, it is simply the name of the balancer. The MONs take the version and store it in the MDS map. Similar to the PG map or MON maps, the MDS map has all the information about the topology and state of the MDS cluster. Leveraging the MONs helps ease the burden on the MDS to propagate the policy and ensure that everyone agrees.
+\noindent \texttt{ fs\ set\ lua\_balancer\_class\ \textless{}version\textgreater{}}
 
-There are Ceph components that are obstacles to this approach, namely the size of the  MDS map, API changes, and security. The Ceph engineers want to avoid using the maps to exchange information; the maps should be lightweight and fast because the MONs need to be able to version MDS cluster state quickly. API changes can also be a burden, especially for the MDS map, since all clients need to have the same version of the CephFS library in order to properly interact with CephFS. Finally, Ceph tries to avoid injecting strings into the cluster because they are insecure and buggy. 
+%There are Ceph components that are obstacles to this approach, namely the size
+%of the  MDS map, API changes, and security. The Ceph engineers want to avoid
+%using the maps to exchange information; the maps should be lightweight and fast
+%because the MONs need to be able to version MDS cluster state quickly. API
+%changes can also be a burden, especially for the MDS map, since all clients
+%need to have the same version of the CephFS library in order to properly
+%interact with CephFS. Finally, Ceph tries to avoid injecting strings into the
+%cluster because they are insecure and buggy. 
 
-\subsection{Making Policies Durable}
+\subsubsection{Making Balancer Policies Durable}
 
-While storing the code snippets that define the policies in the MDS map is 
-possible, it is not recommended as it is an expensive operation (a PAXOS voting 
-round). Thus, Malacology only stores policies IDs which correspond to an object 
-in a system-maintained pool. When MDSs read a policy, they first check latest 
-version from the MDS map, and then dereference the pointer by reading the 
-corresponding object in RADOS.
+The load balancer version described above corresponds to the name of an object
+in RADOS that holds the actual Lua balancing code. The objects containing load
+balancer code are stored in a system-maintained group of objects (i.e. a pool).
+When MDS nodes start balancing load, they first check the latest version from
+the MDS map and compare it to the balancer they have loaded. If the version has
+changed, they dereference the pointer to the balancer version by reading the
+corresponding object in RADOS. This is in contrast to the original balancer
+which stored load balancer code on the local file system -- a technique which
+is unreliable and results in inconsistencies if any MDS accidently modifies the
+code.
+
+The balancer pulls the Lua code from RADOS synchronously; asynchronous reads
+are not possible because of the architecture of the MDS. The synchronous
+behavior is not the default behavior for RADOS operations, so we achieve this
+with a timeout: if the asynchronous read does not come back within half the
+balancing tick interval the operation is cancelled and a Connection Timeout
+error is returned. By default, the balancing tick interval is 10 seconds, so
+Mantle will use a 5 second second timeout.
+
+This design allows Mantle to immediately return an error if anything
+RADOS-related goes wrong.  We use this implementation because we do not want to
+do a blocking OSD read from inside the global MDS lock. Doing so would bring
+down the MDS cluster if any of the OSDs are not responsive.
+
+Storing the balancers in RADOS is only possible because we use Lua as the
+language for writing balancer code. If we used a language that needs to be
+compiled, like the C++ object classes in the OSD, we would need to ensure
+binary compatibility, which is complicated by different operating systems,
+distributions, and compilers.
+
+\subsubsection{Logging, Debugging, and Warnings}
+
+In the original implementation, Mantle would log all errors, warnings, and
+debug messages to the local log on each MDS. To get the simplest status
+messages or to debug problems, the user would have to log into each MDS
+individually, look at the logs, and reason about their causality. 
+
+With Malacology, Mantle re-usues the centralized logging features of the MON
+subsystem. Important errors, warnings, and info messages are sent with the MON
+beacon subsystem and appear in the monitor cluster log so instead of users
+going to each node, they can watch messages appear at the monitor. Messages are
+used discretly, so as not to spam the monitor with frivolous debugging but the
+large events, like balancer version changes or failed subsystems show up in the
+centralized log.
 
 \subsection{ZLog: A Fast Distributed Shared-Log}
 \label{sec:zlog}

@@ -9,7 +9,6 @@ fetch
 *.bbl
 *.blg
 *.log
-*.pdf
 *.synctex.gz
 *.dvi
 *.out
