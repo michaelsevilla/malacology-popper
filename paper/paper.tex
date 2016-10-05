@@ -140,17 +140,91 @@ this programmability as \emph{programmable storage}, which differs from
 a storage system) and \emph{software-defined storage} (the control of
 thin-provisioning of storage).
 
+To illustrate the benefits and challenges of this approach we have designed and
+evaluated Malacology, a programmable storage system for constructing new
+services by re-purposing existing subsystem abstractions of the storage stack.
+We build the framework in Ceph by leveraging a broad spectrum of existing
+services, including distributed locking and caching services provided by
+metadata servers, durability and logical storage devices provided by the
+backend object store, and propagation of consistent cluster state provided by
+the monitoring service (see Figure~\ref{fig:overview}). As we will show in this
+paper, this framework is expressive enough to provide the functionality
+necessary for implementing new services. Our contributions are:
+
+\paragraph*{A programmable storage system} that re-uses and extends existing
+abstractions and services of Ceph, a common production-level storage system. It
+includes:
+
+\begin{enumerate}
+
+\item An extension of file system metadata by a new type of ``sequencer''
+inode that together with Ceph's capability subsystem implements
+high-performance, non-durable access serialization:
+
+\item The use of Ceph's PAXOS-based consensus infrastructure for versioning
+of metadata service load-balancing policies
+
+\item The use of storage objects for persisting policies
+
+\item An extension of the object interface classes for new logical
+storage/metadata devices
+
+\end{enumerate}
+
+\paragraph*{A distributed shared log service} to demonstrate the feasibility of
+services using the programmable storage approach:
+
+\begin{enumerate}
+
+\item A high-performance distributed shared log service called ZLog which is
+based on CORFU~\cite{balakrishnan_corfu_2012}
+
+\item A re-implementation of the programmable Mantle metadata load balancing
+service~\cite{sevilla:sc15-mantle} using Malacology
+
+\item An application of Mantle to manage load-balancing of sequencers.
+
+\end{enumerate}
+
+The remainder of this paper is structured as follows. First we describe
+Malacology by presenting the subsystems within Ceph that we re-purpose, and
+briefly describe how those system are used within Malacology
+(\S\ref{sec:malacology}). Next we describe the services that we have
+constructed within the Malacology framework (\S\ref{sec:services}), and
+evaluate our ideas within our prototype implementation (\S\ref{evaluation}).
+Finally we discuss related work and conclude.
+
+\section{Highly Tailored, Application-Specific Storage Stacks
+}\label{highly-tailored-and-application-specifc-storage-systems}
+
 To illustrate the benefits and challenges of this approach we examine the
-programmability of Ceph~\cite{weil:osdi2006-ceph,ceph}, the increasingly
-popular, production-level open-source distributed storage system.  Something of
-a storage swiss army knife, Ceph supports file, block, and object interfaces
-simultaneously in a single cluster~\cite{ceph_contributors_ceph_2010}. Ceph's
-Reliable Autonomous Distributed Object Storage (RADOS) system is a cluster of
-storage devices (OSDs) that provide Ceph with data durability and integrity
-using replication, erasure-coding, and scrubbing~\cite{weil_rados_2007}. 
-% By introducing
-% programmability concepts into Ceph, we can build new services by
-% carefully exposing internal storage services to applications.
+
+Today's storage stacks are large, monolothic systems built to ensure
+scalability and persistence -- a storage system that loses user's data is
+useless. Building storage stacks from the ground up for a specific purpose
+results in the best performance. For example, HDFS was designed specifically to
+server Hadoop's jobs and relaxes POSIX constraints~\cite{CITEME}.
+Alternatively, general-purpose storage stacks are built with the flexiblity to
+serve many applications by embedding tunable parameters to control low level
+implementation details like block size. Unfortunately, users want more control
+from the general-purpose storage stacks without going as far as building their
+storage system from the ground up.
+
+% does this belong?
+To demonstarte the need for programmability in storage systems, we examine
+Ceph's programmability. Ceph~\cite{weil:osdi2006-ceph,ceph}, the increasingly
+popular, production-level open-source distributed storage system, was
+originally built to be an HPC file system. But demands for storage systems that
+could slide in behind cloud infrastructures, like OpenStack, shifted the focus
+to Ceph's internal object store as a back end for large cloud block devices,
+S3-like objects, and file system workloads.  Something of a storage swiss army
+knife, Ceph supports file, block, and object interfaces simultaneously in a
+single cluster~\cite{ceph_contributors_ceph_2010}. Ceph's Reliable Autonomous
+Distributed Object Storage (RADOS) system is a cluster of storage devices
+(OSDs) that provide Ceph with data durability and integrity using replication,
+erasure-coding, and scrubbing~\cite{weil_rados_2007}. 
+% By introducing programmability concepts into Ceph, we can build new services
+% by carefully exposing internal storage services to applications.
 
 Ceph also provides empirical evidence that developers embrace programmable
 storage: Ceph already supports the implementation of domain-specific logical
@@ -208,62 +282,6 @@ bound, if it has locality, if its size has the potential to overload a single
 proxy node, etc. The programmers know what the problem is and how to solve it,
 but until the ability to modify object interfaces, they had no way to express
 to the storage system how to handle their data.
-
-To illustrate the benefits and challenges of this approach we have designed and
-evaluated Malacology, a programmable storage system for constructing new
-services by re-purposing existing subsystem abstractions contained in Ceph. We
-build the framework in Ceph by leveraging a broad spectrum of existing
-services, including distributed locking and caching services provided by MDSs,
-durability and logical storage devices provided by RADOS, and propagation of
-consistent cluster state provided by the monitoring service (see
-Figure~\ref{fig:overview}). As we will show in this paper, this framework is
-expressive enough to provide the functionality necessary for implementing new
-services. Our contributions are:
-
-\paragraph*{A programmable storage system} that re-uses and extends existing
-abstractions and services of Ceph, a common production-level storage system. It
-includes:
-
-\begin{enumerate}
-%  \def\labelenumi{\arabic{enumi}.}
-%  \itemsep1pt\parskip0pt\parsep0pt
-
-\item An extension of file system metadata by a new type of ``sequencer''
-inode that together with Ceph's capability subsystem implements
-high-performance, non-durable access serialization:
-
-\item The use of Ceph's PAXOS-based consensus infrastructure for versioning
-of metadata service load-balancing policies
-
-\item The use of storage objects for persisting policies
-
-\item An extension of the object interface classes for new logical
-storage/metadata devices
-
-\end{enumerate}
-
-\paragraph*{A distributed shared log service} to demonstrate the feasibility of
-services using the programmable storage approach:
-
-\begin{enumerate}
-%  \def\labelenumi{\arabic{enumi}.} \itemsep1pt\parskip0pt\parsep0pt
-\item A high-performance distributed shared log service called ZLog which is
-based on CORFU~\cite{balakrishnan_corfu_2012}
-
-\item A re-implementation of the programmable Mantle metadata load balancing
-service~\cite{sevilla:sc15-mantle} using Malacology
-
-\item An application of Mantle to manage load-balancing of sequencers.
-
-\end{enumerate}
-
-The remainder of this paper is structured as follows. First we describe
-Malacology by presenting the subsystems within Ceph that we re-purpose, and
-briefly describe how those system are used within Malacology
-(\S\ref{sec:malacology}). Next we describe the services that we have
-constructed within the Malacology framework (\S\ref{sec:services}), and
-evaluate our ideas within our prototype implementation (\S\ref{evaluation}).
-Finally we discuss related work and conclude.
 
 %\section{Challenges}
 %\label{sec:challenges}
