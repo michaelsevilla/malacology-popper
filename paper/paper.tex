@@ -10,6 +10,10 @@
 \usepackage{mathptmx}
 \usepackage{graphicx}
 \usepackage{listings}
+\usepackage{amssymb}
+\usepackage{pifont}
+\newcommand{\cmark}{\ding{51}}%
+\newcommand{\xmark}{\ding{55}}%
 
 
 
@@ -350,7 +354,7 @@ security and performance concerns.
 We will now discuss the common subsystems used to manage storage system and how
 Malacology makes them programmable.
 
-\subsection{Cluster State Management}
+\subsection{Versioning: Cluster State Management}
 \label{sec:mon}
 \label{consistencyversioning-of-cluster-state}
 
@@ -644,21 +648,27 @@ synchronized on correct implementations without restarting.
 \label{services-built-on-malacology}
 
 \label{services}
-
 \begin{table}
 \centering
-\begin{tabular}{  l | l | l    }
-\textbf{Service} & \textbf{Ceph Component} & \textbf{Used for...}  \\ \hline
-Mantle  & RADOS    & policy durability \\
-        & MON maps & policy versioning \\ \hline
-ZLog    & Logical Storage & CORFU protocol  \\ 
-        & MON maps & interface install \\ \hline
-Seq.    & MDS file types & log management \\ 
-        & MDS fault toler. & seq. fault toler. \\
+\begin{tabular}{  l | l | l | l }
+\textbf{Service} & \text{*} & \textbf{Malacology Hook} & \textbf{Used to...}  \\ \hline
+Mantle           &          & Logical Storage  & implement metadata balancers \\
+                 & \cmark   & Versioning       & agree on current balancer \\ 
+                 & \cmark   & Capabilities     & control client write lock \\
+                 &          & Durability       & persist/distribute policy logic \\\hline
+ZLog             & \cmark   & Logical Storage  & implement CORFU protocol  \\ 
+                 & \cmark   & Versioning       & agree on ZLog version \\
+                 & \cmark   & Capabilities     & file types for log management \\
+                 &          & Durability       & persist log entries \\ \hline
+Seqr.            &          & Logical Storage  & load balancing \\
+                 & \cmark   & Versioning       & fault tolerance \\
+                 & \cmark   & Capabilities     & control client bursts \\ 
 \end{tabular}
-\caption{To implement the Mantle and ZLog services, we leverage Ceph
-components. Malacology uses these subsystems because they provide powerful
-abstractions.}
+\caption{Because Mantle and ZLog are built on Malacology, they inherit the
+robustness of the internal subsystems of the underlying storage stack.\\ For
+the \text{*} column, the \cmark s are hooks contributed in this paper;
+durability is provided by librados and Lua Policy (MDS) is already
+published~\cite{sevilla:sc15-mantle}. }
 \label{table:implementation}
 \end{table}
 
