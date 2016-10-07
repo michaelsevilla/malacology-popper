@@ -1,43 +1,38 @@
-\documentclass[10pt,twocolumn]{article}
+%\documentclass[10pt,twocolumn]{article}
+\documentclass[preprint]{sigplanconf-eurosys}
 
-\usepackage{fullpage}
-\usepackage{times}
+%\usepackage{fullpage}
+%\usepackage{times}
 \usepackage{multirow}
 \usepackage{arydshln}
-\usepackage{amssymb,amsmath}
-\usepackage{ifxetex,ifluatex}
+%\usepackage{amssymb,amsmath}
+%\usepackage{ifxetex,ifluatex}
 \usepackage{amsmath}
-\usepackage{mathptmx}
+%\usepackage{mathptmx}
 \usepackage{graphicx}
 \usepackage{listings}
-\usepackage{amssymb}
+%\usepackage{amssymb}
 \usepackage{pifont}
 \newcommand{\cmark}{\ding{51}}%
-\newcommand{\xmark}{\ding{55}}%
-
-
-
-% use upquote if available, for straight quotes in verbatim environments
-\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
-
-\usepackage{graphicx}
-\usepackage[font=footnotesize,labelfont=bf]{caption}
+%\newcommand{\xmark}{\ding{55}}%
+%
+%
+%
+%% use upquote if available, for straight quotes in verbatim environments
+%\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+%
+%\usepackage[font=footnotesize,labelfont=bf]{caption}
 \usepackage{pstricks}
 \makeatletter
 \def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
 \def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
 \makeatother
-% Scale images if necessary, so that they will not overflow the page
-% margins by default, and it is still possible to overwrite the defaults
-% using explicit options in \includegraphics[width, height, ...]{}
+%% Scale images if necessary, so that they will not overflow the page
+%% margins by default, and it is still possible to overwrite the defaults
+%% using explicit options in \includegraphics[width, height, ...]{}
 \setkeys{Gin}{width=\maxwidth,keepaspectratio}
-\ifxetex
-  \usepackage[setpagesize=false, % page size defined by xetex
-              unicode=false, % unicode breaks when used with xetex
-              xetex]{hyperref}
-\else
-  \usepackage[unicode=true]{hyperref}
-\fi
+
+\usepackage[unicode=true]{hyperref}
 \hypersetup{breaklinks=true,
             bookmarks=true,
             pdfauthor={},
@@ -48,13 +43,14 @@
             linkcolor=black,
             pdfborder={0 0 0}}
 \urlstyle{same}  % don't use monospace font for urls
-%\setlength{\parindent}{0pt}
-%\setlength{\parskip}{6pt plus 2pt minus 1pt}
-%\setlength{\emergencystretch}{3em}  % prevent overfull lines
-\setcounter{secnumdepth}{5}
+%%\setlength{\parindent}{0pt}
+%%\setlength{\parskip}{6pt plus 2pt minus 1pt}
+%%\setlength{\emergencystretch}{3em}  % prevent overfull lines
+%\setcounter{secnumdepth}{5}
 
 \title{Malacology: A Programmable Storage System}
-\author{Paper \# 123}
+\authorinfo{Paper ID: 123}
+           {Total Page: 12}
 \date{}
 \begin{document}
 
