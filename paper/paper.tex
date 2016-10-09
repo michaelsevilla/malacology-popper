@@ -339,6 +339,29 @@ of those changes without affecting correctness.
 \section{Malacology}
 \label{sec:malacology}
 
+\begin{table*}
+\centering
+\begin{tabular}{  l | l | l | l | l}
+\textbf{Interface}            &
+\textbf{\text{*}}             &
+\textbf{Provides...}          &
+\textbf{Example in Storage} & \\ \hline
+Load Balancing  & migration \& monitoring primitives   & \\
+Versioning      & consistency primitives               & \\ 
+Shared Resource & serialization \& batching primitives
+                & \\
+Durability      & persistence primitives
+                & \\
+Logical Device  & transaction \& atomicity primitives 
+                & Swift/ZeroVM in situ storage \& compute [1] \\ 
+\end{tabular}
+\caption{The Malacology interfaces are commonly used abstractions used
+internally in storage stacks.}
+\label{table:implementation}
+\end{table*}
+% http://www.zerovm.org/zerocloud.html
+
+
 Malacology is both a prototype for a programmable storage system and a design
 approach to evolve storage systems efficiently and without jeopardizing years
 of code-hardening and performance optimization efforts. The guiding principle
@@ -658,24 +681,24 @@ synchronized on correct implementations without restarting.
 \label{services}
 \begin{table}
 \centering
-\begin{tabular}{  l | l | l | l }
-\textbf{Service} & \text{*} & \textbf{Malacology Collection of Interfaces/APIS}       & \textbf{Used to...}  \\ \hline
-Mantle           &          & Load Balancing      & load balance metadata \\
-                 & \cmark   & Versioning          & agree on current balancer \\ 
-                 & \cmark   & Batching            & control client write lock \\
-                 &          & Durability          & persist policy logic \\\hline
-ZLog             & \cmark   & Logical Device      & implement CORFU \\ 
-                 & \cmark   & Versioning          & install ZLog interfaces \\
-                 &          & Durability          & persist log entries \\ \hline
-ZLog             &          & Load balancing      & load balance sequencers \\
-Seqr.            & \cmark   & Batching            & guard shared resource \\ %\hline
-                 %\multicolumn{4}{c}{} \\ 
-                 %\multicolumn{4}{c}{\#: interface in metadata server,     \(\mp\): interface in object storage server} \\ 
+\begin{tabular}{  l | l | l | l}
+\textbf{Service}              &
+\textbf{Used to...}           &
+\textbf{Malacology Interface} & \\ \hline
+Mantle & load balance metadata     & Load Balancing  \\
+       & agree on current balancer & Versioning      \\ 
+       & control client write lock & Shared Resource \\
+       & persist policy logic      & Durability      \\ \hline
+ZLog   & implement CORFU           & Logical Device  \\ 
+       & install ZLog interfaces   & Versioning      \\
+       & persist log entries       & Durability      \\ \hline
+ZLog   & load balance sequencers   & Load Balancing  \\
+Seqr.  & guard shared resource     & Shared Resource \\ 
 \end{tabular}
-\caption{Mantle and ZLog are built using Malacology hooks so they inherit the
-robustness of the subsystems of the underlying stack. For the \text{*} column,
-the \cmark s are hooks contributed in this paper; durability is already
-provided with a client library and the MDS Logical Device is already
+\caption{Mantle and ZLog are built using Malacology interfaces so they inherit the
+robustness of the subsystems of the underlying stack. The \cmark s are
+interfaces contributed in this paper; durability is already provided with a
+client library and the MDS Logical Device is already
 published~\cite{sevilla:sc15-mantle}. }
 \label{table:implementation}
 \end{table}
