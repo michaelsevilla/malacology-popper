@@ -346,20 +346,19 @@ of those changes without affecting correctness.
 \textbf{\text{*}}             &
 \textbf{Provides...}          &
 \textbf{Example in Storage} & \\ \hline
-Load Balancing  & migration \& monitoring primitives   & \\
-Versioning      & consistency primitives               & \\ 
-Shared Resource & serialization \& batching primitives
-                & \\
-Durability      & persistence primitives
-                & \\
-Logical Device  & transaction \& atomicity primitives 
-                & Swift/ZeroVM in situ storage \& compute [1] \\ 
+Versioning      & \cmark & consensus \& consistency primitives  & PAXOS in Chubby [2] \\ 
+Shared Resource & \cmark & serialization \& batching primitives & \\
+Logical Device  & \cmark & transaction \& atomicity primitives  & Swift/ZeroVM in situ storage \& compute [1] \\ 
+Durability      &        & persistence primitives               & \\
+Load Balancing  &        & migration \& monitoring primitives   & IndexFS~\cite{ren:sc2014-indexfs} \& GIGA+~\cite{patil:fast2011-giga} \\
 \end{tabular}
 \caption{The Malacology interfaces are commonly used abstractions used
 internally in storage stacks.}
 \label{table:implementation}
 \end{table*}
 % http://www.zerovm.org/zerocloud.html
+% https://www.usenix.org/legacy/events/nsdi11/tech/full_papers/Bolosky.pdf
+% https://www.cs.utexas.edu/users/lorenzo/corsi/cs380d/papers/paper2-1.pdf
 
 
 Malacology is both a prototype for a programmable storage system and a design
