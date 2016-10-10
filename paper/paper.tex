@@ -341,25 +341,48 @@ of those changes without affecting correctness.
 
 \begin{table*}
 \centering
-\begin{tabular}{  l | l | l | l | l}
-\textbf{Interface}            &
-\textbf{\text{*}}             &
-\textbf{Provides...}          &
-\textbf{Example in Storage} & \\ \hline
-Versioning      & \cmark & consensus \& consistency primitives  & PAXOS in Chubby [2] \\ 
-Shared Resource & \cmark & serialization \& batching primitives & \\
-Logical Device  & \cmark & transaction \& atomicity primitives  & Swift/ZeroVM in situ storage \& compute [1] \\ 
-Durability      &        & persistence primitives               & \\
-Load Balancing  &        & migration \& monitoring primitives   & IndexFS~\cite{ren:sc2014-indexfs} \& GIGA+~\cite{patil:fast2011-giga} \\
+\title{Hi}
+\begin{tabular}{  l | l | l | l }
+\multicolumn{4}{c}{\Large \textbf{Common Internal Abstractions}} \\
+\multicolumn{4}{c}{} \\
+\textbf{Abstraction}                    &
+\textbf{Example in Production Systems}  &
+\textbf{Example in Ceph}                &
+\textbf{Provided Primitives}            \\ \hline
+{\it Versioning}
+  & Zookeeper coordination~\cite{hunt_zookeeper_2010}, Chubby~\cite{website:chubby}
+  & cluster state management~\cite{website:ceph-mon}
+  & consensus \& consistency
+  \\
+{\it Shared Resource}
+  & MPI collective IO, burst
+  & POSIX metadata protocols
+  & serialization \& batching
+  \\
+{\it Logical Device}
+  & Swift in situ storage/compute~\cite{website:zerocloud}
+  & object interface classes~\cite{website:cls-lua}
+  & transaction \& atomicity
+  \\
+Durability
+  & S3/Swift interfaces (RESTful API)
+  & object store library~\cite{weil_rados_2007}
+  & interface to persistence
+  \\
+Load Balancing
+  & VMWare's VM migration~\cite{vmware-drs,gulati:hotcloud2011-cloud-resource-management} 
+  & migration in metadata cluster~\cite{weil:sc2004-dyn-metadata}
+  & migration \& monitoring
+  \\
 \end{tabular}
-\caption{The Malacology interfaces are commonly used abstractions used
-internally in storage stacks.}
-\label{table:implementation}
+\caption{The same ``internal abstractions" are common across large-scale
+systems because they provide primitives that solve general distributed systems
+problems.  Here we list examples of what these internal abstractions are used
+for in ``production systems" and in Ceph.  Malacology provides these internal
+abstractions as interfaces that higher level applications can use; {\it
+italicized abstractions} are interfaces contributed in this paper.}
+\label{table:examples}
 \end{table*}
-% http://www.zerovm.org/zerocloud.html
-% https://www.usenix.org/legacy/events/nsdi11/tech/full_papers/Bolosky.pdf
-% https://www.cs.utexas.edu/users/lorenzo/corsi/cs380d/papers/paper2-1.pdf
-
 
 Malacology is both a prototype for a programmable storage system and a design
 approach to evolve storage systems efficiently and without jeopardizing years
@@ -680,10 +703,10 @@ synchronized on correct implementations without restarting.
 \label{services}
 \begin{table}
 \centering
-\begin{tabular}{  l | l | l | l}
+\begin{tabular}{  l | l | l }
 \textbf{Service}              &
 \textbf{Used to...}           &
-\textbf{Malacology Interface} & \\ \hline
+\textbf{Malacology Interface} \\ \hline
 Mantle & load balance metadata     & Load Balancing  \\
        & agree on current balancer & Versioning      \\ 
        & control client write lock & Shared Resource \\
@@ -695,10 +718,7 @@ ZLog   & load balance sequencers   & Load Balancing  \\
 Seqr.  & guard shared resource     & Shared Resource \\ 
 \end{tabular}
 \caption{Mantle and ZLog are built using Malacology interfaces so they inherit the
-robustness of the subsystems of the underlying stack. The \cmark s are
-interfaces contributed in this paper; durability is already provided with a
-client library and the MDS Logical Device is already
-published~\cite{sevilla:sc15-mantle}. }
+robustness of the subsystems of the underlying stack.}
 \label{table:implementation}
 \end{table}
 
