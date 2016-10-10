@@ -4,3 +4,6 @@
 [submodule "experiments/figure1/zlog-popper"]
 	path = experiments/figure1/zlog-popper
 	url = https://github.com/noahdesu/zlog-popper.git
+[submodule "images/docker-cephdev"]
+	path = images/docker-cephdev
+	url = https://github.com/systemslab/docker-cephdev.git
