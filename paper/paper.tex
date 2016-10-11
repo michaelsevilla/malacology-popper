@@ -66,14 +66,14 @@ performance optimization efforts that were necessary for users to entrust their
 data to the storage system.  We introduce  Malacology, a prototype programmable
 storage system to explore how existing abstractions of common services found in
 storage systems can be leveraged to address new data processing systems and the
-increasing speed of storage devices. This approach allows unprecedented
+increasing speed of storage devices. This approach allows a large degree of
 flexibility for storage systems to evolve without sacrificing the robustness of
 its code-hardened subsystems.  We illustrate the advantages and challenges of
-programmability by constructing two services out of existing abstractions: a
-file system metadata load balancer and a high-performance distributed
+programmability by composing existing primitives into two new higher-level
+services: a file system metadata load balancer and a high-performance distributed
 shared-log that leverages flash devices. The evaluation demonstrates that our
 services inherit desirable qualities of the back-end storage system, including
-the ability to make trade-offs for lease capabilities, balance load, propogate
+the ability to make trade-offs for latency/throughput using lease capabilities, balance load, propogate
 interfaces, and recover from failure.
 \end{abstract}
 
@@ -86,7 +86,7 @@ and must exhibit a high level of correctness to prevent data loss.  Storage
 systems have evolved around storage devices that often were orders of magnitude
 slower than CPU and memory, and therefore could dominate overall performance if
 not used carefully. Over the last few decades members of the storage systems
-community have developed ingenious strategies to meet correctness requirements
+community have developed clever strategies to meet correctness requirements
 while somewhat hiding the latency of traditional storage
 media~\cite{brewer_disks_2016}. To avoid lock-in by a particular vendor, users
 of storage systems have preferred systems with highly standardized APIs and
@@ -128,9 +128,11 @@ to evolve storage systems efficiently and without jeopardizing years of
 code-hardening and performance optimization efforts that are important for
 users to continue to entrust their data to the storage system.
 
-In this paper we investigate an approach that focuses on generalizing existing
+In this paper we investigate an approach that focuses on generalizing and
+composing existing
 storage system resources, services, and abstractions that in a generalized form
-can be used to \emph{program} new services. By doing so one can reuse
+can be used to \emph{program} new services. By composing higher-level services
+over existing abstractions, one can reuse
 subsystems and leverage their optimizations, established correctness,
 robustness, and efficiency. We will refer to this programmability as
 \emph{programmable storage}, which differs from \emph{active storage} (the
@@ -140,18 +142,19 @@ injection and execution of arbitrary code in a storage system) and
 To illustrate the benefits and challenges of this approach we have designed and
 evaluated Malacology, a programmable storage system for constructing new
 services by re-purposing existing subsystem abstractions of the storage stack.
-We build the framework in Ceph, a popular, open source software storage stack,
-by leveraging a broad spectrum of existing services, including distributed
-locking and caching services provided by metadata servers, durability and
-logical storage devices provided by the backend object store, and propagation
-of consistent cluster state provided by the monitoring service (see
+We build the framework in Ceph, a popular, open source software storage stack.
+We choose Ceph to demonstrate the concept of programmable stoarge because it
+offers a broad spectrum of existing services, including distributed locking and
+caching services provided by metadata servers, durability and logical storage
+devices provided by the backend object store, and propagation of consistent
+cluster state provided by the monitoring service (see
 Figure~\ref{fig:overview}). As we will show in this paper, this framework is
 expressive enough to provide the functionality necessary for implementing new
 services. Our contributions are:
 
-\paragraph*{A programmable storage system} that re-uses and extends existing
-abstractions and services of the underlying storage stack. It
-includes the following building blocks:
+{\it \textbf{We define a programmable storage system}} to be a storage system that re-uses and extends existing
+abstractions and services of the underlying software stack. Our prototype
+includes (but is not limited to) the following building blocks:
 
 \begin{enumerate}
 
@@ -172,16 +175,16 @@ stack's object store
 
 \end{enumerate}
 
-\paragraph*{Two distributed services} that demonstrate the feasibility of using
-the programmable storage approach:
+{\it \textbf{We implement two distributed services}} using programmable storage
+to demonstrate its feasability:
 
 \begin{enumerate}
 
 \item A high-performance distributed shared log service called ZLog which is
 based on CORFU~\cite{balakrishnan_corfu_2012}
 
-\item A re-implementation of the programmable Mantle metadata load balancing
-service~\cite{sevilla:sc15-mantle} using Malacology
+\item An implementation of the programmable Mantle metadata load balancing
+service~\cite{sevilla:sc15-mantle}
 
 \end{enumerate}
 
