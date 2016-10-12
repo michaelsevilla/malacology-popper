@@ -1098,28 +1098,30 @@ physical servers and (2) recover from failure.
 \begin{figure}[t!]
 \centering
 \includegraphics{figures/mantle-seq-thruput.png}
-\caption{[\href{https://github.com/double-blind-submitter/osdi16}{source}] A
-ZLog sequencer that uses the Malacology load balancing interface enjoys the
-load balancing features of the of the metadata cluster. The ``Sequencer
-Baseline'' has no background sequencers, while the rest of the curves show the
-throughput of 1 sequencer when an additional sequencer is running in the
-background generating load.}\label{fig:mantle-seq-thruput}
+\caption{[\href{https://github.com/double-blind-submitter/osdi16}{source}]
+Performance profiles of a single sequencer running in a resource constrained
+environment show the benefits of using the load balancing interface.  ``1
+Sequencer Baseline'' is the throughput of one sequencer on an underloaded
+physical server; the other curves show how load balancing affects the
+throughput of one sequencer when sequencers for other logs are co-located on
+the same physical server.}\label{fig:mantle-seq-thruput}
 \end{figure}
 
 \subsubsection{Load Balancing Sequencers}
 
-We evaluate the load balancing interface by showing the performance
-implications of shedding load. The experiments use our internal cluster which
-uses 10 nodes to store objects, one node to monitor the cluster, and 3 nodes
-that can accomodate sequencers. The workload is two logs, one with 7 clients
-and the other with 8 clients; we chose this workload because this load is the
-point at which a single physical server gets overloaded.
+We evaluate the load balancing interface by showing how the cluster of servers
+housing sequencers alleviate load.  The experiments use our internal cluster
+which uses 10 nodes to store objects, one node to monitor the cluster, and 3
+nodes that can accomodate sequencers. The workload is two logs, one with 7
+clients and the other with 8 clients; we chose this workload because this load
+is the point at which a single physical server gets overloaded.
 
 We use a balancer policy specifically designed for multiple sequencers. The
-balancer aggressively sheds half its load to its neighbor as soon as it can.
+balancer aggressively sheds half its load to the next server as soon as it can.
 It is based off the ``Greedy Spill Even" approach in the
 Mantle~\cite{sevilla:sc15-mantle} paper but is reproduced in
-Figure~\ref{listing:greedy-spill} for the reader's convenience. 
+Figure~\ref{listing:greedy-spill} for the reader's convenience. An MDS is a
+physical server capable of housing a sequencer.
 
 \begin{figure}[]
 \begin{lstlisting}
@@ -1139,58 +1141,59 @@ Figure~\ref{listing:greedy-spill} for the reader's convenience.
 
 \begin{figure}[t!]
 \centering
-\includegraphics{figures/mantle-cpu-utilization-annotate.png}
+\includegraphics{figures/mantle-cpu-utilization.png}
 \caption{[\href{https://github.com/double-blind-submitter/osdi16}{source}] The
-sequencer using Mantle in Figure~\ref{fig:mantle-seq-thruput} migrates to a new
-server immediately because it uses a policy designed for bursty workloads. This
-is a trace of the same workload running twice: once with a single host server and once
-with Mantle.}
+CPU utilization for a sequencer in an environment with the ``Conservative
+Policy" load balancer shows that the load balancing service is not
+multi-threaded. The load balancing service is designed this way because the
+performance for a guarded resource will not improve with more cores.}
 \label{fig:mantle-cpu-utilization}
 \end{figure}
 
 Figure~\ref{fig:mantle-seq-thruput} shows a performance profile of one of the
 sequencers as the load balancing interface migrates sequencers around the
 cluster to alleviate load.  Each curve shows the throughput (\(y\) axis) over
-time (\(x\) axis).  ``Sequencer Baseline'' is the performance of one sequencer
+time (\(x\) axis).  ``1 Sequencer Baseline'' is the performance of one sequencer
 on one physical server serving 7 clients - there are no other sequencers or
 logs in the system and the curve represents the maximum throughput of a
-sequencer on an underutilized physical server.  ``No Load Balancing" adds a
+sequencer on an underutilized physical server.  ``No Balancing" adds a
 second sequencer of equal load to the same physical server with the intent of
 overloading the single physical server; recall that the throughput for this
 second sequencer is omitted. Compared to the baseline, the overloaded physical
 server with 2 sequencers has more than a 2\(\times\) throughput degradation.
+The stability of throughput curves (i.e. the variation on the \(y\) axis) indicate which sequencers
+are on overloaded physical servers.  ``1 Sequencer Baseline" is the best
+performance for this particular workload because there is no contention.
+Performance is stable and the MDS is under-loaded because we do not see the
+spike at the end like the other curves.  ``No Balancing" shows an
+overloaded sequencer because the performance of the monitored sequencer is low
+and unstable (high variation in performance). 
 
 The last two curves of Figure~\ref{fig:mantle-seq-thruput} show the performance
 improvements when sequencers are load balanced across the cluster. Both curves
-are the throughput of one of the sequencers when a background sequencer is
-running. These policies differ by the threshold at which they start balancing:
-``Sequencer Balancing Policy" starts balancing immediately and ``Conservative
-Balancing Policy" waits for 120 seconds before migrating sequencers.
-
-The variation of the sequencer throughputs helps us determine which sequencers
-are on overloaded physical servers.  ``Sequencer Baseline" is the best
-performance for this particular workload because there is no contention.
-Performance is stable and the MDS is under-loaded because we do not see the
-spike at the end like the other curves.  ``No Load Balancing" shows an
-overloaded sequencer because the performance of the monitored sequencer is low
-and unstable (high variation in performance). We also deduce that it is
-overloaded by comparing to the ``Sequencer Balancing Policy" and ``Conservative
-Balancing Policy" curves, which show improved performance when load is
-migrated. 
+show the throughput of one of the sequencers when a second sequencer is
+running on the same physical server. The load balancing policies differ by the threshold at which they start balancing:
+``Sequencer Policy" starts balancing immediately and ``Conservative
+Policy" waits for 120 seconds before migrating sequencers.
 
 %Overall, the clients achieve lower performance than the capability experiments
 %#in Figure~\ref{fig:captp} because the sequencer uses a slower metadata
 %operation to manage the capability.  It appears the bottleneck is somewhere
 %with the clients -- perhaps it is our 1GBit/s network link.
 
-Figure~\ref{fig:mantle-cpu-utilization} gives a time series graph to show the
-behavior of the same workload, 2 sequencers, with balancing turned on and off.
-The curves are the throughput (\(y\) axis) over time (\(x\) axis) and the graph
-has been partitioned into the two cluster setup stages. The CPU utilization is
-confined to one core because load balancer interface is not multi-threaded.
-Recall the the load balancing interface re-uses the POSIX metadata cluster
-migration mechanisms and as it has been shown that metadata performance does
-not improve with multiple threads~\cite{konstantinos:pdsw2014-lustre-metadata}. 
+Figure~\ref{fig:mantle-cpu-utilization} shows how load balancing effects the
+physical servers by plotting the CPU utilization average over 1 minute (\(y\)
+axis) over time (\(x\) axis).  It shows the ``Conservative Policy" load
+balancer from the run in Figure~\ref{fig:mantle-seq-thruput}, so recall that
+resources are constrained during the job by co-locating a second sequencer on
+the same physical server.  CPU utilization spikes when physical servers receive
+load (at 2 minutes physical server 1 receives a sequencer from physical server
+0) but the CPU utilization never eclipses 50\%. The utilization is low because
+the load balancer interface is not multi-threaded.  Recall the the load
+balancing interface re-uses the POSIX metadata cluster migration mechanisms;
+serving file system metadata is single-threaded because it has been shown that
+metadata performance does not improve with multiple
+threads~\cite{konstantinos:pdsw2014-lustre-metadata}. 
 
 \textbf{The Malacology Approach:} Re-use the Ceph metadata migration, load
 balancing, cache coherence, and capabilities subsystems of the metadata
