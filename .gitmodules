@@ -7,3 +7,6 @@
 [submodule "images/docker-cephdev"]
 	path = images/docker-cephdev
 	url = https://github.com/systemslab/docker-cephdev.git
+[submodule "roles/ceph"]
+	path = roles/ceph
+	url = https://github.com/michaelsevilla/ceph-ansible.git
