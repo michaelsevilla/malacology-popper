@@ -68,13 +68,13 @@ storage system to explore how existing abstractions of common services found in
 storage systems can be leveraged to address new data processing systems and the
 increasing speed of storage devices. This approach allows a large degree of
 flexibility for storage systems to evolve without sacrificing the robustness of
-its code-hardened subsystems.  We illustrate the advantages and challenges of
+their code-hardened subsystems.  We illustrate the advantages and challenges of
 programmability by composing existing primitives into two new higher-level
 services: a file system metadata load balancer and a high-performance distributed
 shared-log that leverages flash devices. The evaluation demonstrates that our
 services inherit desirable qualities of the back-end storage system, including
-the ability to make trade-offs for latency/throughput using lease capabilities, balance load, propogate
-interfaces, and recover from failure.
+the ability to balance load, efficiently propogate cluster metadata, recover
+from failure, and to make trade-offs for latency/throughput using leases.
 \end{abstract}
 
 \section{Introduction}
@@ -93,7 +93,7 @@ of storage systems have preferred systems with highly standardized APIs and
 lowest common denominator abstract data types such as blocks of bytes and byte
 stream files~\cite{armbrust_view_2010}.
 
-A number of recent developments are disrupting traditional storage systems.
+A number of recent developments have disrupted traditional storage systems.
 First, the falling prices of flash storage and the availability of new types of
 non-volatile memory that are orders of magnitude faster than traditional
 spinning media are moving overall performance bottlenecks away from storage
@@ -123,7 +123,7 @@ APIs (file, block, and object) in the storage stack.  \label{fig:overview}}
 \end{figure}
 
 These three trends put evolutionary pressure on storage systems and raise the
-question whether there are principles that storage systems designers can follow
+question of whether there are principles that storage systems designers can follow
 to evolve storage systems efficiently and without jeopardizing years of
 code-hardening and performance optimization efforts that are important for
 users to continue to entrust their data to the storage system.
@@ -132,7 +132,7 @@ In this paper we investigate an approach that focuses on generalizing and
 composing existing
 storage system resources, services, and abstractions that in a generalized form
 can be used to \emph{program} new services. By composing higher-level services
-over existing abstractions, one can reuse
+over existing abstraction one can reuse
 subsystems and leverage their optimizations, established correctness,
 robustness, and efficiency. We will refer to this programmability as
 \emph{programmable storage}, which differs from \emph{active storage} (the
@@ -142,35 +142,36 @@ injection and execution of arbitrary code in a storage system) and
 To illustrate the benefits and challenges of this approach we have designed and
 evaluated Malacology, a programmable storage system for constructing new
 services by re-purposing existing subsystem abstractions of the storage stack.
-We build the framework in Ceph, a popular, open source software storage stack.
-We choose Ceph to demonstrate the concept of programmable stoarge because it
+We build the Malacology in Ceph, a popular open source software storage stack.
+We choose Ceph to demonstrate the concept of programmable storage because it
 offers a broad spectrum of existing services, including distributed locking and
-caching services provided by metadata servers, durability and logical storage
-devices provided by the backend object store, and propagation of consistent
+caching services provided by metadata servers, durability and object interfaces
+provided by the backend object store, and propagation of consistent
 cluster state provided by the monitoring service (see
-Figure~\ref{fig:overview}). As we will show in this paper, this framework is
+Figure~\ref{fig:overview}). As we will show in this paper, Malacology is
 expressive enough to provide the functionality necessary for implementing new
 services. Our contributions are:
 
-{\it \textbf{We define a programmable storage system}} to be a storage system that re-uses and extends existing
-abstractions and services of the underlying software stack. Our prototype
-includes (but is not limited to) the following building blocks:
+{\it \textbf{The definition a programmable storage system}} to be "a storage
+system that allows exisiting abstractions to be re-used and composed to form
+new data and metadata management services whose operation is orothogonal to
+system correctness".  Our prototype includes (but is not limited to) the
+following building blocks:
 
 \begin{enumerate}
 
-\item Versioning interface that uses the underyling storage stack's consensus
-infrastructure 
+\item An interface for managing strongly-consistent time-varying service
+metadata.  
 
-\item Logical Device interface for adding functionality to daemons that manage
-storage/metadata devices, allowing users to push computation to the data
+\item An interface for installing and evolving domain-specific, cluster-wide data
+interfaces.
 
-\item An interface for mediating access to a shared resources, which exposes
-serialization primatives using capabilities, caching, and batching
+\item An interface for managing access to shared resources using a variety of
+optimization strategies.
 
-\item Load Balancing interface for managing resources across the cluster in
-multi-tenant environments
+\item An interface for load balancing resources across the cluster.
 
-\item Durability interface for persisting policies using the underyling storage
+\item A durability interface for persisting policies using the underyling storage
 stack's object store
 
 \end{enumerate}
@@ -180,8 +181,8 @@ to demonstrate its feasability:
 
 \begin{enumerate}
 
-\item A high-performance distributed shared log service called ZLog which is
-based on CORFU~\cite{balakrishnan_corfu_2012}
+\item A high-performance distributed shared log service called ZLog, that is an
+implementation of CORFU~\cite{balakrishnan_corfu_2012}
 
 \item An implementation of Mantle, the programmable load balancing
 service~\cite{sevilla:sc15-mantle}
@@ -198,7 +199,7 @@ framework (\S\ref{sec:services}), and evaluate our ideas within our prototype
 implementation (\S\ref{evaluation}).  Finally we discuss related work and
 conclude.
 
-\section{Highly Tailored, Application-Specific Storage Stacks
+\section{Application-Specific Storage Stacks
 }\label{highly-tailored-and-application-specifc-storage-systems}
 
 Building storage stacks from the ground-up for a specific purpose results in
