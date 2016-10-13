@@ -1098,13 +1098,13 @@ physical servers and (2) recover from failure.
 \begin{figure}[t!]
 \centering
 \includegraphics{figures/mantle-seq-thruput.png}
-\caption{[\href{https://github.com/double-blind-submitter/osdi16}{source}]
-Performance profiles of a single sequencer running in a resource constrained
-environment show the benefits of using the load balancing interface.  ``1
-Sequencer Baseline'' is the throughput of one sequencer on an underloaded
-physical server; the other curves show how load balancing affects the
-throughput of one sequencer when sequencers for other logs are co-located on
-the same physical server.}\label{fig:mantle-seq-thruput}
+\caption{[\href{https://github.com/double-blind-submitter/osdi16}{source}] The
+load balancing interface alleviates load for multiple sequencers in
+resource-constrained environments.  ``Underloaded (Baseline)'' is the
+throughput of one sequencer running alone on a cluster; the other curves show
+how load balancing affects the throughput of one sequencer when sequencers for
+other logs are initially co-located on the same physical server (i.e. an
+"Overloaded" environment).}\label{fig:mantle-seq-thruput}
 \end{figure}
 
 \subsubsection{Load Balancing Sequencers}
@@ -1120,22 +1120,33 @@ We use a balancer policy specifically designed for multiple sequencers. The
 balancer aggressively sheds half its load to the next server as soon as it can.
 It is based off the ``Greedy Spill Even" approach in the
 Mantle~\cite{sevilla:sc15-mantle} paper but is reproduced in
-Figure~\ref{listing:greedy-spill} for the reader's convenience. An MDS is a
-physical server capable of housing a sequencer.
+Figure~\ref{listing:greedy-spill} for the reader's convenience. Each line of
+code uses variables exposed by the Mantle API and is executed as a callback by
+Mantle.  ``Server load" lets the administrator control what metric constitutes
+load on a server; ``i" is a variable used by Mantle to iterate over servers and
+``req\_rate" is a metric based on the exponenential decay of the request rate.
+``When policy" is used by Mantle to set a conditional for kicking off migration;
+in this case, the cluster migrates load if the current server, ``whoami", has
+load (\texttt{>0.1}) and the next server (physical servers have ``ranks") has a
+small amount load (\texttt{<0.1}). Finally, the ``where policy" is used by
+Mantle to determine how much load to shed. The policy fills in a ``targets"
+array to tell the migrator how much load to send to each server; in this case,
+we shed half of the current load to the next server. The unit of load is a
+single sequencer for a ZLog log.
 
 \begin{figure}[]
 \begin{lstlisting}
-  -- Metadata server load
-  mdsload = MDSs[i]["all"]
+  -- Server load
+  load = server[i]["req_rate"]
   
   -- When policy
-  if MDSs[whoami]["load"]>.01 and 
-    MDSs[whoami+1]["load"]<.01 then
+  if server[whoami]["load"]>.01 and 
+    server[whoami+1]["load"]<.01 then
     
   -- Where policy
-  targets[whoami+1]=allmetaload/2
+  targets[whoami+1]=load/2
 \end{lstlisting}
-\caption{The sequencer balancing policy that works best for bursty workloads.
+\caption{The sequencer balancing policy that works best for bursty workloads. 
 \label{listing:greedy-spill}}
 \end{figure}
 
@@ -1153,27 +1164,26 @@ performance for a guarded resource will not improve with more cores.}
 Figure~\ref{fig:mantle-seq-thruput} shows a performance profile of one of the
 sequencers as the load balancing interface migrates sequencers around the
 cluster to alleviate load.  Each curve shows the throughput (\(y\) axis) over
-time (\(x\) axis).  ``1 Sequencer Baseline'' is the performance of one sequencer
+time (\(x\) axis).  ``Underloaded (Baseline)'' is the performance of one sequencer
 on one physical server serving 7 clients - there are no other sequencers or
 logs in the system and the curve represents the maximum throughput of a
-sequencer on an underutilized physical server.  ``No Balancing" adds a
+sequencer on an underutilized physical server.  ``Overloaded: No Balancing" adds a
 second sequencer of equal load to the same physical server with the intent of
 overloading the single physical server; recall that the throughput for this
 second sequencer is omitted. Compared to the baseline, the overloaded physical
 server with 2 sequencers has more than a 2\(\times\) throughput degradation.
 The stability of throughput curves (i.e. the variation on the \(y\) axis) indicate which sequencers
-are on overloaded physical servers.  ``1 Sequencer Baseline" is the best
+are on overloaded physical servers.  ``Underloaded (Baseline)" is the best
 performance for this particular workload because there is no contention.
 Performance is stable and the MDS is under-loaded because we do not see the
-spike at the end like the other curves.  ``No Balancing" shows an
+spike at the end like the other curves.  ``Overloaded: No Balancing" shows an
 overloaded sequencer because the performance of the monitored sequencer is low
 and unstable (high variation in performance). 
 
 The last two curves of Figure~\ref{fig:mantle-seq-thruput} show the performance
-improvements when sequencers are load balanced across the cluster. Both curves
-show the throughput of one of the sequencers when a second sequencer is
-running on the same physical server. The load balancing policies differ by the threshold at which they start balancing:
-``Sequencer Policy" starts balancing immediately and ``Conservative
+improvements when sequencers are load balanced across the cluster.
+The load balancing policies differ by the threshold at which they start balancing:
+``Overloaded: Sequencer Policy" starts balancing immediately and ``Overloaded: Conservative
 Policy" waits for 120 seconds before migrating sequencers.
 
 %Overall, the clients achieve lower performance than the capability experiments
