@@ -73,7 +73,7 @@ programmability by composing existing primitives into two new higher-level
 services: a file system metadata load balancer and a high-performance distributed
 shared-log that leverages flash devices. The evaluation demonstrates that our
 services inherit desirable qualities of the back-end storage system, including
-the ability to balance load, efficiently propogate cluster metadata, recover
+the ability to balance load, efficiently propagate cluster metadata, recover
 from failure, and to make trade-offs for latency/throughput using leases.
 \end{abstract}
 
@@ -158,19 +158,19 @@ following building blocks:
 
 \begin{enumerate}
 
-\item An interface for managing strongly-consistent time-varying **service
-metadata**.
+\item An interface for managing strongly-consistent time-varying \textbf{service
+metadata}.
 
-\item An interface for installing and evolving domain-specific, cluster-wide **data
-interfaces**.
+\item An interface for installing and evolving domain-specific, cluster-wide
+\textbf{data interfaces}.
 
-\item An interface for managing access to **shared resources** using a variety of
-optimization strategies.
+\item An interface for managing access to \textbf{shared resources} using a
+variety of optimization strategies.
 
-\item An interface for **load balancing** resources across the cluster.
+\item An interface for \textbf{load balancing} resources across the cluster.
 
-\item An interface for **durability** that persists policies using the underyling storage
-stack's object store.
+\item An interface for \textbf{durability} that persists policies using the
+underyling storage stack's object store.
 
 \end{enumerate}
 
@@ -315,7 +315,7 @@ help standardize a development process that is largely ad-hoc.
 \section{Challenges}
 \label{sec:challenges}
 
-Establishing the infrastructure for programmability into existing services and
+Implementing the infrastructure for programmability into existing services and
 abstractions of distributed storage systems is challenging, even if one assumes
 that the source code of the storage system and the necessary expertise for
 understanding it is available:
@@ -327,9 +327,13 @@ complete restarts of the storage system to reprogram them is usually
 unacceptable. 
 
 \item Policies and optimizations are usually hard-wired into the services and
-one has to be careful when factoring them out not to introduce additional bugs. 
+one has to be careful when factoring them out not to introduce additional bugs.
+These policies and optimiations are usually cross-cutting solutions to concerns
+or trade-offs that cannot be fully explored yet (as they relate to workload or
+hardware). Given these policies and optimizations, decomposition of otherwise
+orthogonal internal abstractions can be difficult or dangerous.
 
-\item Mechanisms that are only exercised according to hard-wired policies and
+\item Mechanisms that are often only exercised according to hard-wired policies and
 not in their full generality have hidden bugs that are revealed as soon as
 those mechanisms are governed by different policies. In our experience
 introducing programmability into a storage system proved to be a great
@@ -340,6 +344,32 @@ be carefully managed by the system itself, including versioning and propagation
 of those changes without affecting correctness.
 
 \end{itemize}
+
+To address these challenges we present Malacology. Malacology is both a
+prototype for a programmable storage system and a design approach to evolve
+storage systems efficiently and without jeopardizing years of code-hardening
+and performance optimization efforts.  Although Malacology uses
+the internal abstractions of the underlying storage system, including its
+subsystems, components, and implementations, we emphasize that our system
+still addresses the general challenges outlined above.
+
+The main challenge of designing a programmable storage system is choosing the
+right internal abstractions and picking the correct layers for exposing them.
+In this paper, we do not present an exhaustive list of possible internal
+abstractions nor do we contend that the abstractions we choose provide the best
+trade-offs for all applications. For example, if consensus is correctly
+exposed, one could implement versioning, serialization, or capabilities on top;
+but perhaps versioning, serialization, and capabilities would be better
+interfaces for a given set of applications. These questions are not answered in
+this paper and instead we focus on showing the feasibility of building such a
+system, given advances in the quality and robustness of today's storage stacks.
+
+Malacology implements and demonstrates the ideas of programmable storage in
+Ceph. We choose Ceph because it is a production quality system and because it
+is open source. The large developer community ensures that code is relatively
+robust and the visibility of the code lets us expose any interface we want. In
+the next section we describe the Ceph components that we expose as Malacology
+interfaces.
 
 \section{Malacology}
 \label{sec:malacology}
@@ -393,9 +423,7 @@ italicized abstractions} are interfaces contributed in this paper.}
 \label{table:examples}
 \end{table*}
 
-Malacology is both a prototype for a programmable storage system and a design
-approach to evolve storage systems efficiently and without jeopardizing years
-of code-hardening and performance optimization efforts. The guiding principle
+The guiding principle
 is to re-use existing services and extend them so that these services can be
 \emph{programmed}. We accomplish programmability of a service by exporting
 bindings (or ``hooks'') for an interpreted programming language so that
