@@ -111,15 +111,13 @@ bodies~\cite{snia_implementing_2014,linux_foundation_kinetic_2015}.
 \begin{figure}[tb]
 \centering
 \includegraphics{figures/overview.png}
-
-\caption{Scalable storage systems consist of object storage daemons (OSD) which
-store data fragments, monitor daemons (MON) that maintain cluster state, and
-service-specific daemons such as file system metadata servers (MDS). Malacology
-enables the programmability of internal abstractions and services (indicated by
-bold arrows) in order to leverage the back-end system's durability, consistent
-versioning, consensus, and metadata subsystems.  With Malacology, we add two
-new services, ZLog and Mantle, that sit alongside the traditional user-facing
-APIs (file, block, and object) in the storage stack.  \label{fig:overview}}
+\caption{Scalable storage systems consist of storage daemons which store data
+fragments, monitor daemons that maintain cluster state, and service-specific
+daemons such as file system metadata servers. Malacology enables the
+programmability of internal abstractions (indicated by bold arrows) in order to
+re-use and compose existing subsystems.  With Malacology, we add two new
+services, ZLog and Mantle, that sit alongside the traditional user-facing APIs
+(file, block, and object) in the storage stack.  \label{fig:overview}}
 \end{figure}
 
 These three trends put evolutionary pressure on storage systems and raise the
@@ -152,27 +150,27 @@ Figure~\ref{fig:overview}). As we will show in this paper, Malacology is
 expressive enough to provide the functionality necessary for implementing new
 services. Our contributions are:
 
-{\it \textbf{The definition a programmable storage system}} to be "a storage
-system that allows exisiting abstractions to be re-used and composed to form
+{\it \textbf{The definition a programmable storage system}} to be ``a storage
+system that allows existing abstractions to be re-used and composed to form
 new data and metadata management services whose operation is orothogonal to
 system correctness".  Our prototype includes (but is not limited to) the
 following building blocks:
 
 \begin{enumerate}
 
-\item An interface for managing strongly-consistent time-varying service
-metadata.  
+\item An interface for managing strongly-consistent time-varying **service
+metadata**.
 
-\item An interface for installing and evolving domain-specific, cluster-wide data
-interfaces.
+\item An interface for installing and evolving domain-specific, cluster-wide **data
+interfaces**.
 
-\item An interface for managing access to shared resources using a variety of
+\item An interface for managing access to **shared resources** using a variety of
 optimization strategies.
 
-\item An interface for load balancing resources across the cluster.
+\item An interface for **load balancing** resources across the cluster.
 
-\item A durability interface for persisting policies using the underyling storage
-stack's object store
+\item An interface for **durability** that persists policies using the underyling storage
+stack's object store.
 
 \end{enumerate}
 
@@ -199,8 +197,8 @@ framework (\S\ref{sec:services}), and evaluate our ideas within our prototype
 implementation (\S\ref{evaluation}).  Finally we discuss related work and
 conclude.
 
-\section{Application-Specific Storage Stacks
-}\label{highly-tailored-and-application-specifc-storage-systems}
+\section{Application-Specific Storage Stacks}
+\label{sec:application-specifc-storage-stacks}
 
 Building storage stacks from the ground-up for a specific purpose results in
 the best performance. For example, HDFS was designed specifically to serve
@@ -278,7 +276,7 @@ end-points).}
 \label{table:objclasses}
 \end{table}
 
-The takeway from Figure~\ref{fig:obj-int-dev-growth} is that programmers are
+The takeaway from Figure~\ref{fig:obj-int-dev-growth} is that programmers are
 already trying to use programmability because their needs, whether they be
 related to performance, availability, consistency, convenience, etc., are not
 satisfied by the existing default set of interfaces. The popularity of the custom object
@@ -348,7 +346,6 @@ of those changes without affecting correctness.
 
 \begin{table*}
 \centering
-\title{Hi}
 \begin{tabular}{  l | l | l | l }
 \multicolumn{4}{c}{\Large \textbf{Common Internal Abstractions}} \\
 \multicolumn{4}{c}{} \\
@@ -356,7 +353,7 @@ of those changes without affecting correctness.
 \textbf{Example in Production Systems}  &
 \textbf{Example in Ceph}                &
 \textbf{Provided Primitives}            \\ \hline
-{\it Versioning}
+{\it Service Metadata}
   & Zookeeper coordination~\cite{hunt_zookeeper_2010}, Chubby~\cite{website:chubby}
   & cluster state management~\cite{website:ceph-mon}
   & consensus \& consistency
@@ -366,7 +363,7 @@ of those changes without affecting correctness.
   & POSIX metadata protocols~\cite{CITEME}
   & serialization \& batching
   \\
-{\it Logical Device}
+{\it Object \& Data}
   & Swift in situ storage/compute~\cite{website:zerocloud}
   & object interface classes~\cite{website:cls-lua}
   & transaction \& atomicity
@@ -419,150 +416,148 @@ security and performance concerns.
 We will now discuss the common subsystems used to manage storage system and how
 Malacology makes them programmable.
 
-\subsection{Versioning: Cluster State Management}
+\subsection{Service Metadata Interface}
 \label{sec:mon}
-\label{consistencyversioning-of-cluster-state}
+\label{service-metadata}
 
 % straw man example
-Keeping track of the state of a distributed system is an essential part of any 
-successful service and a necessary component in order to diagnose and detect 
-failures, when they occur. In the case of Ceph, a consistent view of cluster 
-state among server daemons and clients is critical to provide strong consistency 
-guarantees to clients. Ceph maintains cluster state information in per-subsystem 
-``maps'' (e.g. OSD map, MDS map) that record membership and status information. 
-A PAXOS-based monitoring service (termed, the Monitor) is responsible for 
-integrating state changes into cluster maps, responding to requests from 
-out-of-date clients and synchronizing members of the cluster whenever there is a 
-change in a map so that they all observe the same system state. As a fundamental 
-building block of many system designs, consensus abstractions such as PAXOS are 
-a common technique for maintaining consistent data versions, and are a useful 
-system to expose.
+Keeping track of the state of a distributed system is an essential part of any
+successful service and a necessary component in order to diagnose and detect
+failures, when they occur. This is further complicated by variable propagation
+delays and heterogenous hardware in highly dynamic environments.
 
-The default behavior of the monitor can be seen as a PAXOS-based notification 
-system, similar to the one introduced in~\cite{burrows_chubby_2006}, allowing 
-clients to identify when new values (termed epochs in Ceph) are associated to 
-given maps. While Ceph does not expose this service directly, it does allow 
-limited use by clients through a key-value service intended for low-volume, 
-small size read-only configuration information. While a key-value service is 
-generally useful, it doesn't provide many of the useful services hidden within 
-the monitoring framework that would be required for applications with more 
-demanding requirements, such as creating arbitrary maps or associating 
-application-specific logic that can be executed for particular maps (or values 
-in a map).
+%Thus, system
+%services realized through extensibility should be versioned together as a
+%group, exposing the version to allow introspection and domain-specific
+%treatment of version mismatch scenarios.
 
-\paragraph*{Malacology:} Malacology exposes Ceph's PAXOS-based monitoring
-service implementing a generic API
-for adding arbitrary values to existing subsystem cluster maps, namely to the 
-OSD map and the MDS map. As a consequence of this, applications can define 
-simple but useful domain-specific logic to the PAXOS state machine, such as 
-authorization control (just specific clients can write new values) or to trigger 
-actions based on specific values (e.g. sanitize values). Since the monitor is 
-intended to be out of high-performance I/O paths, a general guideline is to make 
-use of this functionality infrequently and to assign small values to maps. 
-Malacology itself makes use of this functionality to register, version and 
-propagate dynamic code (Lua scripts) for new object interfaces defined in OSDs 
-(\S\ref{active-storage}) and load balancing policies in MDSs 
-(\S\ref{malacology:mds}).
+In the case of Ceph, a consistent view of cluster state among server daemons
+and clients is critical to provide strong consistency guarantees to clients.
+Ceph maintains cluster state information in per-subsystem ``maps'' that record
+membership and status information.  A PAXOS-based monitoring service is
+responsible for integrating state changes into cluster maps, responding to
+requests from out-of-date clients and synchronizing members of the cluster
+whenever there is a change in a map so that they all observe the same system
+state. As a fundamental building block of many system designs, consensus
+abstractions such as PAXOS are a common technique for maintaining consistent
+data versions, and are a useful system to expose.
 
-\subsection{Logical Storage Devices}
-\label{active-storage}
+The default behavior of the monitor can be seen as a PAXOS-based notification
+system, similar to the one introduced in~\cite{burrows_chubby_2006}, allowing
+clients to identify when new values (termed epochs in Ceph) are associated to
+given maps. While Ceph does not expose this service directly, it does allow
+limited use by clients through a key-value service intended for low-volume,
+small size read-only configuration information. While a key-value service is
+generally useful, it doesn't provide many of the useful services hidden within
+the monitoring framework that would be required for applications with more
+demanding requirements, such as creating arbitrary maps or associating
+application-specific logic that can be executed for particular maps (or values
+in a map).  Since the monitor is intended to be out of high-performance I/O
+paths, a general guideline is to make use of this functionality infrequently
+and to assign small values to maps. 
 
-Briefly described in Section~\ref{sec:intro}, Ceph supports the creation
-of application-specific object interfaces~\cite{weil_rados_2007}. The ability
-to offload computation can reduce data movement, and transnational interfaces can
-significantly simplify construction of complex storage interfaces that require
-uncoordinated parallel access. 
-
-An object interface is a plugin structured in a similar way to that of an RPC
-in which a developer creates a named function within the cluster that clients
-may invoke. In the case of Ceph each function is implicitly run within the
-context of an object specified when the function is invoked. Developers of
-object interfaces express behavior by creating a composition of native
-interfaces or other custom object interfaces, and handle serialization of
-function input and output. A wide range of native interfaces are available to
-developers, such as reading and writing to a byte stream, controlling snapshots
-and clones, all of which may be transactionally composed with access to a
-sorted key-value service allowing applications to create rich interfaces, such
-as using a read-modify-write guard to protect a shared index defined over
-content store in a byte stream.
-
-\begin{figure}[htbp]
-\centering
-\includegraphics{figures/implementation.png}
-\caption{Malacology re-uses Ceph subsystems to allow users to dynamically define 
-new object interfaces and load balancing policies. It achieves this by extending 
-the OSD and MDS subsystems with an embedded Lua VM. To manage newly dynamic 
-interface classes, it exposes the core functionality of the Monitor to allow 
-arbitrary data to be associated to ODS and MDS cluster maps. After new 
-interfaces are submitted to the monitor and the associated Paxos proposal is 
-accepted by the monitor quorum, the script is redundantly and consistently 
-distributed to OSDs so this snippets persist.
-\label{fig:implementation}}
-\end{figure}
-
-\paragraph*{Malacology:} The implementation of Ceph's object abstraction,
-although powerful, has some drawbacks. Supporting only C/C++ for object
-interface developers, Ceph requires distribution of compiled binaries for the
-correct architecture, adding a large barrier of entry for developers and
-system administrators. Second, having no way to dynamically unload modules,
-any changes require a full restart of an OSD which may have serious
-performance impacts due to a loss of cached data. And
-finally, the security limitations of the framework limit the use of object
-classes to all but those with administrative level access and deep technical
-expertise.
-
-To address these concerns, Malacology takes advantage of community contributed
-Lua extensions to Ceph allowing new object interfaces to be dynamically loaded
-into the system and modified at runtime, resulting in a object storage API
-with economy of expression, which at the same time provides the full set of
-features of the base object class. New object interfaces that are
-expressed in thousands of lines of code can be implemented in approximately an
-order of magnitude less code~\cite{geambasu_comet_2010}.
-
-{\bf Interface management.} All of these modifications work in tandem to
-implement the desired behavior, and are typically co-designed together such
-that each depends on the other to behave as expected. In highly dynamic
-environments such as a distributed storage system, changes to the system
-propagate at variable rates, requiring all components of the system to be able
-to adapt. Thus, system services realized through extensibility should be
-versioned together as a group, exposing the version to allow introspection and
-domain-specific treatment of version mismatch scenarios.
-
-And finally, it is important to not underestimate the importance of the
-preservation of the modifications that enable a new system service. In many
-(if not all) cases, interfaces defining access to data are just as important
-as the data itself by virtue of inherently providing structural context. Thus,
-all components of a system service must be kept to the same standards of
-protection as data in the system itself.
-
-To this end we have extended the monitoring service using the framework
-described in Section~\ref{sec:mon} to provide an interface for registration
-and verification of dynamically defined object interfaces. Using this service
+\paragraph*{Malacology:} Malacology exposes a strongly-consistent view of
+time-varying service metadata as a service rather than a hidden internal
+component. Malacology provides a generic API for adding arbitrary values to
+existing subsystem cluster maps. As a consequence of this, applications can
+define simple but useful service-specific logic to the strongly-consistent
+interface, such as authorization control (just specific clients can write new
+values) or to trigger actions based on specific values (e.g. sanitize values).
+The higher level services we implement in \S\ref{sec:services} make use of this
+functionality to register, version and propagate dynamic code (Lua scripts) for
+new object interfaces defined in storage daemons (\S\ref{active-storage}) and
+policies in the load balancer \S\ref{malacology:mds}).  Using this service
 guarantees that interface definitions are not only made durable, but are
 transparently and consistently propagated throughput the cluster and that
 clients are properly synchronized with the latest interfaces.
 
-\subsection{Distributed Metadata Services}
+%And finally, it is important to not underestimate the importance of the
+%preservation of the modifications that enable a new system service. In many
+%(if not all) cases, interfaces defining access to data are just as important
+%as the data itself by virtue of inherently providing structural context. Thus,
+%all components of a system service must be kept to the same standards of
+%protection as data in the system itself.
+
+\subsection{Object \& Data Interface}
+\label{object-data-interface}
+
+Briefly described in Section~\ref{sec:application-specifc-storage-stacks}, Ceph
+supports the creation of application-specific object
+interfaces~\cite{weil_rados_2007}. The ability to offload computation can
+reduce data movement, and transactional interfaces can significantly simplify
+construction of complex storage interfaces that require uncoordinated parallel
+access. 
+
+An object interface is a plugin structured in a similar way to that of an RPC
+in which a developer creates a named function within the cluster that clients
+may invoke. In the case of Ceph each function is implicitly run within the
+context of an object specified when the function is called. Developers of
+object interfaces express behavior by creating a composition of native
+interfaces or other custom object interfaces, and handle serialization of
+function input and output. A wide range of native interfaces are available to
+developers, such as reading and writing to a byte stream, and controlling
+snapshots and clones. These object interfaces may be transactionally composed
+with access to a sorted key-value service allowing applications to create rich
+semantics. An example is using a read-modify-write guard to protect a shared
+index defined over content stored in a byte stream.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{figures/implementation.png}
+\caption{Malacology re-uses Ceph subsystems to allow users to dynamically
+define new object/data interfaces and load balancing policies. It achieves this
+by extending the object storage daemon (OSD) and metadata server daemon (MDS)
+subsystems with an embedded Lua VM.  It uses the of the strongly-consistent
+service metadata interface to propogate the object interfaces and versions
+across the cluster.
+\label{fig:implementation}} \end{figure}
+
+\paragraph*{Malacology:} The implementation of Ceph's object abstraction,
+although powerful, does not readily support programmability. Supporting only
+C/C++ for object interface developers, Ceph requires distribution of compiled
+binaries for the correct architecture, adding a large barrier of entry for
+developers and system administrators. Second, having no way to dynamically
+unload modules, any changes require a full restart of a storage daemon which
+may have serious performance impacts due to loss of cached data. And finally,
+the security limitations of the framework limit the use of object interfaces to
+all but those with administrative level access and deep technical expertise.
+
+To address these concerns, Malacology takes advantage of Lua extensions
+contributed by the Ceph community. This allows new object interfaces to be
+dynamically loaded into the system and modified at runtime, resulting in a
+object storage API with economy of expression, which at the same time provides
+the full set of features of the base object class. New object interfaces that
+are expressed in thousands of lines of code can be implemented in approximately
+an order of magnitude less code~\cite{geambasu_comet_2010}.
+
+All of these modifications work in tandem to implement the desired behavior,
+and are typically co-designed together such that each depends on the other to
+behave as expected. 
+
+\subsection{Distributed Metadata Interfaces}
 \label{malacology:mds}
 
 The distributed metadata service in Ceph provides clients with a POSIX file
 system abstraction~\cite{weil:sc2004-dyn-metadata}. In general, distributed
 file systems protect resources by providing hierarchical indexing and
 distributed locking services.  In Ceph, the locking service implements a
-capability-based system that express what data and metadata clients are allowed
-to access as well as what state they may cache and modify locally. While
-designed for a fixed file abstraction, indexing, locking, and caching are all
-common services that are useful to a broad spectrum of applications.
+capability-based system that expresses what data and metadata clients are
+allowed to access as well as what state they may cache and modify locally.
+While designed for a fixed file abstraction, indexing, locking, and caching are
+all common services that are useful to a broad spectrum of applications.
+Distributed applications that share centralized resources (e.g. a database or
+directory) face similar challenges which are often solved using
+application-specific sharding. 
 
-Ceph also addresses the challenge of balancing metadata load using load
-balancing policies that compute metrics based on system state (e.g.  CPU and
-memory utilization) and statistics collected by the cluster (e.g. the
-popularity of an inode). Ceph uses dynamic subtree partitioning to move
-variable sized namespace subtrees. These units can be shipped anywhere (i.e.,
-to any MDS of any capacity) at any time for any reason. The original balancer
-was designed with hard-coded policies and tunables.  Distributed applications
-that share centralized resources (e.g. a database or directory) face similar
-challenges which are often solved using application-specific sharding. 
+Ceph also addresses the challenge of balancing metadata load with a separate
+metadata cluster. This cluster uses load balancing policies to migrate
+directory inodes around the cluster to alleviate load. The policies use metrics
+based on system state (e.g.  CPU and memory utilization) and statistics
+collected by the cluster (e.g. the popularity of an inode). Ceph uses dynamic
+subtree partitioning to move variable sized namespace subtrees. These units can
+be shipped anywhere (i.e., to any metadata server of any capacity) at any time
+for any reason. The original balancer was designed with hard-coded policies and
+tunables.
 
 %The metadata cluster moves units of the namespace called directory fragments
 %and assigns them to servers using its own metadata load balancer. It then uses
@@ -576,30 +571,35 @@ challenges which are often solved using application-specific sharding.
 %etc. -- but we choose instead to expose a balancing API at strategic points in
 %the balancing logic using Lua hooks. ~\cite{sevilla:sc15-mantle}. 
 
-\paragraph*{Malacology:} New interface hooks are added in strategic spots in
-the metadata service to control load balancing and capabilities, and for
-defining new file types allowing the indexing service to be re-purposed for
-other types of named resources.
+\paragraph*{Malacology:} interfaces are added in strategic spots in the
+metadata service for guarding shared resources and load balancing.
+
+{\bf Shared Resource Interface.} The metadata service also manages sessions
+with its clients. This gives both subsystems (metadata servers and clients) the
+ability to cache data and obtain locks. The metadata service is responsible for
+responding to client requests for capabilities by first revoking caps from
+other clients.  Currently, clients voluntarily release their capabilities, and
+the metadata server maintains a queue of requests.  Both clients and metadata
+servers use a best-effort approach to revoking or releasing capabilities.
+
+The clients retain the best-effort, voluntary release of capabilities, but in
+Malacology, the queuing policies are generalized within the MDS to allow for
+centralized policies such as fairness or priority.
 
 {\bf Load balancing.} Mantle~\cite{sevilla:sc15-mantle}, a programmable
 metadata load balancer, has been implemented on Malacology so that its
-infrastructure can enjoy all the properties of existing internal abstractions. The load
-balancing logic is intact but the infrastructure has been
-improved to safely load, manage, and persist its load balancing policies. 
+infrastructure can enjoy all the properties of existing internal abstractions.
+The load balancing logic is intact but the infrastructure has been improved to
+safely load, manage, and persist its load balancing policies.  Composing Mantle
+using the service metadata, durability and beacon interfaces, Mantle can safely
+version balancer policies, save balancer policies in the back end object store
+and centralize warnings/errors.
 
-{\bf Safely Loading Classes.} The original Mantle API is fragile: the API is
-not enforced by the runtime, the system allows strings to be injected through
-the admin daemon, constructing the Lua script in C++ is clunky, and the
-administrator can inject really bad policies (e.g., while 1) that brings the
-whole system down. Using the Malacology durability and beacon interfaces,
-Mantle can safely load policies from the object store and centralize
-warnings/errors, respectively.
-
-{\bf Policy management.} A new interface is added to the metadata service
-subsystem using the monitoring framework to support management of interfaces.
-This ensures that the correct balancer version is consistently distributed and
-verified on all MDS nodes. Policies are also durably saved with Ceph's
-replication and redundancy.
+%{\bf Policy management.} A new interface is added to the metadata service
+%subsystem using the monitoring framework to support management of interfaces.
+%This ensures that the correct balancer version is consistently distributed and
+%verified on all MDS nodes. Policies are also durably saved with Ceph's
+%replication and redundancy.
 
 %These problems are general, distributed systems load balancing problems and
 %share many of the same properties as the POSIX metadata
@@ -643,23 +643,11 @@ replication and redundancy.
 %dynamically open the Lua balancer interface shared library; both shared
 %libraries will the Lua core.
 
-{\bf Capabilities.} The metadata service also manages sessions with its
-clients. This gives both subsystems (MDSs and clients) the ability to cache
-data and grab locks. The metadata service is responsible for responding to
-client requests for capabilities by first revoking caps from other clients.
-Currently, clients voluntarily release their capabilities, and the MDS maintains
-a queue of requests.  Both clients and MDSs use a best-effort approach to
-revoking or releasing capabilities.
-
-The clients retain the best-effort, voluntary release of capabilities, but in
-Malacology, the queuing policies are generalized within the MDS to allow for
-centralized policies such as fairness or priority.
-
-{\bf File Types.} We leverage the same active and typed storage module
-presented in DataMods~\cite{watkins_datamods_2012} to assign state and a set of
-functions to a file (stored in the inode). This is valuable for
-metadata load balancing so that certain types of files can have a higher
-priority when making balancing decisions.
+%{\bf File Types.} We leverage the same active and typed storage module
+%presented in DataMods~\cite{watkins_datamods_2012} to assign state and a set of
+%functions to a file (stored in the inode). This is valuable for
+%metadata load balancing so that certain types of files can have a higher
+%priority when making balancing decisions.
 
 %\begin{figure}[h]
 %\centering
@@ -685,7 +673,7 @@ priority when making balancing decisions.
 %integration with testing and correctness suites, and \texttt{struct}s for
 %interface data and handlers. 
 
-\subsection{Durability}
+\subsection{Durability Interface}
 \label{sec:durability}
 
 Ceph provides storage by striping and replicating data across
