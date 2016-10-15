@@ -99,10 +99,12 @@ non-volatile memory that are orders of magnitude faster than traditional
 spinning media are moving overall performance bottlenecks away from storage
 devices to CPUs and networking, and pressure storage systems to shorten their
 code paths and incorporate new
-optimizations~\cite{gray_tape_2007,gray_flash_2008}. Second, the demand for
+optimizations~\cite{gray_tape_2007,gray_flash_2008}. 
+Second, the demand for
 managing structured data and flexible consistency semantics at scale pressure
 big data processing systems to use storage abstractions that can meet these
-demands~\cite{apache_contributors_parquet_2014}. Finally, production-quality
+demands~\cite{apache_contributors_parquet_2014}. 
+Finally, production-quality
 scalable storage systems available as open source software have established and
 are continuing to establish new, \emph{de-facto} API standards at a faster pace
 than traditional standards
@@ -123,10 +125,11 @@ APIs (file, block, and object) in the storage stack.  \label{fig:overview}}
 \end{figure}
 
 These three trends put evolutionary pressure on storage systems and raise the
-question whether there are principles that storage systems designers can follow
-to evolve storage systems efficiently and without jeopardizing years of
-code-hardening and performance optimization efforts that are important for
-users to continue to entrust their data to the storage system.
+question of whether there are principles that storage systems designers can follow
+to evolve storage systems efficiently, without jeopardizing years of
+code-hardening and performance optimization efforts.
+% that are important for
+%users to continue to entrust their data to the storage system.
 
 In this paper we investigate an approach that focuses on generalizing and
 composing existing
@@ -134,10 +137,21 @@ storage system resources, services, and abstractions that in a generalized form
 can be used to \emph{program} new services. By composing higher-level services
 over existing abstractions, one can reuse
 subsystems and leverage their optimizations, established correctness,
-robustness, and efficiency. We will refer to this programmability as
-\emph{programmable storage}, which differs from \emph{active storage} (the
-injection and execution of arbitrary code in a storage system) and
-\emph{software-defined storage} (the control of thin-provisioning of storage).
+robustness, and efficiency. 
+%We will refer to this programmability as
+%\emph{programmable storage}, which differs from \emph{active storage} (the
+%injection and execution of arbitrary code in a storage system) 
+%and
+%\emph{software-defined storage} (the control of thin-provisioning of storage).
+
+{\it \textbf{We define a programmable storage system}} to be a storage system that facilitates the 
+re-use and extension of existing storage abstractions and services provided by the underlying software stack,
+to enable the creation of new storage abstractions via composition.
+A programmable storage system is realized by exposing existing functionality (such as 
+metadata services and synchronization capabilities) as interfaces that can be ``glued together''
+using a high-level language.  Programmable storage differs from \emph{active storage},
+or the injection and execution of arbitrary code in a storage system.
+
 
 To illustrate the benefits and challenges of this approach we have designed and
 evaluated Malacology, a programmable storage system for constructing new
@@ -152,9 +166,8 @@ Figure~\ref{fig:overview}). As we will show in this paper, this framework is
 expressive enough to provide the functionality necessary for implementing new
 services. Our contributions are:
 
-{\it \textbf{We define a programmable storage system}} to be a storage system that re-uses and extends existing
-abstractions and services of the underlying software stack. Our prototype
-includes (but is not limited to) the following building blocks:
+Our prototype includes a non-exhaustive set of interfaces that can be used as building blocks
+for constructing novel storage abstractions, including:
 
 \begin{enumerate}
 
