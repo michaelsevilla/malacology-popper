@@ -24,7 +24,7 @@ ceph_conf_overrides:
      osd journal size: 10000
    mds: 
      debug ms: 0
-     debug mds: 0
+     debug mds: 4
      max mds: 5
      mds log: true
      mds bal max until: -1

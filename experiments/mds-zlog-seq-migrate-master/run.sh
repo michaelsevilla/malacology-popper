@@ -4,7 +4,7 @@ set -ex
 
 cd site
 ANSIBLE_LOG_PATH="logs/baseliner.log" \
-ansible-playbook --forks 50 --skip-tags "with_pkg"
+ansible-playbook --forks 50 --skip-tags "with_pkg" -e "site=mantle" \
   ceph.yml \
   ../workloads/zeqr-isolated.yml \
   ../workloads/zeqr-nobalancing.yml \
