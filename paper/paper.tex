@@ -13,7 +13,10 @@
 \usepackage{listings}
 %\usepackage{amssymb}
 \usepackage{pifont}
+\usepackage{color}
 \newcommand{\cmark}{\ding{51}}%
+
+\newcommand{\paa}[1]{{\textcolor{red}{[[#1 -- paa]]}}}
 %\newcommand{\xmark}{\ding{55}}%
 %
 %
@@ -58,8 +61,8 @@
 
 \begin{abstract}
 Storage systems are caught between rapidly changing data
-processing systems and the increasing speed of storage devices. This puts
-tremendous pressure on storage systems to adapt both in terms of their
+processing applications and the increasing speed of storage devices. This puts
+tremendous pressure on storage systems to support rapid evolution both in terms of their
 interfaces and their performance. But adapting storage systems can be difficult
 because unprincipled changes might jeopardize years of code-hardening and
 performance optimization efforts that were necessary for users to entrust their
@@ -104,6 +107,9 @@ Second, the demand for
 managing structured data and flexible consistency semantics at scale pressure
 big data processing systems to use storage abstractions that can meet these
 demands~\cite{apache_contributors_parquet_2014}. 
+\paa{the previous sentence doesn't scan well. do we just want to say that 
+emerging ``big data'' applications demand interface evolution to support flexible
+consistency as well as flexible structured data representation?}
 Finally, production-quality
 scalable storage systems available as open source software have established and
 are continuing to establish new, \emph{de-facto} API standards at a faster pace
@@ -122,15 +128,21 @@ services, ZLog and Mantle, that sit alongside the traditional user-facing APIs
 (file, block, and object) in the storage stack.  \label{fig:overview}}
 \end{figure}
 
-These three trends put evolutionary pressure on storage systems and raise the
-question of whether there are principles that storage systems designers can follow
+%These three trends put evolutionary pressure on storage systems and raise the
+%question of whether 
+The evolutionary pressure placed on storage systems by these trends raises the
+question of whether
+there are principles that storage systems designers can follow
 to evolve storage systems efficiently, without jeopardizing years of
 code-hardening and performance optimization efforts.
 % that are important for
 %users to continue to entrust their data to the storage system.
 
-In this paper we investigate an approach that focuses on generalizing and
-composing existing
+In this paper we investigate an approach that focuses on 
+%generalizing 
+%and
+%composing 
+identifying and exposing existing
 storage system resources, services, and abstractions that in a generalized form
 can be used to \emph{program} new services. By composing higher-level services
 over existing abstraction one can reuse
@@ -143,16 +155,19 @@ robustness, and efficiency.
 %\emph{software-defined storage} (the control of thin-provisioning of storage).
 
 {\it \textbf{We define a programmable storage system}} to be a storage system that facilitates the 
-re-use and extension of existing storage abstractions and services provided by the underlying software stack,
-to enable the creation of new storage abstractions via composition.
-A programmable storage system is realized by exposing existing functionality (such as 
-metadata services and synchronization capabilities) as interfaces that can be ``glued together''
+re-use and extension of existing storage abstractions provided by the underlying software stack,
+to enable the creation of new services via composition.
+A programmable storage system can be realized by exposing existing functionality (such as 
+metadata services and synchronization and monitoring capabilities) as interfaces that can be ``glued together''
+in a variety of ways
 using a high-level language.  Programmable storage differs from \emph{active storage},
 or the injection and execution of arbitrary code in a storage system.
 
 
 To illustrate the benefits and challenges of this approach we have designed and
-evaluated Malacology, a programmable storage system for constructing new
+evaluated Malacology, a programmable storage system 
+that facilitates the construction of
+new
 services by re-purposing existing subsystem abstractions of the storage stack.
 We build Malacology in Ceph, a popular open source software storage stack.
 We choose Ceph to demonstrate the concept of programmable storage because it
@@ -185,8 +200,10 @@ underyling storage stack's object store.
 
 \end{enumerate}
 
-{\it \textbf{We implement two distributed services}} using programmable storage
-to demonstrate its feasability:
+{\it \textbf{We implement two distributed services}} using 
+%programmable storage
+%to demonstrate its feasability:
+Malacology to demonstrate the feasibility of the programmable storage approach:
 
 \begin{enumerate}
 
@@ -213,7 +230,7 @@ conclude.
 
 Building storage stacks from the ground-up for a specific purpose results in
 the best performance. For example, HDFS was designed specifically to serve
-Hadoop's jobs, and uses techniques like exposing data locality and relaxing POSIX constraints to achieve
+Hadoop's jobs~\paa{lol not sure if I buy that hadoop achieves ``best performance''}, and uses techniques like exposing data locality and relaxing POSIX constraints to achieve
 the best performance~\cite{CITEME}. Alternatively, general-purpose storage
 stacks are built with the flexiblity to serve many applications by providing a
 variety of interfaces and tunable parameters. Unfortunately, managing competing
