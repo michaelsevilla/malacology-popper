@@ -1,0 +1,12 @@
+---
+journal_size: 10000
+osd_containerized_deployment: true
+ceph_osd_docker_username: piha.soe.ucsc.edu:5000/ceph
+ceph_osd_docker_imagename: zlog-mantle:jewel
+
+#ceph_osd_docker_extra_env: "CEPH_DAEMON=OSD_CEPH_DISK_ACTIVATE,OSD_JOURNAL=''"
+#ceph_osd_docker_prepare_env: "CEPH_DAEMON=OSD_CEPH_DISK_PREPARE,OSD_FORCE_ZAP=1,OSD_JOURNAL=''"
+ceph_osd_docker_extra_env: "CEPH_DAEMON=OSD_CEPH_DISK_ACTIVATE"
+ceph_osd_docker_prepare_env: "CEPH_DAEMON=OSD_CEPH_DISK_PREPARE,OSD_FORCE_ZAP=1"
+ceph_osd_docker_devices:
+ - /dev/sde

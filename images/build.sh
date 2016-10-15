@@ -25,5 +25,9 @@ dmake \
   -e CONFIGURE_FLAGS="-DWITH_TESTS=OFF" \
   cephbuilder/zlog-mantle:jewel
 cd -
-
-docker tag ceph-heads/remotes/origin/zlog-mantle-base ceph/zlog-mantle:jewel
+ 
+docker rm -f new || true
+docker run -it -d --name new --entrypoint=/bin/bash ceph-heads/remotes/origin/zlog-mantle-base
+docker exec new sudo apt-get update -y || true
+docker exec new sudo apt-get install gdb -y
+docker commit --change='ENTRYPOINT ["/entrypoint.sh"]' new ceph/zlog-mantle:jewel

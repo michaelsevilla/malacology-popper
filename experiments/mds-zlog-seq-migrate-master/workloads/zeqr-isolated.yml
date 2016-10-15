@@ -1,0 +1,39 @@
+---
+
+- hosts: clients1
+  become: True
+  tasks:
+    #- pause: minutes=5
+    - name: setup mon convenience functions
+      set_fact:
+        ceph: "docker exec cephfs"
+
+    - name: remove old clients
+      shell: docker rm -f zlog-seq
+      ignore_errors: True
+
+    - name: delete some directories
+      command: "{{ ceph }} rm -r /cephfs/seqdir/seqdir/dir0 /cephfs/seqdir/seqdir/dir1"
+      ignore_errors: True
+      run_once: True
+
+    - name: make some directories
+      command: "{{ ceph }} mkdir -p /cephfs/seqdir/seqdir/dir0 /cephfs/seqdir/seqdir/dir1"
+
+    - name: start a clients in the foreground
+      shell: >
+             docker run \
+               --name=zlog-seq \
+               --entrypoint=seq-client \
+               -v /etc/ceph:/etc/ceph \
+               {{ ceph_client_docker_username }}/{{ ceph_client_docker_imagename }} \
+               --runtime 480 --filename dir0/blah0 --op fstat
+      register: results
+
+    - debug: var=results.stdout_lines
+
+    - name: parse results
+      connection: local
+      template: src=parse.j2 dest="{{ playbook_dir|dirname }}/results/isolated-{{ ansible_hostname }}-throughput.csv"
+      with_items: 
+        - "{{ results.stdout_lines }}"
