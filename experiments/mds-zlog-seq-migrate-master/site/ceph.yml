@@ -39,12 +39,7 @@
   roles:
     - monitor/collectl
 
-- hosts: clients0
-  become: True
-  roles:
-    - ceph-client
-
-- hosts: clients1
+- hosts: clients0,clients1,clients2,clients3,clients4,clients5
   become: True
   roles:
     - ceph-client

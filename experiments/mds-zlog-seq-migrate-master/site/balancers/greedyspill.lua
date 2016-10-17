@@ -1,4 +1,4 @@
-metrics = {"auth.meta_load", "all.meta_load", "req_rate", "queue_len", "cpu_load_avg"}
+metrics = {"auth.meta_load", "all.meta_load", "req_rate", "queue_len", "cpu_load_avg", "cpu_load_inst"}
 
 -- Metric for balancing is the workload; also dumps metrics
 function mds_load()
@@ -16,11 +16,12 @@ end
 function when()
   my_load = mds[whoami]["load"]
   his_load = mds[whoami+1]["load"]
+  his_cpu = mds[whoami+1]["cpu_load_inst"]
   if my_load > 0.01 and his_load < 0.01 then
-    BAL_LOG(2, "when: migrating! my_load="..my_load.." hisload="..his_load)
-    return true
+    BAL_LOG(0, "when: migrating! my_load="..my_load.." hisload="..his_load.." hiscpu="..his_cpu)
+    return false
   end
-  BAL_LOG(2, "when: not migrating! my_load="..my_load.." hisload="..his_load)
+  BAL_LOG(0, "when: not migrating! my_load="..my_load.." hisload="..his_load.." hiscpu="..his_cpu)
   return false
 end
 
