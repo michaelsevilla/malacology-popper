@@ -1,0 +1,4 @@
+---
+cluster: ceph
+ceph_client_docker_username: piha.soe.ucsc.edu:5000/ceph
+ceph_client_docker_imagename: zlog-mantle:jewel
