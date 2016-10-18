@@ -103,13 +103,9 @@ spinning media are moving overall performance bottlenecks away from storage
 devices to CPUs and networking, and pressure storage systems to shorten their
 code paths and incorporate new
 optimizations~\cite{gray_tape_2007,gray_flash_2008}. 
-Second, the demand for
-managing structured data and flexible consistency semantics at scale pressure
-big data processing systems to use storage abstractions that can meet these
-demands~\cite{apache_contributors_parquet_2014}. 
-\paa{the previous sentence doesn't scan well. do we just want to say that 
-emerging ``big data'' applications demand interface evolution to support flexible
-consistency as well as flexible structured data representation?}
+Second, emerging ``big data'' applications demand interface evolution to
+support flexible consistency as well as flexible structured data
+representations.  ~\cite{apache_contributors_parquet_2014}. 
 Finally, production-quality
 scalable storage systems available as open source software have established and
 are continuing to establish new, \emph{de-facto} API standards at a faster pace
@@ -388,10 +384,12 @@ The main challenge of designing a programmable storage system is choosing the
 right internal abstractions and picking the correct layers for exposing them.
 In this paper, we do not present an exhaustive list of possible internal
 abstractions nor do we contend that the abstractions we choose provide the best
-trade-offs for all applications. For example, if consensus is correctly
-exposed, one could implement versioning, serialization, or capabilities on top;
-but perhaps versioning, serialization, and capabilities would be better
-interfaces for a given set of applications. These questions are not answered in
+trade-offs for all applications.
+For example, if consensus is correctly exposed one could implement
+high-level features like versioning, serialization, or various flavors
+of strongly consistent data management on top; but perhaps a low-level
+consensus interface is suited well for a particular set of applications.
+These questions are not answered in
 this paper and instead we focus on showing the feasibility of building such a
 system, given advances in the quality and robustness of today's storage stacks.
 
@@ -505,12 +503,13 @@ data versions, and are a useful system to expose.
 The default behavior of the monitor can be seen as a Paxos-based notification
 system, similar to the one introduced in~\cite{burrows_chubby_2006}, allowing
 clients to identify when new values (termed epochs in Ceph) are associated to
-given maps. While Ceph does not expose this service directly, it does allow
-limited use by clients through a key-value service intended for low-volume,
-small size read-only configuration information. While a key-value service is
-generally useful, it doesn't provide many of the useful services hidden within
-the monitoring framework that would be required for applications with more
-demanding requirements, such as creating arbitrary maps or associating
+given maps.  While Ceph does not expose this service directly, a key-value
+service designed for managing configuration metadata that is built on top of
+the consensus engine is an example of a high-level service within Ceph that
+re-uses existing abstractions.  While a key-value service is generally useful,
+it doesn't provide many of the useful services hidden within the monitoring
+framework that would be required for applications with more demanding
+requirements, such as creating arbitrary maps or associating
 application-specific logic that can be executed for particular maps (or values
 in a map).  Since the monitor is intended to be out of high-performance I/O
 paths, a general guideline is to make use of this functionality infrequently
