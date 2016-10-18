@@ -995,12 +995,12 @@ same (and is inherited from) the Ceph metadata service.
 We wanted to implement CORFU and we had two choices: build it from the ground
 up or do it on top of Malacology. To show the feasability of building on
 Malacology our evaluation focuses on the performance of the internal
-abstractions that support the Malacogy interfaces. First, we benchmark
-scenarios where contention is at the sequencer by examining the intefaces used
-to map ZLog onto Malacology; specifically, we describe the sequencer
-implementation and the propogation logical device interfaces. Next, we
-benchmark scenarios when there are multiple logs by using Mantle to (1)
-balance sequencers across a cluster and (2) recover from failure.
+abstractions when used for to construct the Mantle and ZLog services. First, we
+benchmark scenarios where contention is at the sequencer by examining the
+intefaces used to map ZLog onto Malacology; specifically, we describe the
+sequencer implementation and the propogation of object \& data interfaces
+interfaces. Next, we benchmark scenarios when there are multiple logs by using
+Mantle to (1) balance sequencers across a cluster and (2) recover from failure.
 
 Detailed system-wide performance measurements and analysis is forthcoming for
 both Mantle and ZLog, as we try to find the best metadata balancing policies
@@ -1165,11 +1165,50 @@ other logs are initially co-located on the same physical server (i.e. an
 \subsubsection{Load Balancing Sequencers}
 
 We evaluate the load balancing interface by showing how the cluster of servers
-housing sequencers alleviate load.  The experiments use our internal cluster
-which uses 10 nodes to store objects, one node to monitor the cluster, and 3
-nodes that can accomodate sequencers. The workload is two logs, one with 7
-clients and the other with 8 clients; we chose this workload because this load
-is the point at which a single physical server gets overloaded.
+housing sequencers alleviates load.  The experiments are run on a cluster with
+10 nodes to store objects, one node to monitor the cluster, and 3 nodes that
+can accomodate sequencers. The workload has up to 6 logs each with 2 clients.
+Figure~\ref{CITEME} shows the throughput per sequencer when all seqeuencers are
+co-located of one physical server. Two sequencers on the same server show no
+performance degradation but co-locating 3, 4, 5, or 6 sequencers leads to a
+2x, 3x, 4x, and 5x slowdown, respectively. For the rest of the experiments we
+load balance 3, 4, 5, or 6 sequencers across the cluxter because this is hte
+point at which a single physical server gets overloaded.
+
+Figure~\ref{CITEME} shows the performance profiles of the sequencers as they
+migrate around the cluster. Each graph in that figure shows different ``waves"
+of sequencers, where a ``wave" is a burst of clients trying to append to the
+end of the log. These waves are examples of hotspots and flash crowds; they are
+dynamic and resource constrained because clients access a shared resource. Wave
+1, policy 1 shows how the sequencers initially get distributed poorly. From x
+to x seconds, all seqeuencers are co-located. At x seconds, 3 of the sequencers
+(1, 2, 3) migrate off the first server and onto the second one; this is what we
+want.
+
+\begin{figure}[t!]
+\centering
+\includegraphics{figures/mantle-balancer-profiles.png}
+\caption{[\href{https://github.com/double-blind-submitter/osdi16}{source}] The
+load balancing interface alleviates load for multiple sequencers in
+resource-constrained environments.  ``Underloaded (Baseline)'' is the
+throughput of one sequencer running alone on a cluster; the other curves show
+how load balancing affects the throughput of one sequencer when sequencers for
+other logs are initially co-located on the same physical server (i.e. an
+"Overloaded" environment).}\label{fig:mantle-seq-thruput}
+\end{figure}
+
+\begin{figure}[t!]
+\centering
+\includegraphics{figures/mantle-modes.png}
+\caption{[\href{https://github.com/double-blind-submitter/osdi16}{source}] The
+load balancing interface alleviates load for multiple sequencers in
+resource-constrained environments.  ``Underloaded (Baseline)'' is the
+throughput of one sequencer running alone on a cluster; the other curves show
+how load balancing affects the throughput of one sequencer when sequencers for
+other logs are initially co-located on the same physical server (i.e. an
+"Overloaded" environment).}\label{fig:mantle-seq-thruput}
+\end{figure}
+
 
 We use a balancer policy specifically designed for multiple sequencers. The
 balancer aggressively sheds half its load to the next server as soon as it can.

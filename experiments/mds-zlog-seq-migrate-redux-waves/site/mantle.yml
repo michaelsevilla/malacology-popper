@@ -1,0 +1,26 @@
+---
+- hosts: mons[0]
+  become: True
+  tasks:
+    - name: setup mon convenience functions
+      set_fact:
+        ceph: "docker run --rm --entrypoint=ceph -v /etc/ceph:/etc/ceph {{ ceph_mon_docker_username }}/{{ ceph_mon_docker_imagename }}"
+        rados: "docker run --rm --entrypoint=rados -v /etc/ceph:/etc/ceph {{ ceph_mon_docker_username }}/{{ ceph_mon_docker_imagename }}"
+
+    - name: allow multiple active MDSs
+      command: "{{ ceph }} mds set allow_multimds true --yes-i-really-mean-it"
+
+    - name: activate the standby MDSs
+      command: "{{ ceph }} mds set max_mds 5"
+
+    - name: get the greedy balancer
+      copy: src={{ playbook_dir }}/balancers/proxy_half.lua dest=/etc/ceph/proxy_half.lua
+
+    - name: put the balancer in RADOS
+      command: "{{ rados }} -p cephfs_metadata put proxy_half.lua /etc/ceph/proxy_half.lua" 
+
+    - name: turn on the sequencer balancer
+      command: "{{ ceph }} fs set cephfs balancer proxy_half.lua"
+
+    - name: turn on the programmable metric
+      command: "{{ ceph }} fs set cephfs balancer_metric handle_slave_request"
