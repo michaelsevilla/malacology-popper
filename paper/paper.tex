@@ -738,11 +738,13 @@ and centralize warnings/errors.
 Ceph provides storage by striping and replicating data across
 RADOS~\cite{weil_rados_2007}, the reliable distributed object store. RADOS
 uses many techniques to ensure that data is not corrupted or lost, such as
-erasure coding, replication, and data scrubbing. Furthermore, many of these
-techniques try to be autonomous so that work is distributed across the
-cluster. For example, when placement groups change, the OSDs re-balance and
-re-shard data in the background in a process called placement group splitting.
-
+erasure coding, replication, and data scrubbing.
+Furthermore, many of these features are implemented using a peer-to-peer
+protocol that allows object storage devices to operate autonomously without
+a centralized coordinator.
+For example, when the number of placement groups change, the OSDs re-balance and
+re-shard data in the background in a process called placement group splitting
+in which OSDs communicate directly with each other to coverage on a new state.
 In order to reduce load on the monitoring service, Ceph OSDs use a gossip
 protocol to efficiently propagate changes to cluster maps throughout the
 system, and autonomously initiate recovery mechanisms when failures are
@@ -799,27 +801,30 @@ metadata service with dynamic subtree partitioning.
 
 The original implementation was ``hard-coded" into Ceph and lacked robustness
 (no versioning, durability, or policy distribution).  Re-implemented using
-Malacology, Mantle now enjoys (1) the versioning provided by the monitor
-daemons and (2) the durability and distribution provided by Ceph's reliable
-object store.  
+Malacology, Mantle now enjoys (1) the versioning provided by the metadata
+service interface provided by the monitor daemons and (2) the durability and
+distribution provided by Ceph's reliable object store.  
 
 \subsubsection{Versioning Balancer Policies}
 
 Ensuring that the version of the current load balancer is consistent across the
 physical servers in the metadata cluster was ignored in the original
 implementation. The user had to set the version on each individual server and
-it was trivial to make the version inconsistent.
+it was trivial to make the version inconsistent. Maintaining a consistent
+version is important for balancing policies that are cooperative in which
+local decisions are made assuming properties about other instances of the same
+policy.
 
 With Malacology, Mantle stores the version of the current load balancer in the
-Ceph map using the service metadata interface. The version of the load balancer
+Ceph service metadata interface. The version of the load balancer
 corresponds to an object name in the balancing policy. Using the service
 metadata interface ensures that all metadata servers use the same version of
-the load balancer. As a result, the policy version inherits the consensus and
+the load balancer. As a result, the policy version inherits the
 consistency of Ceph's internal monitor daemons.
 
-The user changes the version of the load balancer using a new CLI command:
+The user changes the version of the load balancer using a new CLI command: \\
 
-\noindent \texttt{ fs\ set\ lua\_balancer\_class\ \textless{}version\textgreater{}}
+\noindent \texttt{\$> ceph fs\ set\ lua\_balancer\_class\ \textless{}version\textgreater{}}
 
 %There are Ceph components that are obstacles to this approach, namely the size
 %of the  MDS map, API changes, and security. The Ceph engineers want to avoid
@@ -833,15 +838,13 @@ The user changes the version of the load balancer using a new CLI command:
 \subsubsection{Making Balancer Policies Durable}
 
 The load balancer version described above corresponds to the name of an object
-in RADOS that holds the actual Lua balancing code. The objects containing load
-balancer code are stored in a system-maintained group of objects (i.e. a pool).
+in RADOS that holds the actual Lua balancing code.
 When MDS nodes start balancing load, they first check the latest version from
 the MDS map and compare it to the balancer they have loaded. If the version has
 changed, they dereference the pointer to the balancer version by reading the
 corresponding object in RADOS. This is in contrast to the original balancer
 which stored load balancer code on the local file system -- a technique which
-is unreliable and results in inconsistencies if any MDS accidently modifies the
-code.
+is unreliable and may result in silent corruption.
 
 The balancer pulls the Lua code from RADOS synchronously; asynchronous reads
 are not possible because of the architecture of the MDS. The synchronous
@@ -865,16 +868,17 @@ distributions, and compilers.
 \subsubsection{Logging, Debugging, and Warnings}
 
 In the original implementation, Mantle would log all errors, warnings, and
-debug messages to the local log on each MDS. To get the simplest status
-messages or to debug problems, the user would have to log into each MDS
-individually, look at the logs, and reason about their causality. 
+debug messages to a log stored locally on each MDS server. To get the simplest
+status messages or to debug problems, the user would have to log into each MDS
+individually, look at the logs, and reason about causality and ordering.
 
-With Malacology, Mantle re-usues the centralized logging features of the MON
-subsystem. Important errors, warnings, and info messages are sent with the MON
-beacon subsystem and appear in the monitor cluster log so instead of users
+With Malacology, Mantle re-usues the centralized logging features of the
+monitoring service. Important errors, warnings, and info messages are
+collected
+by the monitoring subsystem and appear in the monitor cluster log so instead of users
 going to each node, they can watch messages appear at the monitor. Messages are
-used discretly, so as not to spam the monitor with frivolous debugging but the
-large events, like balancer version changes or failed subsystems show up in the
+logged sparingly, so as not to spam the monitor with frivolous debugging but
+important events, like balancer version changes or failed subsystems show up in the
 centralized log.
 
 \subsection{ZLog: A Fast Distributed Shared Log}
