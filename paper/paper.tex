@@ -1183,6 +1183,31 @@ to x seconds, all seqeuencers are co-located. At x seconds, 3 of the sequencers
 (1, 2, 3) migrate off the first server and onto the second one; this is what we
 want.
 
+\begin{figure}[t!]
+\centering
+\includegraphics{figures/mantle-balancer-profiles.png}
+\caption{[\href{https://github.com/double-blind-submitter/osdi16}{source}] The
+load balancing interface alleviates load for multiple sequencers in
+resource-constrained environments.  ``Underloaded (Baseline)'' is the
+throughput of one sequencer running alone on a cluster; the other curves show
+how load balancing affects the throughput of one sequencer when sequencers for
+other logs are initially co-located on the same physical server (i.e. an
+"Overloaded" environment).}\label{fig:mantle-seq-thruput}
+\end{figure}
+
+\begin{figure}[t!]
+\centering
+\includegraphics{figures/mantle-modes.png}
+\caption{[\href{https://github.com/double-blind-submitter/osdi16}{source}] The
+load balancing interface alleviates load for multiple sequencers in
+resource-constrained environments.  ``Underloaded (Baseline)'' is the
+throughput of one sequencer running alone on a cluster; the other curves show
+how load balancing affects the throughput of one sequencer when sequencers for
+other logs are initially co-located on the same physical server (i.e. an
+"Overloaded" environment).}\label{fig:mantle-seq-thruput}
+\end{figure}
+
+
 We use a balancer policy specifically designed for multiple sequencers. The
 balancer aggressively sheds half its load to the next server as soon as it can.
 It is based off the ``Greedy Spill Even" approach in the
