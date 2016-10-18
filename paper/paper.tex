@@ -611,10 +611,11 @@ application-specific sharding.
 
 Ceph also addresses the challenge of balancing metadata load with a separate
 metadata cluster. This cluster uses load balancing policies to migrate
-directory inodes around the cluster to alleviate load. The policies use metrics
+directory inodes around the cluster to alleviate overload at single nodes. The policies use metrics
 based on system state (e.g.  CPU and memory utilization) and statistics
 collected by the cluster (e.g. the popularity of an inode). Ceph uses dynamic
-subtree partitioning to move variable sized namespace subtrees. These units can
+subtree partitioning to move variable sized namespace
+subtrees~\cite{weil:sc2004-dyn-metadata}. These units can
 be shipped anywhere (i.e., to any metadata server of any capacity) at any time
 for any reason. The original balancer was designed with hard-coded policies and
 tunables.
@@ -634,25 +635,23 @@ tunables.
 \paragraph*{Malacology:} interfaces are added in strategic spots in the
 metadata service for guarding shared resources and load balancing.
 
-{\bf Shared Resource Interface.} The metadata service also manages sessions
-with its clients. This gives both subsystems (metadata servers and clients) the
-ability to cache data and obtain locks. The metadata service is responsible for
-responding to client requests for capabilities by first revoking caps from
-other clients.  Currently, clients voluntarily release their capabilities, and
-the metadata server maintains a queue of requests.  Both clients and metadata
-servers use a best-effort approach to revoking or releasing capabilities.
-
-The clients retain the best-effort, voluntary release of capabilities, but in
-Malacology, the queuing policies are generalized within the MDS to allow for
-centralized policies such as fairness or priority.
+{\bf Shared resource interface.}
+The metadata service manages client sessions, allowing clients to obtain locks
+(e.g. file byte ranges), and capabilities (e.g. to cache file data). Clients
+and metadata servers use a cooperative protocol in which clients voluntarily
+release resources back to the metadata service in order to implement sharing
+policies. While the current policy for sharing access and voluntarily
+releasing resources is largely best-effort, Malacology supports generalized
+policies between metadata servers and clients that can be used to implement 
+fairness or priority.
 
 {\bf Load balancing.} Mantle~\cite{sevilla:sc15-mantle}, a programmable
 metadata load balancer, has been implemented on Malacology so that its
 infrastructure can enjoy all the properties of existing internal abstractions.
 The load balancing logic is intact but the infrastructure has been improved to
 safely load, manage, and persist its load balancing policies.  Composing Mantle
-using the service metadata, durability and beacon interfaces, Mantle can safely
-version balancer policies, save balancer policies in the back end object store
+using the service metadata and durability interfaces, Mantle can safely
+version balancer policies, save balancer policies in the backend object store
 and centralize warnings/errors.
 
 %{\bf Policy management.} A new interface is added to the metadata service
