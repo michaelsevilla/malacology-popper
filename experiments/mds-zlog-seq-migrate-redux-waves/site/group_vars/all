@@ -28,7 +28,7 @@ ceph_conf_overrides:
      max mds: 5
      mds log: true
      mds bal max until: -1
-     mds bal mode: 2
+     mds bal mode: 0
      mds log max expiring: 40
      mds log max segments: 120
    client:
