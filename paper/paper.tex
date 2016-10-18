@@ -15,6 +15,7 @@
 \usepackage{pifont}
 \usepackage{color}
 \newcommand{\cmark}{\ding{51}}%
+\usepackage[font=footnotesize,labelfont=bf]{caption}
 
 \newcommand{\paa}[1]{{\textcolor{red}{[[#1 -- paa]]}}}
 %\newcommand{\xmark}{\ding{55}}%
@@ -413,7 +414,7 @@ interfaces.
 \textbf{Example in Ceph}                &
 \textbf{Provided Primitives}            \\ \hline
 {\it Service Metadata}
-  & Zookeeper coordination~\cite{hunt_zookeeper_2010}, Chubby~\cite{website:chubby}
+  & Zookeeper, Chubby coordination~\cite{hunt_zookeeper_2010,website:chubby}
   & cluster state management~\cite{website:ceph-mon}
   & consensus \& consistency
   \\
@@ -436,11 +437,6 @@ Load Balancing
   & VMWare's VM migration~\cite{vmware-drs,gulati:hotcloud2011-cloud-resource-management} 
   & migration in metadata cluster~\cite{weil:sc2004-dyn-metadata}
   & migration \& sampling
-  \\
-Beacon
-  & Apache RabbitMQ~\cite{CITEME}
-  & inter-daemon messages, centralized logging
-  & debugging \& monitoring
   \\
 \end{tabular}
 \caption{The same ``internal abstractions" are common across large-scale
@@ -509,9 +505,8 @@ the consensus engine is an example of a high-level service within Ceph that
 re-uses existing abstractions.  While a key-value service is generally useful,
 it doesn't provide many of the useful services hidden within the monitoring
 framework that would be required for applications with more demanding
-requirements, such as creating arbitrary maps or associating
-application-specific logic that can be executed for particular maps (or values
-in a map).  Since the monitor is intended to be out of high-performance I/O
+requirements, such as creating arbitrary maps with application-specific
+semantics and interfaces. Since the monitor is intended to be out of high-performance I/O
 paths, a general guideline is to make use of this functionality infrequently
 and to assign small values to maps. 
 
@@ -524,10 +519,10 @@ interface, such as authorization control (just specific clients can write new
 values) or to trigger actions based on specific values (e.g. sanitize values).
 The higher level services we implement in \S\ref{sec:services} make use of this
 functionality to register, version and propagate dynamic code (Lua scripts) for
-new object interfaces defined in storage daemons (\S\ref{active-storage}) and
+new object interfaces defined in storage daemons (\S\ref{object-data-interface}) and
 policies in the load balancer \S\ref{malacology:mds}).  Using this service
 guarantees that interface definitions are not only made durable, but are
-transparently and consistently propagated throughput the cluster and that
+transparently and consistently propagated throughout the cluster so that
 clients are properly synchronized with the latest interfaces.
 
 %And finally, it is important to not underestimate the importance of the
@@ -537,7 +532,7 @@ clients are properly synchronized with the latest interfaces.
 %all components of a system service must be kept to the same standards of
 %protection as data in the system itself.
 
-\subsection{Object \& Data Interface}
+\subsection{Object I/O Interfaces}
 \label{object-data-interface}
 
 Briefly described in Section~\ref{sec:application-specifc-storage-stacks}, Ceph
@@ -553,12 +548,15 @@ may invoke. In the case of Ceph each function is implicitly run within the
 context of an object specified when the function is called. Developers of
 object interfaces express behavior by creating a composition of native
 interfaces or other custom object interfaces, and handle serialization of
-function input and output. A wide range of native interfaces are available to
-developers, such as reading and writing to a byte stream, and controlling
-snapshots and clones. These object interfaces may be transactionally composed
-with access to a sorted key-value service allowing applications to create rich
-semantics. An example is using a read-modify-write guard to protect a shared
-index defined over content stored in a byte stream.
+function input and output.
+A wide range of native interfaces are available to developers such as reading
+and write to a byte stream, controlling object snapshots and clones,
+and accessing a sorted key-value database. These native object interfaces
+may be transactionally composed along with application specific logic to
+create interfaces with a rich set of semantics.
+An example is the use of a read-modify-write operation to perform consistent
+object updates across the byte stream and key-value database interfaces
+without relying on complex client-driven concurrency control.
 
 \begin{figure}[htbp]
 \centering
@@ -587,7 +585,10 @@ dynamically loaded into the system and modified at runtime, resulting in a
 object storage API with economy of expression, which at the same time provides
 the full set of features of the base object class. New object interfaces that
 are expressed in thousands of lines of code can be implemented in approximately
-an order of magnitude less code~\cite{geambasu_comet_2010}.
+an order of magnitude less code~\cite{geambasu_comet_2010}. While the use of
+Lua does not prevent deployment of malicious code, certain types of coding
+mistakes can handled gracefully, and access policies are used to restrict the
+feature to trusted users.
 
 All of these modifications work in tandem to implement the desired behavior,
 and are typically co-designed together such that each depends on the other to
