@@ -1,0 +1,170 @@
+static: does not generate config
+HEALTH_OK
+static: does not generate admin key
+2016-10-18 07:24:26.616137 7f287af58180  0 set uid:gid to 64045:64045 (ceph:ceph)
+2016-10-18 07:24:26.616191 7f287af58180  0 ceph version v9.0.0-17091-g9bfe60e (9bfe60e820893f8f2931d81e2fc31002b9a17f32), process ceph-mds, pid 85
+starting mds.mds-issdm-18 at :/0
+2016-10-18 07:24:26.618091 7f287af58180  0 pidfile_write: ignore empty --pid-file
+2016-10-18 07:24:29.819418 7f2875100700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f2885016000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:24:44.822907 7f2875100700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f2885019000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:24:59.832319 7f2875100700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f2885017800 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:25:14.835451 7f2875100700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f288501a800 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:25:29.835726 7f2875100700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f2885030800 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:25:44.839447 7f2875100700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f288501a800 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:25:59.848750 7f2875100700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f2885019000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:26:14.855958 7f2875100700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f2885017800 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:26:22.584087 7f2873181700  0 mds.1.cache creating system inode with ino:101
+2016-10-18 07:26:22.584245 7f2873181700  0 mds.1.cache creating system inode with ino:60a
+2016-10-18 07:26:22.584720 7f2873181700  0 mds.1.cache creating system inode with ino:60b
+2016-10-18 07:26:22.584855 7f2873181700  0 mds.1.cache creating system inode with ino:60c
+2016-10-18 07:26:22.584987 7f2873181700  0 mds.1.cache creating system inode with ino:60d
+2016-10-18 07:26:22.585108 7f2873181700  0 mds.1.cache creating system inode with ino:60e
+2016-10-18 07:26:22.585248 7f2873181700  0 mds.1.cache creating system inode with ino:60f
+2016-10-18 07:26:22.585371 7f2873181700  0 mds.1.cache creating system inode with ino:610
+2016-10-18 07:26:22.585513 7f2873181700  0 mds.1.cache creating system inode with ino:611
+2016-10-18 07:26:22.585645 7f2873181700  0 mds.1.cache creating system inode with ino:612
+2016-10-18 07:26:22.585782 7f2873181700  0 mds.1.cache creating system inode with ino:613
+2016-10-18 07:26:23.687583 7f2876102700  0 -- 192.168.140.230:6800/85 >> 192.168.140.188:6800/194 conn(0x7f2885016000 sd=31 :6800 s=STATE_ACCEPTING_WAIT_CONNECT_MSG_AUTH pgs=0 cs=0 l=0).handle_connect_msg accept connect_seq 0 vs existing csq=0 existing_state=STATE_CONNECTING_WAIT_CONNECT_REPLY
+2016-10-18 07:26:23.687912 7f2876102700  0 -- 192.168.140.230:6800/85 >> 192.168.140.188:6800/194 conn(0x7f2885016000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_CONNECT_MSG pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:26:29.860040 7f2876102700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f288502d800 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:26:30.280129 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=6.90763e-310 load.programamble=-1
+2016-10-18 07:26:40.280184 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:26:44.864027 7f2876102700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f28854ef000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:26:50.282864 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:26:59.873342 7f2876102700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f28854ed800 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:27:00.285910 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:27:10.286068 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:27:14.876232 7f2876102700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f28854ec000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:27:20.287412 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:27:29.881844 7f2876102700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f28854d2000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:27:30.288236 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:27:40.288958 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:27:44.884705 7f2876102700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f2885a54800 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:27:50.290273 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:27:59.893925 7f2876102700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f28854ef000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:28:00.292237 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:28:10.292375 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:28:14.896651 7f2876102700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f28854ed800 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:28:20.293976 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:28:29.901252 7f2876102700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f28854ec000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:28:30.296284 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:28:40.300412 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:28:44.904989 7f2876102700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f28854d2000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:28:50.300839 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:28:59.910474 7f2876102700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f2885a53000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:29:00.301607 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:29:10.301703 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:29:14.913626 7f2876102700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f28854ef000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:29:20.303632 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:29:29.917896 7f2876102700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f28854ed800 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:29:30.305892 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:29:40.307190 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:29:44.917656 7f2876102700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f28854ec000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:29:50.308384 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:29:59.926913 7f2876102700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f28854d2000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:30:00.309526 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:30:10.311896 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:30:14.929610 7f2876102700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f2885a51800 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:30:20.312435 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:30:29.929649 7f2876102700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f28854ef000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:30:30.315730 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:30:40.317216 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:30:44.934176 7f2876102700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f28854ef000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:30:50.317184 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:30:59.943248 7f2876102700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f28854ed800 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:31:00.317397 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:31:10.317605 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:31:14.950031 7f2876102700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f28854ef000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:31:20.318263 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:31:29.953957 7f2876102700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f28854ec000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:31:30.318075 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:31:40.318144 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:31:44.958417 7f2876102700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f28854d2000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:31:50.318376 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:31:59.967747 7f2876102700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f2885a50000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:32:00.318939 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:32:10.318721 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:32:14.974612 7f2876102700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f2885aae800 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:32:20.319412 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:32:29.978506 7f2876102700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f2885a50000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:32:30.319155 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:32:40.319720 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:32:44.982867 7f2876102700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f28854ef000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:32:50.319636 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:32:59.992351 7f2876102700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f28854ec000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:33:00.319415 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:33:10.319710 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:33:14.995466 7f2876102700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f28854d2000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:33:20.320069 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:33:29.996927 7f2876102700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f2885aad000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:33:30.319920 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:33:40.320077 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:33:45.003468 7f2876102700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f2885a50000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:33:50.320176 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:34:00.013139 7f2876102700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f28854ef000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:34:00.320353 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:34:10.320689 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:34:15.014380 7f2876102700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f28854ec000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:34:20.320953 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:34:30.017361 7f2876102700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f28854d2000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:34:30.320778 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:34:40.321590 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:34:45.023890 7f2876102700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f2885aab800 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:34:50.321405 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:35:00.029325 7f2876102700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f2885a50000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:35:00.321374 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:35:10.321775 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:35:15.032512 7f2876102700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f28854ef000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:35:20.322134 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:35:30.032742 7f2876102700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f28854ec000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:35:30.321825 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:35:40.322083 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:35:45.036460 7f2876102700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f28854d2000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:35:50.322141 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:36:00.046193 7f2876102700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f2885aaa000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:36:00.322310 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:36:10.322683 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:36:15.052601 7f2876102700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f2885a50000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:36:20.322723 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:36:30.053115 7f2876102700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f28854ef000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:36:30.322878 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:36:40.323467 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:36:45.056875 7f2876102700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f28854ec000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:36:50.323603 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:37:00.065903 7f2876102700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f28854d2000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:37:00.323318 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:37:10.323701 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:37:15.073966 7f2876102700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f28854ed800 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:37:20.323620 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:37:30.076402 7f2876102700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f2885a50000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:37:30.323788 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:37:40.324370 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:37:45.081489 7f2876102700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f28854ef000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:37:50.324460 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:38:00.090849 7f2876102700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f28854ec000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:38:00.324227 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:38:10.324684 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:38:15.093635 7f2876102700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f28854d2000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:38:20.324991 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:38:30.096793 7f2876102700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f2885a51800 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:38:30.324912 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:38:40.325148 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:38:45.102243 7f2876102700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f2885a50000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:38:50.325173 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:39:00.111713 7f2876102700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f28854ef000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:39:00.325222 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:39:10.325675 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:39:15.114555 7f2876102700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f28854ec000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:39:20.325962 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:39:30.117454 7f2876102700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f28854d2000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:39:30.325707 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:39:40.326218 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:39:45.122549 7f2876102700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f2885a53000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:39:50.326338 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:40:00.131811 7f2876102700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f2885a50000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:40:00.326453 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:40:10.326760 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:40:15.134730 7f2876102700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f28854ef000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:40:20.327171 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:40:30.136802 7f2876102700  0 -- 192.168.140.230:6800/85 >> :/0 conn(0x7f28854ec000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:40:30.327385 7f2873181700  0 mds.1.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0

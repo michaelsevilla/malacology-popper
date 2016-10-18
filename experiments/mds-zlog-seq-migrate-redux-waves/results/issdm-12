@@ -1,0 +1,341 @@
+static: does not generate config
+HEALTH_WARN too few PGs per OSD (7 < min 30)
+static: does not generate admin key
+pool 'cephfs_data' created
+pool 'cephfs_metadata' created
+new fs with metadata pool 2 and data pool 1
+2016-10-18 07:24:09.918479 7f3770273180  0 set uid:gid to 64045:64045 (ceph:ceph)
+2016-10-18 07:24:09.918536 7f3770273180  0 ceph version v9.0.0-17091-g9bfe60e (9bfe60e820893f8f2931d81e2fc31002b9a17f32), process ceph-mds, pid 194
+starting mds.mds-issdm-12 at :/0
+2016-10-18 07:24:09.920535 7f3770273180  0 pidfile_write: ignore empty --pid-file
+2016-10-18 07:24:15.383092 7f376849c700  0 mds.0.cache creating system inode with ino:1
+2016-10-18 07:24:15.383461 7f376849c700  0 mds.0.cache creating system inode with ino:100
+2016-10-18 07:24:15.383484 7f376849c700  0 mds.0.cache creating system inode with ino:600
+2016-10-18 07:24:15.383743 7f376849c700  0 mds.0.cache creating system inode with ino:601
+2016-10-18 07:24:15.383867 7f376849c700  0 mds.0.cache creating system inode with ino:602
+2016-10-18 07:24:15.384004 7f376849c700  0 mds.0.cache creating system inode with ino:603
+2016-10-18 07:24:15.384126 7f376849c700  0 mds.0.cache creating system inode with ino:604
+2016-10-18 07:24:15.384263 7f376849c700  0 mds.0.cache creating system inode with ino:605
+2016-10-18 07:24:15.384399 7f376849c700  0 mds.0.cache creating system inode with ino:606
+2016-10-18 07:24:15.384521 7f376849c700  0 mds.0.cache creating system inode with ino:607
+2016-10-18 07:24:15.384640 7f376849c700  0 mds.0.cache creating system inode with ino:608
+2016-10-18 07:24:15.385042 7f376849c700  0 mds.0.cache creating system inode with ino:609
+2016-10-18 07:24:23.779380 7f376a41b700  0 -- 192.168.140.188:6800/194 >> :/0 conn(0x7f37796b2000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:24:30.277006 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=6.9108e-310 load.programamble=-1
+2016-10-18 07:24:38.787846 7f376a41b700  0 -- 192.168.140.188:6800/194 >> :/0 conn(0x7f37796b5000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:24:40.277352 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:24:50.277476 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:24:53.792256 7f376a41b700  0 -- 192.168.140.188:6800/194 >> :/0 conn(0x7f37796b3800 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:25:00.277663 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:25:08.807852 7f376a41b700  0 -- 192.168.140.188:6800/194 >> :/0 conn(0x7f37796b6800 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:25:10.277848 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:25:20.278066 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:25:23.819684 7f376a41b700  0 -- 192.168.140.188:6800/194 >> :/0 conn(0x7f377979b000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:25:30.278241 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:25:38.832314 7f376a41b700  0 -- 192.168.140.188:6800/194 >> :/0 conn(0x7f37796b6800 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:25:40.278439 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:25:50.278613 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:25:53.836635 7f376a41b700  0 -- 192.168.140.188:6800/194 >> :/0 conn(0x7f37796b5000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:26:00.278804 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:26:08.852217 7f376a41b700  0 -- 192.168.140.188:6800/194 >> :/0 conn(0x7f37796b3800 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:26:10.279024 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:26:20.279110 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:26:23.687930 7f376b41d700  0 -- 192.168.140.188:6800/194 >> 192.168.140.230:6800/85 conn(0x7f37796b2000 sd=44 :6800 s=STATE_ACCEPTING_WAIT_CONNECT_MSG_AUTH pgs=0 cs=0 l=0).handle_connect_msg accept connect_seq 0 vs existing csq=0 existing_state=STATE_CONNECTING
+2016-10-18 07:26:23.868007 7f376a41b700  0 -- 192.168.140.188:6800/194 >> :/0 conn(0x7f37797a2800 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:26:30.279688 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:26:30.280623 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0.606942 1.21388]/[0,0.606942 1.21388], req 16, hr 0, qlen 0, cpu 0.05, cpu inst3.14182, programmable0> = 17.2139 ~ 1.21388
+2016-10-18 07:26:30.280693 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 0, hr 0, qlen 0, cpu 0, cpu inst1.56318, programmable-1> = 0 ~ 0
+2016-10-18 07:26:38.876542 7f376b41d700  0 -- 192.168.140.188:6800/194 >> :/0 conn(0x7f377985f000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:26:40.279704 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:26:40.280728 7f376849c700  0 mds.0.bal   mds.0 mdsload<[1138.83,4.6381 1148.11]/[505.484,4.51123 514.507], req 1504, hr 0, qlen 0, cpu 0.04, cpu inst0.51727, programmable0> = 2525.39 ~ 1148.11
+2016-10-18 07:26:40.280823 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 30, hr 0, qlen 0, cpu 0, cpu inst3.37271, programmable0> = 31.6403 ~ 14.3845
+2016-10-18 07:26:40.280893 7f376849c700  0 mds.0.bal    - exporting [505.484,4.47841 514.441] 514.441 to mds.1 [dir 10000000000 /dir0/ [2,head] auth{1=1} v=8 cv=0/0 ap=0+6+6 state=1610612738|complete f(v0 m2016-10-18 07:26:38.165142 1=1+0) n(v0 rc2016-10-18 07:26:38.165142 1=1+0) hs=1+0,ss=0+0 dirty=1 | child=1 replicated=1 dirty=1 authpin=0 0x7f377968c520]
+2016-10-18 07:26:40.280966 7f376849c700  0 mds.0.migrator nicely exporting to mds.1 [dir 10000000000 /dir0/ [2,head] auth{1=1} v=8 cv=0/0 ap=0+6+6 state=1610612738|complete f(v0 m2016-10-18 07:26:38.165142 1=1+0) n(v0 rc2016-10-18 07:26:38.165142 1=1+0) hs=1+0,ss=0+0 dirty=1 | child=1 replicated=1 dirty=1 authpin=0 0x7f377968c520]
+2016-10-18 07:26:50.282300 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:26:50.283331 7f376849c700  0 mds.0.bal   mds.0 mdsload<[1447.33,2.35695 1452.05]/[1911.06,2.31705 1915.69], req 20475, hr 0, qlen 3, cpu 0.35, cpu inst36.8249, programmable0> = 22049.8 ~ 1452.05
+2016-10-18 07:26:50.283417 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0.08, cpu inst30.3483, programmable0> = 158.28 ~ 10.4233
+2016-10-18 07:26:50.283572 7f376849c700  0 mds.0.bal    - exporting [304.283,2.31658 308.916] 308.916 to mds.1 [dir 10000000001 /dir1/ [2,head] auth{1=1} v=8 cv=0/0 ap=0+7+7 state=1610612738|complete f(v0 m2016-10-18 07:26:43.415773 1=1+0) n(v0 rc2016-10-18 07:26:43.415773 1=1+0) hs=1+0,ss=0+0 dirty=1 | child=1 replicated=1 dirty=1 authpin=0 0x7f377968c838]
+2016-10-18 07:26:50.283621 7f376849c700  0 mds.0.migrator nicely exporting to mds.1 [dir 10000000001 /dir1/ [2,head] auth{1=1} v=8 cv=0/0 ap=0+7+7 state=1610612738|complete f(v0 m2016-10-18 07:26:43.415773 1=1+0) n(v0 rc2016-10-18 07:26:43.415773 1=1+0) hs=1+0,ss=0+0 dirty=1 | child=1 replicated=1 dirty=1 authpin=0 0x7f377968c838]
+2016-10-18 07:26:53.878068 7f376b41d700  0 -- 192.168.140.188:6800/194 >> :/0 conn(0x7f3779cca000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:27:00.285290 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:27:00.287959 7f376849c700  0 mds.0.bal   mds.0 mdsload<[316.468,0.0100885 316.488]/[2554.94,0 2554.94], req 45757, hr 0, qlen 13, cpu 0.69, cpu inst42.3654, programmable0> = 46651.2 ~ 316.488
+2016-10-18 07:27:00.288038 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0.14, cpu inst24.4813, programmable0> = 141.476 ~ 0.959794
+2016-10-18 07:27:08.894053 7f376b41d700  0 -- 192.168.140.188:6800/194 >> :/0 conn(0x7f3779cf3000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:27:10.285571 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:27:10.286648 7f376849c700  0 mds.0.bal   mds.0 mdsload<[79.1138,0 79.1138]/[2516.07,0 2516.07], req 70507, hr 0, qlen 15, cpu 1.12, cpu inst40.4457, programmable0> = 71223.5 ~ 79.1138
+2016-10-18 07:27:10.286731 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0.28, cpu inst24.5686, programmable0> = 80.3683 ~ 0.0892717
+2016-10-18 07:27:20.286748 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:27:20.290062 7f376849c700  0 mds.0.bal   mds.0 mdsload<[19.7753,0 19.7753]/[2531.51,0 2531.51], req 95476, hr 0, qlen 2, cpu 1.48, cpu inst41.8042, programmable0> = 96018.1 ~ 19.7753
+2016-10-18 07:27:20.290295 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0.55, cpu inst25.4709, programmable0> = 65.0912 ~ 0.0134058
+2016-10-18 07:27:23.908953 7f376b41d700  0 -- 192.168.140.188:6800/194 >> :/0 conn(0x7f3779cf1800 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:27:30.287653 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:27:30.291431 7f376849c700  0 mds.0.bal   mds.0 mdsload<[4.94323,0 4.94323]/[2599.09,0 2599.09], req 120428, hr 0, qlen 9, cpu 1.48, cpu inst40.4457, programmable0> = 121042 ~ 4.94323
+2016-10-18 07:27:30.291510 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0.47, cpu inst24.6924, programmable0> = 61.2592 ~ 0.00250177
+2016-10-18 07:27:38.917066 7f376b41d700  0 -- 192.168.140.188:6800/194 >> :/0 conn(0x7f3779cac000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:27:40.288466 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:27:40.290080 7f376849c700  0 mds.0.bal   mds.0 mdsload<[1.23566,0 1.23566]/[2505.25,0 2505.25], req 145114, hr 0, qlen 15, cpu 1.48, cpu inst42.1607, programmable0> = 145766 ~ 1.23566
+2016-10-18 07:27:40.290160 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0.47, cpu inst25.9442, programmable0> = 60.3148 ~ 0.000511288
+2016-10-18 07:27:50.289719 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:27:50.294040 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0.308861,0 0.308861]/[2552,0 2552], req 170146, hr 0, qlen 3, cpu 1.49, cpu inst41.5, programmable0> = 170687 ~ 0.308861
+2016-10-18 07:27:50.294121 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0.54, cpu inst26.4321, programmable0> = 60.0787 ~ 0.000108714
+2016-10-18 07:27:53.921413 7f376b41d700  0 -- 192.168.140.188:6800/194 >> :/0 conn(0x7f3779cac000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:28:00.291611 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:28:00.295110 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0.0771948,0 0.0771948]/[2588.99,0 2588.99], req 195787, hr 0, qlen 8, cpu 1.49, cpu inst42.37, programmable0> = 196385 ~ 0.0771948
+2016-10-18 07:28:00.295190 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 1, cpu 0.61, cpu inst25, programmable0> = 70.0197 ~ 2.75233e-05
+2016-10-18 07:28:08.937382 7f376b41d700  0 -- 192.168.140.188:6800/194 >> :/0 conn(0x7f3779cf3000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:28:10.291777 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:28:10.293074 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0.0192983,0 0.0192983]/[2431.59,0 2431.59], req 220190, hr 0, qlen 10, cpu 1.56, cpu inst42.1408, programmable0> = 220776 ~ 0.0192983
+2016-10-18 07:28:10.293160 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0.59, cpu inst25.9561, programmable0> = 60 ~ 5.24465e-06
+2016-10-18 07:28:20.293481 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:28:20.298752 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[2527.83,0 2527.83], req 245455, hr 0, qlen 3, cpu 1.47, cpu inst42.6562, programmable0> = 245991 ~ 0
+2016-10-18 07:28:20.298826 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0.65, cpu inst25.3092, programmable0> = 60 ~ 0
+2016-10-18 07:28:23.953262 7f376b41d700  0 -- 192.168.140.188:6800/194 >> :/0 conn(0x7f3779cf1800 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:28:30.295729 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:28:30.297416 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[2324.52,0 2324.52], req 269216, hr 0, qlen 17, cpu 1.47, cpu inst40.2977, programmable0> = 269851 ~ 0
+2016-10-18 07:28:30.297518 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0.55, cpu inst25.3441, programmable0> = 60 ~ 0
+2016-10-18 07:28:38.961324 7f376b41d700  0 -- 192.168.140.188:6800/194 >> :/0 conn(0x7f3779cca000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:28:40.299751 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:28:40.301412 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[2474.36,0 2474.36], req 293796, hr 0, qlen 14, cpu 1.7, cpu inst41.5042, programmable0> = 294431 ~ 0
+2016-10-18 07:28:40.301493 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0.54, cpu inst25.5583, programmable0> = 60 ~ 0
+2016-10-18 07:28:50.300143 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:28:50.301739 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[2575.49,0 2575.49], req 318794, hr 0, qlen 12, cpu 1.67, cpu inst42.7701, programmable0> = 319429 ~ 0
+2016-10-18 07:28:50.301813 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0.54, cpu inst26.1866, programmable0> = 60 ~ 0
+2016-10-18 07:28:53.965972 7f376b41d700  0 -- 192.168.140.188:6800/194 >> :/0 conn(0x7f377985f000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:29:00.300943 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:29:00.305311 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[2429.8,0 2429.8], req 343147, hr 0, qlen 3, cpu 1.8, cpu inst40.9295, programmable0> = 343663 ~ 0
+2016-10-18 07:29:00.305395 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0.61, cpu inst25.8635, programmable0> = 60 ~ 0
+2016-10-18 07:29:08.982736 7f376b41d700  0 -- 192.168.140.188:6800/194 >> :/0 conn(0x7f3779cf3000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:29:10.301089 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:29:10.303584 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[2421.22,0 2421.22], req 367900, hr 0, qlen 2, cpu 1.68, cpu inst41.1312, programmable0> = 368404 ~ 0
+2016-10-18 07:29:10.303665 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0.91, cpu inst23.9184, programmable0> = 60 ~ 0
+2016-10-18 07:29:20.302982 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:29:20.305333 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[2421.51,0 2421.51], req 392980, hr 0, qlen 13, cpu 1.5, cpu inst41.4977, programmable0> = 393594 ~ 0
+2016-10-18 07:29:20.305410 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0.92, cpu inst24.3443, programmable0> = 60 ~ 0
+2016-10-18 07:29:23.997246 7f376b41d700  0 -- 192.168.140.188:6800/194 >> :/0 conn(0x7f3779cf1800 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:29:30.305259 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:29:30.309268 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[2541.73,0 2541.73], req 417941, hr 0, qlen 7, cpu 1.42, cpu inst41.9788, programmable0> = 418519 ~ 0
+2016-10-18 07:29:30.309353 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0.93, cpu inst24.6091, programmable0> = 60 ~ 0
+2016-10-18 07:29:39.009695 7f376b41d700  0 -- 192.168.140.188:6800/194 >> :/0 conn(0x7f3779cca000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:29:40.306612 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:29:40.309823 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[2546.48,0 2546.48], req 443158, hr 0, qlen 13, cpu 1.35, cpu inst41.8904, programmable0> = 443797 ~ 0
+2016-10-18 07:29:40.310540 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 1.25, cpu inst24.7954, programmable0> = 60 ~ 0
+2016-10-18 07:29:50.307706 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:29:50.310434 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[2545.85,0 2545.85], req 468445, hr 0, qlen 11, cpu 1.3, cpu inst41.7185, programmable0> = 469064 ~ 0
+2016-10-18 07:29:50.310509 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 1.37, cpu inst27.5281, programmable0> = 60 ~ 0
+2016-10-18 07:29:54.009155 7f376b41d700  0 -- 192.168.140.188:6800/194 >> :/0 conn(0x7f3779cac000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:30:00.308915 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:30:00.310305 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[2513.06,0 2513.06], req 492906, hr 0, qlen 17, cpu 1.17, cpu inst40.9193, programmable0> = 493579 ~ 0
+2016-10-18 07:30:00.310404 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 1.23, cpu inst24.8366, programmable0> = 60 ~ 0
+2016-10-18 07:30:09.016580 7f376b41d700  0 -- 192.168.140.188:6800/194 >> :/0 conn(0x7f3779cad800 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:30:10.311307 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:30:10.316629 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[2304.32,0 2304.32], req 516569, hr 0, qlen 7, cpu 1.22, cpu inst39.5695, programmable0> = 517100 ~ 0
+2016-10-18 07:30:10.316747 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 1.42, cpu inst25.9887, programmable0> = 60 ~ 0
+2016-10-18 07:30:20.311869 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:30:20.315124 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[2556.45,0 2556.45], req 542307, hr 0, qlen 3, cpu 1.35, cpu inst42.1613, programmable0> = 542848 ~ 0
+2016-10-18 07:30:20.315403 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 1.2, cpu inst25.6933, programmable0> = 60 ~ 0
+2016-10-18 07:30:24.033924 7f376b41d700  0 -- 192.168.140.188:6800/194 >> :/0 conn(0x7f3779cad800 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:30:30.315082 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:30:30.317929 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[2562.06,0 2562.06], req 567626, hr 0, qlen 10, cpu 1.29, cpu inst42.1988, programmable0> = 568238 ~ 0
+2016-10-18 07:30:30.318009 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 1.09, cpu inst25.551, programmable0> = 60 ~ 0
+2016-10-18 07:30:39.041771 7f376a41b700  0 -- 192.168.140.188:6800/194 >> :/0 conn(0x7f3779cad800 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:30:40.316577 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:30:40.317764 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[2179.68,0 2179.68], req 590795, hr 0, qlen 3, cpu 1.18, cpu inst37.7852, programmable0> = 591261 ~ 0
+2016-10-18 07:30:40.317838 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 1.07, cpu inst23.4628, programmable0> = 60 ~ 0
+2016-10-18 07:30:50.316629 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:30:50.317426 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[974.581,0 974.581], req 597154, hr 0, qlen 0, cpu 1, cpu inst25.2922, programmable0> = 597349 ~ 0
+2016-10-18 07:30:50.317498 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 1.06, cpu inst7.30077, programmable0> = 60 ~ 0
+2016-10-18 07:30:54.046468 7f376a41b700  0 -- 192.168.140.188:6800/194 >> :/0 conn(0x7f3779cad800 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:31:00.316831 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:31:00.317773 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[243.639,0 243.639], req 597154, hr 0, qlen 0, cpu 0.84, cpu inst25.2922, programmable0> = 597203 ~ 0
+2016-10-18 07:31:00.318233 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0.9, cpu inst7.30077, programmable0> = 60 ~ 0
+2016-10-18 07:31:09.062372 7f376a41b700  0 -- 192.168.140.188:6800/194 >> :/0 conn(0x7f3779cf3000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:31:10.317014 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:31:10.317952 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[60.9081,0 60.9081], req 597154, hr 0, qlen 0, cpu 0.71, cpu inst25.2922, programmable0> = 597166 ~ 0
+2016-10-18 07:31:10.318233 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0.76, cpu inst7.30077, programmable0> = 60 ~ 0
+2016-10-18 07:31:20.317212 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:31:20.318530 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[15.2266,0 15.2266], req 597154, hr 0, qlen 0, cpu 0.6, cpu inst25.2922, programmable0> = 597157 ~ 0
+2016-10-18 07:31:20.318616 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0.64, cpu inst7.30077, programmable0> = 60 ~ 0
+2016-10-18 07:31:24.074234 7f376a41b700  0 -- 192.168.140.188:6800/194 >> :/0 conn(0x7f3779cf1800 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:31:30.317377 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:31:30.318458 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[3.80656,0 3.80656], req 597154, hr 0, qlen 0, cpu 0.51, cpu inst25.2922, programmable0> = 597155 ~ 0
+2016-10-18 07:31:30.318512 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0.54, cpu inst7.30077, programmable0> = 60 ~ 0
+2016-10-18 07:31:39.090438 7f376a41b700  0 -- 192.168.140.188:6800/194 >> :/0 conn(0x7f3779cca000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:31:40.317566 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:31:40.318442 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[0.951617,0 0.951617], req 597154, hr 0, qlen 0, cpu 0.43, cpu inst25.2922, programmable0> = 597154 ~ 0
+2016-10-18 07:31:40.318489 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0.46, cpu inst7.30077, programmable0> = 60 ~ 0
+2016-10-18 07:31:50.317749 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:31:50.320162 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[0.237898,0 0.237898], req 597154, hr 0, qlen 0, cpu 0.37, cpu inst25.2922, programmable0> = 597154 ~ 0
+2016-10-18 07:31:50.320241 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0.39, cpu inst7.30077, programmable0> = 60 ~ 0
+2016-10-18 07:31:54.094918 7f376a41b700  0 -- 192.168.140.188:6800/194 >> :/0 conn(0x7f3779cac000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:32:00.317954 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:32:00.319497 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[0.0594731,0 0.0594731], req 597154, hr 0, qlen 0, cpu 0.31, cpu inst25.2922, programmable0> = 597154 ~ 0
+2016-10-18 07:32:00.319561 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0.33, cpu inst7.30077, programmable0> = 60 ~ 0
+2016-10-18 07:32:09.110825 7f376a41b700  0 -- 192.168.140.188:6800/194 >> :/0 conn(0x7f3779cf0000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:32:10.318088 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:32:10.319153 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[0.014868,0 0.014868], req 597154, hr 0, qlen 0, cpu 0.26, cpu inst25.2922, programmable0> = 597154 ~ 0
+2016-10-18 07:32:10.319260 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0.28, cpu inst7.30077, programmable0> = 60 ~ 0
+2016-10-18 07:32:20.318347 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:32:20.319827 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[0,0 0], req 597154, hr 0, qlen 0, cpu 0.22, cpu inst25.2922, programmable0> = 597154 ~ 0
+2016-10-18 07:32:20.319898 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0.24, cpu inst0.297216, programmable0> = 60 ~ 0
+2016-10-18 07:32:24.126437 7f376a41b700  0 -- 192.168.140.188:6800/194 >> :/0 conn(0x7f3779cf3000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:32:30.318432 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:32:30.319523 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[0,0 0], req 597154, hr 0, qlen 0, cpu 0.19, cpu inst25.2922, programmable0> = 597154 ~ 0
+2016-10-18 07:32:30.319593 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0.2, cpu inst0.297216, programmable0> = 60 ~ 0
+2016-10-18 07:32:39.138870 7f376a41b700  0 -- 192.168.140.188:6800/194 >> :/0 conn(0x7f3779cf1800 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:32:40.318697 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:32:40.319985 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[0,0 0], req 597154, hr 0, qlen 0, cpu 0.16, cpu inst25.2922, programmable0> = 597154 ~ 0
+2016-10-18 07:32:40.320057 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0.17, cpu inst0.297216, programmable0> = 60 ~ 0
+2016-10-18 07:32:50.318544 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:32:50.319958 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[0,0 0], req 597154, hr 0, qlen 0, cpu 0.13, cpu inst0.266789, programmable0> = 597154 ~ 0
+2016-10-18 07:32:50.320012 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0.14, cpu inst0.297216, programmable0> = 60 ~ 0
+2016-10-18 07:32:54.143052 7f376a41b700  0 -- 192.168.140.188:6800/194 >> :/0 conn(0x7f3779cca000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:33:00.318738 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:33:00.319861 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[0,0 0], req 597154, hr 0, qlen 0, cpu 0.11, cpu inst0.266789, programmable0> = 597154 ~ 0
+2016-10-18 07:33:00.319943 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0.12, cpu inst0.297216, programmable0> = 60 ~ 0
+2016-10-18 07:33:09.158764 7f376a41b700  0 -- 192.168.140.188:6800/194 >> :/0 conn(0x7f3779cac000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:33:10.319054 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:33:10.320101 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[0,0 0], req 597154, hr 0, qlen 0, cpu 0.1, cpu inst0.266789, programmable0> = 597154 ~ 0
+2016-10-18 07:33:10.320426 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0.1, cpu inst0.297216, programmable0> = 60 ~ 0
+2016-10-18 07:33:20.319025 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:33:20.320337 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[0,0 0], req 597154, hr 0, qlen 0, cpu 0.08, cpu inst0.266789, programmable0> = 597154 ~ 0
+2016-10-18 07:33:20.320382 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0.09, cpu inst0.297216, programmable0> = 60 ~ 0
+2016-10-18 07:33:24.174810 7f376a41b700  0 -- 192.168.140.188:6800/194 >> :/0 conn(0x7f377a2b6800 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:33:30.319226 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:33:30.320351 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[0,0 0], req 597154, hr 0, qlen 0, cpu 0.07, cpu inst0.266789, programmable0> = 597154 ~ 0
+2016-10-18 07:33:30.320430 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0.07, cpu inst0.297216, programmable0> = 60 ~ 0
+2016-10-18 07:33:39.183274 7f376a41b700  0 -- 192.168.140.188:6800/194 >> :/0 conn(0x7f3779cf3000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:33:40.319427 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:33:40.320333 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[0,0 0], req 597154, hr 0, qlen 0, cpu 0.06, cpu inst0.266789, programmable0> = 597154 ~ 0
+2016-10-18 07:33:40.320462 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0.06, cpu inst0.297216, programmable0> = 60 ~ 0
+2016-10-18 07:33:50.319502 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:33:50.320401 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[0,0 0], req 597154, hr 0, qlen 0, cpu 0.05, cpu inst0.266789, programmable0> = 597154 ~ 0
+2016-10-18 07:33:50.320444 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0.05, cpu inst0.274669, programmable0> = 60 ~ 0
+2016-10-18 07:33:54.187770 7f376a41b700  0 -- 192.168.140.188:6800/194 >> :/0 conn(0x7f3779cf1800 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:34:00.319670 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:34:00.320649 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[0,0 0], req 597154, hr 0, qlen 0, cpu 0.04, cpu inst0.266789, programmable0> = 597154 ~ 0
+2016-10-18 07:34:00.320766 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0.04, cpu inst0.274669, programmable0> = 60 ~ 0
+2016-10-18 07:34:09.203351 7f376a41b700  0 -- 192.168.140.188:6800/194 >> :/0 conn(0x7f3779cca000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:34:10.319983 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:34:10.320980 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[0,0 0], req 597154, hr 0, qlen 0, cpu 0.04, cpu inst0.266789, programmable0> = 597154 ~ 0
+2016-10-18 07:34:10.321062 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0.04, cpu inst0.274669, programmable0> = 60 ~ 0
+2016-10-18 07:34:20.319969 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:34:20.321266 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[0,0 0], req 597154, hr 0, qlen 0, cpu 0.03, cpu inst0.266789, programmable0> = 597154 ~ 0
+2016-10-18 07:34:20.321328 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0.03, cpu inst0.274669, programmable0> = 60 ~ 0
+2016-10-18 07:34:24.219186 7f376a41b700  0 -- 192.168.140.188:6800/194 >> :/0 conn(0x7f3779cac000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:34:30.320102 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:34:30.321088 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[0,0 0], req 597154, hr 0, qlen 0, cpu 0.03, cpu inst0.266789, programmable0> = 597154 ~ 0
+2016-10-18 07:34:30.321158 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0.03, cpu inst0.274669, programmable0> = 60 ~ 0
+2016-10-18 07:34:39.227666 7f376a41b700  0 -- 192.168.140.188:6800/194 >> :/0 conn(0x7f377a2b5000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:34:40.320396 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:34:40.321795 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[0,0 0], req 597154, hr 0, qlen 0, cpu 0.02, cpu inst0.266789, programmable0> = 597154 ~ 0
+2016-10-18 07:34:40.321871 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0.02, cpu inst0.274669, programmable0> = 60 ~ 0
+2016-10-18 07:34:50.320415 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:34:50.321772 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[0,0 0], req 597154, hr 0, qlen 0, cpu 0.02, cpu inst0.256368, programmable0> = 597154 ~ 0
+2016-10-18 07:34:50.321830 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0.02, cpu inst0.274669, programmable0> = 60 ~ 0
+2016-10-18 07:34:54.228131 7f376a41b700  0 -- 192.168.140.188:6800/194 >> :/0 conn(0x7f377a2b5000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:35:00.320613 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:35:00.321716 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[0,0 0], req 597154, hr 0, qlen 0, cpu 0.02, cpu inst0.256368, programmable0> = 597154 ~ 0
+2016-10-18 07:35:00.321778 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0.02, cpu inst0.274669, programmable0> = 60 ~ 0
+2016-10-18 07:35:09.236296 7f376a41b700  0 -- 192.168.140.188:6800/194 >> :/0 conn(0x7f3779cf3000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:35:10.320933 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:35:10.321971 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[0,0 0], req 597154, hr 0, qlen 0, cpu 0.01, cpu inst0.256368, programmable0> = 597154 ~ 0
+2016-10-18 07:35:10.322024 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0.01, cpu inst0.274669, programmable0> = 60 ~ 0
+2016-10-18 07:35:20.320956 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:35:20.322427 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[0,0 0], req 597154, hr 0, qlen 0, cpu 0.01, cpu inst0.256368, programmable0> = 597154 ~ 0
+2016-10-18 07:35:20.322501 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0.01, cpu inst0.291495, programmable0> = 60 ~ 0
+2016-10-18 07:35:24.252112 7f376a41b700  0 -- 192.168.140.188:6800/194 >> :/0 conn(0x7f3779cf1800 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:35:30.321049 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:35:30.322145 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[0,0 0], req 597154, hr 0, qlen 0, cpu 0.01, cpu inst0.256368, programmable0> = 597154 ~ 0
+2016-10-18 07:35:30.322209 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0.01, cpu inst0.291495, programmable0> = 60 ~ 0
+2016-10-18 07:35:39.264147 7f376a41b700  0 -- 192.168.140.188:6800/194 >> :/0 conn(0x7f3779cca000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:35:40.321288 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:35:40.322297 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[0,0 0], req 597154, hr 0, qlen 0, cpu 0.01, cpu inst0.256368, programmable0> = 597154 ~ 0
+2016-10-18 07:35:40.322365 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0.01, cpu inst0.291495, programmable0> = 60 ~ 0
+2016-10-18 07:35:50.321345 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:35:50.322271 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[0,0 0], req 597154, hr 0, qlen 0, cpu 0.01, cpu inst0.256368, programmable0> = 597154 ~ 0
+2016-10-18 07:35:50.322317 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0.01, cpu inst0.291495, programmable0> = 60 ~ 0
+2016-10-18 07:35:54.268578 7f376a41b700  0 -- 192.168.140.188:6800/194 >> :/0 conn(0x7f3779cac000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:36:00.321522 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:36:00.322434 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[0,0 0], req 597154, hr 0, qlen 0, cpu 0.01, cpu inst0.256368, programmable0> = 597154 ~ 0
+2016-10-18 07:36:00.322497 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0.01, cpu inst0.291495, programmable0> = 60 ~ 0
+2016-10-18 07:36:09.270237 7f376a41b700  0 -- 192.168.140.188:6800/194 >> :/0 conn(0x7f377a2b5000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:36:10.321815 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:36:10.322931 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[0,0 0], req 597154, hr 0, qlen 0, cpu 0, cpu inst0.256368, programmable0> = 597154 ~ 0
+2016-10-18 07:36:10.322994 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0.01, cpu inst0.291495, programmable0> = 60 ~ 0
+2016-10-18 07:36:20.321849 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:36:20.322865 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[0,0 0], req 597154, hr 0, qlen 0, cpu 0, cpu inst0.256368, programmable0> = 597154 ~ 0
+2016-10-18 07:36:20.322950 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0, cpu inst0.291495, programmable0> = 60 ~ 0
+2016-10-18 07:36:24.285996 7f376a41b700  0 -- 192.168.140.188:6800/194 >> :/0 conn(0x7f3779cf3000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:36:30.322016 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:36:30.323363 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[0,0 0], req 597154, hr 0, qlen 0, cpu 0, cpu inst0.256368, programmable0> = 597154 ~ 0
+2016-10-18 07:36:30.323428 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0, cpu inst0.291495, programmable0> = 60 ~ 0
+2016-10-18 07:36:39.296477 7f376a41b700  0 -- 192.168.140.188:6800/194 >> :/0 conn(0x7f3779cf1800 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:36:40.322231 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:36:40.323625 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[0,0 0], req 597154, hr 0, qlen 0, cpu 0, cpu inst0.256368, programmable0> = 597154 ~ 0
+2016-10-18 07:36:40.323703 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0, cpu inst0.291495, programmable0> = 60 ~ 0
+2016-10-18 07:36:50.322297 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:36:50.323877 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[0,0 0], req 597154, hr 0, qlen 0, cpu 0, cpu inst0.268868, programmable0> = 597154 ~ 0
+2016-10-18 07:36:50.323936 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0, cpu inst0.273349, programmable0> = 60 ~ 0
+2016-10-18 07:36:54.300959 7f376a41b700  0 -- 192.168.140.188:6800/194 >> :/0 conn(0x7f3779cca000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:37:00.322494 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:37:00.323430 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[0,0 0], req 597154, hr 0, qlen 0, cpu 0, cpu inst0.268868, programmable0> = 597154 ~ 0
+2016-10-18 07:37:00.323501 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0, cpu inst0.273349, programmable0> = 60 ~ 0
+2016-10-18 07:37:09.301329 7f376a41b700  0 -- 192.168.140.188:6800/194 >> :/0 conn(0x7f3779cac000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:37:10.322744 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:37:10.324000 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[0,0 0], req 597154, hr 0, qlen 0, cpu 0, cpu inst0.268868, programmable0> = 597154 ~ 0
+2016-10-18 07:37:10.324045 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0, cpu inst0.273349, programmable0> = 60 ~ 0
+2016-10-18 07:37:20.322778 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:37:20.323761 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[0,0 0], req 597154, hr 0, qlen 0, cpu 0, cpu inst0.268868, programmable0> = 597154 ~ 0
+2016-10-18 07:37:20.323809 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0, cpu inst0.273349, programmable0> = 60 ~ 0
+2016-10-18 07:37:24.317181 7f376a41b700  0 -- 192.168.140.188:6800/194 >> :/0 conn(0x7f377a2b5000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:37:30.322948 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:37:30.323966 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[0,0 0], req 597154, hr 0, qlen 0, cpu 0, cpu inst0.268868, programmable0> = 597154 ~ 0
+2016-10-18 07:37:30.324031 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0, cpu inst0.273349, programmable0> = 60 ~ 0
+2016-10-18 07:37:39.328830 7f376a41b700  0 -- 192.168.140.188:6800/194 >> :/0 conn(0x7f3779cf3000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:37:40.323180 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:37:40.324543 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[0,0 0], req 597154, hr 0, qlen 0, cpu 0, cpu inst0.268868, programmable0> = 597154 ~ 0
+2016-10-18 07:37:40.324620 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0, cpu inst0.273349, programmable0> = 60 ~ 0
+2016-10-18 07:37:50.323213 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:37:50.324594 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[0,0 0], req 597154, hr 0, qlen 0, cpu 0, cpu inst0.268868, programmable0> = 597154 ~ 0
+2016-10-18 07:37:50.324642 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0, cpu inst0.273349, programmable0> = 60 ~ 0
+2016-10-18 07:37:54.333271 7f376a41b700  0 -- 192.168.140.188:6800/194 >> :/0 conn(0x7f3779cf1800 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:38:00.323388 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:38:00.324385 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[0,0 0], req 597154, hr 0, qlen 0, cpu 0, cpu inst0.268868, programmable0> = 597154 ~ 0
+2016-10-18 07:38:00.324428 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0, cpu inst0.273349, programmable0> = 60 ~ 0
+2016-10-18 07:38:09.332917 7f376a41b700  0 -- 192.168.140.188:6800/194 >> :/0 conn(0x7f3779cca000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:38:10.323763 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:38:10.324849 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[0,0 0], req 597154, hr 0, qlen 0, cpu 0, cpu inst0.268868, programmable0> = 597154 ~ 0
+2016-10-18 07:38:10.324902 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0, cpu inst0.273349, programmable0> = 60 ~ 0
+2016-10-18 07:38:20.323715 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:38:20.325112 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[0,0 0], req 597154, hr 0, qlen 0, cpu 0, cpu inst0.268868, programmable0> = 597154 ~ 0
+2016-10-18 07:38:20.325179 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0, cpu inst0.273349, programmable0> = 60 ~ 0
+2016-10-18 07:38:24.348724 7f376a41b700  0 -- 192.168.140.188:6800/194 >> :/0 conn(0x7f3779cac000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:38:30.323844 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:38:30.325102 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[0,0 0], req 597154, hr 0, qlen 0, cpu 0, cpu inst0.268868, programmable0> = 597154 ~ 0
+2016-10-18 07:38:30.325153 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0, cpu inst0.255096, programmable0> = 60 ~ 0
+2016-10-18 07:38:39.361198 7f376a41b700  0 -- 192.168.140.188:6800/194 >> :/0 conn(0x7f377a2b5000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:38:40.324246 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:38:40.325271 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[0,0 0], req 597154, hr 0, qlen 0, cpu 0, cpu inst0.268868, programmable0> = 597154 ~ 0
+2016-10-18 07:38:40.325337 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0.08, cpu inst0.255096, programmable0> = 60 ~ 0
+2016-10-18 07:38:50.324212 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:38:50.325295 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[0,0 0], req 597154, hr 0, qlen 0, cpu 0, cpu inst0.268856, programmable0> = 597154 ~ 0
+2016-10-18 07:38:50.325339 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0.06, cpu inst0.255096, programmable0> = 60 ~ 0
+2016-10-18 07:38:54.365601 7f376a41b700  0 -- 192.168.140.188:6800/194 >> :/0 conn(0x7f3779cf3000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:39:00.324347 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:39:00.325371 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[0,0 0], req 597154, hr 0, qlen 0, cpu 0, cpu inst0.268856, programmable0> = 597154 ~ 0
+2016-10-18 07:39:00.325435 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0.05, cpu inst0.255096, programmable0> = 60 ~ 0
+2016-10-18 07:39:09.369035 7f376a41b700  0 -- 192.168.140.188:6800/194 >> :/0 conn(0x7f3779cf1800 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:39:10.324711 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:39:10.326221 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[0,0 0], req 597154, hr 0, qlen 0, cpu 0, cpu inst0.268856, programmable0> = 597154 ~ 0
+2016-10-18 07:39:10.326348 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0.05, cpu inst0.255096, programmable0> = 60 ~ 0
+2016-10-18 07:39:20.324677 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:39:20.326175 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[0,0 0], req 597154, hr 0, qlen 0, cpu 0, cpu inst0.268856, programmable0> = 597154 ~ 0
+2016-10-18 07:39:20.326225 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0.04, cpu inst0.255096, programmable0> = 60 ~ 0
+2016-10-18 07:39:24.384858 7f376a41b700  0 -- 192.168.140.188:6800/194 >> :/0 conn(0x7f3779cca000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:39:30.324837 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:39:30.325850 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[0,0 0], req 597154, hr 0, qlen 0, cpu 0, cpu inst0.268856, programmable0> = 597154 ~ 0
+2016-10-18 07:39:30.326087 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0.03, cpu inst0.255096, programmable0> = 60 ~ 0
+2016-10-18 07:39:39.393628 7f376a41b700  0 -- 192.168.140.188:6800/194 >> :/0 conn(0x7f3779cac000 sd=-1 :6800 s=STATE_ACCEPTING_WAIT_BANNER_ADDR pgs=0 cs=0 l=0).fault with nothing to send and in the half  accept state just closed
+2016-10-18 07:39:40.325265 7f3766498700  0 mds.0.bal MSEVILLA: v=-1 prev_prog=-1 load.programamble=0
+2016-10-18 07:39:40.326277 7f376849c700  0 mds.0.bal   mds.0 mdsload<[0,0 0]/[0,0 0], req 597154, hr 0, qlen 0, cpu 0.08, cpu inst0.655328, programmable0> = 597154 ~ 0
+2016-10-18 07:39:40.326354 7f376849c700  0 mds.0.bal   mds.1 mdsload<[0,0 0]/[0,0 0], req 60, hr 0, qlen 0, cpu 0.03, cpu inst0.255096, programmable0> = 60 ~ 0
