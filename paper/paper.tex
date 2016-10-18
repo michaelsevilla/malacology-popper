@@ -137,7 +137,6 @@ to evolve storage systems efficiently, without jeopardizing years of
 code-hardening and performance optimization efforts.
 % that are important for
 %users to continue to entrust their data to the storage system.
-
 In this paper we investigate an approach that focuses on 
 %generalizing 
 %and
@@ -160,9 +159,9 @@ to enable the creation of new services via composition.
 A programmable storage system can be realized by exposing existing functionality (such as 
 metadata services and synchronization and monitoring capabilities) as interfaces that can be ``glued together''
 in a variety of ways
-using a high-level language.  Programmable storage differs from \emph{active storage},
-or the injection and execution of arbitrary code in a storage system.
-
+using a high-level language. In contrast to programmable storage, 
+\emph{active storage} differs through its focus on the injection and
+execution of code within a storage system or storage device.
 
 To illustrate the benefits and challenges of this approach we have designed and
 evaluated Malacology, a programmable storage system 
@@ -179,8 +178,9 @@ Figure~\ref{fig:overview}). As we will show in this paper, Malacology is
 expressive enough to provide the functionality necessary for implementing new
 services. Our contributions are:
 
-Our prototype includes a non-exhaustive set of interfaces that can be used as building blocks
-for constructing novel storage abstractions, including:
+A prototype programmable storage system that includes a non-exhaustive set of
+interfaces that can be used as building blocks for constructing novel storage
+abstractions, including:
 
 \begin{enumerate}
 
@@ -230,8 +230,8 @@ conclude.
 
 Building storage stacks from the ground up for a specific purpose results in
 the best performance. For example, HDFS was designed specifically to serve
-Hadoop's jobs~\paa{lol not sure if I buy that hadoop achieves ``best performance''}, and uses techniques like exposing data locality and relaxing POSIX constraints to achieve
-the best performance~\cite{CITEME}. Alternatively, general-purpose storage
+Hadoop's jobs, and uses techniques like exposing data locality and relaxing POSIX constraints to
+to achieve application-specific I/O optimizations.~\cite{CITEME}. Alternatively, general-purpose storage
 stacks are built with the flexiblity to serve many applications by providing a
 variety of interfaces and tunable parameters. Unfortunately, managing competing
 forces in these systems is difficult and users
@@ -267,7 +267,7 @@ The Ceph community provides empirical evidence that developers are already begin
 programmable storage. Figure~\ref{fig:obj-int-dev-growth} shows a dramatic
 growth in the production use of domain-specific interfaces in the Ceph
 community since 2010. In that figure, classes are functional groupings of methods on storage
-objects.  What is most remarkable is that this trend contradicts the notion
+objects (e.g. remotely computing and caching the checksum of an object extent).  What is most remarkable is that this trend contradicts the notion
 that API changes are a burden for users.  Rather it appears that a gap in
 existing interfaces are being addressed through ad-hoc approaches to programmability. In fact,
 Table~\ref{table:objclasses} categorizes existing interfaces and we clearly see
@@ -311,10 +311,11 @@ already trying to use programmability because their needs, whether they be
 related to performance, availability, consistency, convenience, etc., are not
 satisfied by the existing default set of interfaces. The popularity of the custom object
 interface facility of Ceph could be due to a number of reasons, such as the
-default algorithms/tunables of the storage system are insufficient for the
-application's performance goals, programmers want to exploit
-application-specific semantics, and/or programmers know how to manage resources
-to improve performance. Their solution is a way to work around the
+default algorithms/tunables of the storage system being insufficient for the
+application's performance goals, programmers wanting to exploit
+application-specific semantics, and/or programmers knowing how to manage resources
+to improve performance. A solution based on application-specific object
+interfaces is a way to work around the
 traditionally rigid storage APIs because custom object interfaces give
 programmers the ability to tell the storage system about their application: if
 it is CPU or IO bound, if it has locality, if its size has the potential to
@@ -328,7 +329,7 @@ interfaces, which can be as simple as a redirection to the persistent data
 store or as complicated as a strongly consistent directory service, should be
 used and re-used in many contexts to implement a wide range of services. By
 making programmability a `feature', rather than a `hack' or `workaround', we
-help standardize a development process that is largely ad-hoc.
+help standardize a development process that now is largely ad-hoc.
 
 %\section{Challenges}
 %\label{sec:challenges}
@@ -396,7 +397,7 @@ system, given advances in the quality and robustness of today's storage stacks.
 
 Malacology implements and demonstrates the ideas of programmable storage in
 Ceph. We choose Ceph because it is a production quality system and because it
-is open source. The large developer community ensures that code is relatively
+is open source. The large developer community ensures that code is
 robust and the visibility of the code lets us expose any interface we want. In
 the next section we describe the Ceph components that we expose as Malacology
 interfaces.
@@ -468,7 +469,7 @@ extensively in game engines, and systems research \cite{neto:dls14-luaos},
 including storage systems where it has been effectively used both on
 \cite{grawinkel:pdsw2012-lua,watkins2013:bdmc13-in-vivo,geambasu_comet_2010}
 and off \cite{sevilla:sc15-mantle} the performance critical path. Finally, the
-flexibility of the runtime allows to sandbox applications in order to address
+flexibility of the runtime allows execution sandboxing in order to address
 security and performance concerns.
 
 We will now discuss the common subsystems used to manage storage system and how
@@ -491,16 +492,17 @@ delays and heterogenous hardware in highly dynamic environments.
 
 In the case of Ceph, a consistent view of cluster state among server daemons
 and clients is critical to provide strong consistency guarantees to clients.
-Ceph maintains cluster state information in per-subsystem ``maps'' that record
-membership and status information.  A PAXOS-based monitoring service is
+Ceph maintains cluster state information in per-subsystem data structures
+called ``maps'' that record
+membership and status information.  A Paxos-based monitoring service is
 responsible for integrating state changes into cluster maps, responding to
 requests from out-of-date clients and synchronizing members of the cluster
 whenever there is a change in a map so that they all observe the same system
 state. As a fundamental building block of many system designs, consensus
-abstractions such as PAXOS are a common technique for maintaining consistent
+abstractions such as Paxos are a common technique for maintaining consistent
 data versions, and are a useful system to expose.
 
-The default behavior of the monitor can be seen as a PAXOS-based notification
+The default behavior of the monitor can be seen as a Paxos-based notification
 system, similar to the one introduced in~\cite{burrows_chubby_2006}, allowing
 clients to identify when new values (termed epochs in Ceph) are associated to
 given maps. While Ceph does not expose this service directly, it does allow
@@ -886,7 +888,7 @@ powerful abstraction used to build many distributed systems, such as
 cloud-based metadata management~\cite{balakrishnan:sosp13} and elastic database
 storage engines~\cite{bernstein:cidr11,bernstein:vldb11,bernstein:sigmod15}.
 However, existing implementations that rely on consensus algorithms such as
-PAXOS funnel I/O through a single point introducing a bottleneck that restricts
+Paxos funnel I/O through a single point introducing a bottleneck that restricts
 throughput.  In contrast, the CORFU protocol is able to achieve high throughput
 using a network counter service, called a \emph{sequencer}, for obtaining the
 entry at the tail of log. This metadata operation that avoids all persistent
@@ -986,7 +988,7 @@ Since the recovery protocol does not inform clients of a new epoch value until
 the end of the process, the validity of the tail can be guaranteed despite the
 iterative process of contacting storage devices.  Recovery of the sequencer
 process itself may be handled in many ways, such as leader election using an
-auxiliary service such as PAXOS. In our implementation, the recovery is the
+auxiliary service such as Paxos. In our implementation, the recovery is the
 same (and is inherited from) the Ceph metadata service.
 
 \section{Evaluation}
@@ -1088,7 +1090,7 @@ In Section~\ref{consistencyversioning-of-cluster-state} we described an
 interface management service that is responsible for the durable and
 consistent cluster-wide distribution of interface versions. We evaluate the
 costs of such a service by embedding interface definitions in a Ceph cluster
-membership data structure that is managed by a PAXOS instance, and distributed
+membership data structure that is managed by a Paxos instance, and distributed
 using a scalable, peer-to-peer gossip protocol that is built into Ceph. We
 assume an architecture that consists of a light-weight interface that enforces
 the semantics of interface management resulting in one or more interface
@@ -1107,8 +1109,8 @@ interface commit. Each of the 120 OSDs used a RAM-based object store, while the
 
 Figure~\ref{fig:propdelay} shows the CDF of the latency of installing and
 distributing an interface update on all OSDs in the cluster. The latency is
-defined as the elapsed time following the PAXOS proposal for an interface
-update until each OSD makes the update live (the cost of the PAXOS proposal is
+defined as the elapsed time following the Paxos proposal for an interface
+update until each OSD makes the update live (the cost of the Paxos proposal is
 configurable and is discussed below). The latency measurements were taken on
 the nodes running Ceph server daemons, and thus exclude the client round-trip
 cost. In each of the experiments 1000 interface updates were observed.
@@ -1130,8 +1132,8 @@ number of OSDs.
 propagate application-specific state that needs to be highly-available and
 strongly consistent.  The real cost of interface management, in addition to
 cluster-wide propagation of interface updates, includes the network round-trip
-to the interface management service, the PAXOS commit protocol, and other
-factors such as system load. By default PAXOS proposals occur periodically with
+to the interface management service, the Paxos commit protocol, and other
+factors such as system load. By default Paxos proposals occur periodically with
 a 1 second interval in order to accumulate updates. In a minimum, realistic
 quorum of 3 monitors using HDD-based storage, we were able to decrease this
 interval to an average of 222 ms.
