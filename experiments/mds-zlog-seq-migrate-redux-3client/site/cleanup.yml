@@ -1,0 +1,64 @@
+---
+# Adapted from ceph-ansible's purge_docker_cluster.yml
+# This playbook purges a containerized Ceph cluster
+# It removes: packages, configuration files and ALL THE DATA
+
+- hosts: localhost
+  become: True
+  tasks:
+  - name: delete the config directory on the ansible server
+    file: path="{{ playbook_dir }}/fetch" state=absent
+
+  - name: delete old logs
+    shell: ls -d {{ playbook_dir|dirname }}/logs/* | grep -v gitkeep
+    register: logs
+    ignore_errors: True
+  - file: path={{ item }} state=absent
+    with_items: 
+    - "{{ logs.stdout_lines }}"
+
+  - name: delete old utilizations
+    shell: ls -d {{ playbook_dir|dirname }}/utilizations/* | grep -v gitkeep
+    register: utilizations
+    ignore_errors: True
+  - file: path={{ item }} state=absent
+    with_items: 
+    - "{{ utilizations.stdout_lines }}"
+
+  - name: delete old results
+    shell: ls -d {{ playbook_dir|dirname }}/results/* | grep -v gitkeep | grep -v visualize
+    register: results
+    ignore_errors: True
+  - file: path={{ item }} state=absent
+    with_items: 
+    - "{{ results.stdout_lines }}"
+
+- hosts: mons, osds, mdss, clients0, clients1, clients2, clients3, clients4, clients5
+  become: True
+  tasks:
+  - name: decimate all containers
+    shell: docker ps -aq | xargs docker rm -f
+    ignore_errors: True
+
+- hosts: all
+  become: True
+  roles:
+  - role: cleanup
+    images:
+    - michaelsevilla/graphite
+    - michaelsevilla/collectl
+    - michaelsevilla/mdtest
+    delete:
+    - /etc/ceph/
+    - /var/lib/ceph
+    - /tmp/graphite
+
+- hosts: osds
+  become: True
+  tasks:
+  - name: disk zap
+    command: sgdisk --zap-all --clear --mbrtogpt -g -- {{ item }}
+    with_items: ceph_osd_docker_devices
+  - name: disk zap again
+    command: sgdisk --zap-all --clear --mbrtogpt -g -- {{ item }}
+    with_items: ceph_osd_docker_devices
