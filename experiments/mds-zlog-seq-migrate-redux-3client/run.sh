@@ -1,0 +1,24 @@
+#!/bin/bash
+
+set -ex
+
+ANSIBLE="ansible-playbook --forks 50 --skip-tags with_pkg"
+
+cd site
+
+export ANSIBLE_LOG_PATH="../logs/setup.log"
+$ANSIBLE ceph.yml ../workloads/zeqr-setup.yml
+
+for j in 0 1 2; do
+  for i in `seq 1 6`; do
+    site="${i}seq"
+    export ANSIBLE_LOG_PATH="../logs/${site}.log"
+    $ANSIBLE -e "site=baseline" ceph.yml ../workloads/zeqr-setup.yml  ../workloads/zeqr-multiclient.yml 
+
+  done
+  mv ../results ../results-baseline-run${j}; mkdir ../results
+done
+
+cd -
+
+tar czf ../mds-zlog-seq-migrate-master.tar.gz ../mds-zlog-seq-migrate-master

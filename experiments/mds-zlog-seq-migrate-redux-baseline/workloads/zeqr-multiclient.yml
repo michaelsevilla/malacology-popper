@@ -1,6 +1,6 @@
 ---
 
-- hosts: clients0,clients1,clients2,clients3,clients4,clients5
+- hosts: clients0,clients1
   become: True
   tasks:
     - name: remove old clients
@@ -9,16 +9,8 @@
 
 - hosts: clients0
   tasks: [include: zlog-client.yml dir=dir0/blah0]
-- hosts: clients1
-  tasks: [include: zlog-client.yml dir=dir1/blah1]
-- hosts: clients2
-  tasks: [include: zlog-client.yml dir=dir2/blah2]
-- hosts: clients3
-  tasks: [include: zlog-client.yml dir=dir3/blah3]
-- hosts: clients4
-  tasks: [include: zlog-client.yml dir=dir4/blah4]
 
-- hosts: clients5
+- hosts: clients1
   tasks:
 
     - name: start a client in the foreground
@@ -28,7 +20,7 @@
                --entrypoint=seq-client \
                -v /etc/ceph:/etc/ceph \
                {{ ceph_client_docker_username }}/{{ ceph_client_docker_imagename }} \
-               --runtime 240 --filename dir5/blah5 --op fstat --perf_file /etc/ceph/perf-dir5
+               --runtime 240 --filename dir1/blah1 --op fstat --perf_file /etc/ceph/perf-dir1 --capdelay 1
       register: results
 
     - name: parse results
@@ -37,9 +29,19 @@
       with_items: 
         - "{{ results.stdout_lines }}"
 
-- hosts: clients0,clients1,clients2,clients3,clients4,clients5
-  tasks:
+    - name: get the summary results
+      shell: ls /etc/ceph | grep -v ceph
+      ignore_errors: True
+      register: ls
 
+    - name: pull the files
+      fetch: flat=yes src=/etc/ceph/{{ item }} dest="{{ playbook_dir|dirname }}/results/{{ site }}-foreground-{{ ansible_hostname }}-{{ item }}"
+      with_items:
+        - "{{ ls.stdout_lines }}"
+
+- hosts: clients0
+  tasks:
+   
     - name: collect the throughput from the background sequencer
       shell: docker logs zlog-seq 
       register: results

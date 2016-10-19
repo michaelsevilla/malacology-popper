@@ -1,0 +1,7 @@
+---
+
+- hosts: clients0[0]
+  tasks:
+    - shell: docker exec cephfs mkdir -p /cephfs/{{ item }}
+      ignore_errors: True
+      with_items: ["dir0", "dir1", "dir2"]

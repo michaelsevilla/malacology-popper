@@ -1,0 +1,9 @@
+---
+dummy:
+
+mds_containerized_deployment: true
+ceph_mds_docker_username: piha.soe.ucsc.edu:5000/ceph
+ceph_mds_docker_imagename: zlog-mantle:jewel
+ceph_mds_docker_extra_env: "MDS_NAME=mds-{{ ansible_hostname }},CEPHFS_DATA_POOL_PG=4096,CEPHFS_METEDATA_POOL_PG=4096"
+
+collectl_args: "-sC -i 1"
