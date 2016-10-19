@@ -1,39 +1,20 @@
-%\documentclass[10pt,twocolumn]{article}
 \documentclass[preprint]{sigplanconf-eurosys}
-
-%\usepackage{fullpage}
-%\usepackage{times}
 \usepackage{multirow}
 \usepackage{arydshln}
-%\usepackage{amssymb,amsmath}
-%\usepackage{ifxetex,ifluatex}
 \usepackage{amsmath}
-%\usepackage{mathptmx}
 \usepackage{graphicx}
 \usepackage{listings}
-%\usepackage{amssymb}
 \usepackage{pifont}
 \usepackage{color}
 \newcommand{\cmark}{\ding{51}}%
 \usepackage[font=footnotesize,labelfont=bf]{caption}
 
 \newcommand{\paa}[1]{{\textcolor{red}{[[#1 -- paa]]}}}
-%\newcommand{\xmark}{\ding{55}}%
-%
-%
-%
-%% use upquote if available, for straight quotes in verbatim environments
-%\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
-%
-%\usepackage[font=footnotesize,labelfont=bf]{caption}
 \usepackage{pstricks}
 \makeatletter
 \def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
 \def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
 \makeatother
-%% Scale images if necessary, so that they will not overflow the page
-%% margins by default, and it is still possible to overwrite the defaults
-%% using explicit options in \includegraphics[width, height, ...]{}
 \setkeys{Gin}{width=\maxwidth,keepaspectratio}
 
 \usepackage[unicode=true]{hyperref}
@@ -47,10 +28,6 @@
             linkcolor=black,
             pdfborder={0 0 0}}
 \urlstyle{same}  % don't use monospace font for urls
-%%\setlength{\parindent}{0pt}
-%%\setlength{\parskip}{6pt plus 2pt minus 1pt}
-%%\setlength{\emergencystretch}{3em}  % prevent overfull lines
-%\setcounter{secnumdepth}{5}
 
 \title{Malacology: A Programmable Storage System}
 \authorinfo{Paper ID: 123}
@@ -61,9 +38,9 @@
 \maketitle
 
 \begin{abstract}
-Storage systems are caught between rapidly changing data
-processing applications and the increasing speed of storage devices. This puts
-tremendous pressure on storage systems to support rapid evolution both in terms of their
+Storage systems are caught between rapidly changing data processing
+applications and the increasing speed of storage devices. This puts tremendous
+pressure on storage systems to support rapid evolution both in terms of their
 interfaces and their performance. But adapting storage systems can be difficult
 because unprincipled changes might jeopardize years of code-hardening and
 performance optimization efforts that were necessary for users to entrust their
@@ -74,11 +51,12 @@ increasing speed of storage devices. This approach allows a large degree of
 flexibility for storage systems to evolve without sacrificing the robustness of
 their code-hardened subsystems.  We illustrate the advantages and challenges of
 programmability by composing existing primitives into two new higher-level
-services: a file system metadata load balancer and a high-performance distributed
-shared-log that leverages flash devices. The evaluation demonstrates that our
-services inherit desirable qualities of the back-end storage system, including
-the ability to balance load, efficiently propagate cluster metadata, recover
-from failure, and to make trade-offs for latency/throughput using leases.
+services: a file system metadata load balancer and a high-performance
+distributed shared-log that leverages flash devices. The evaluation
+demonstrates that our services inherit desirable qualities of the back-end
+storage system, including the ability to balance load, efficiently propagate
+cluster metadata, recover from failure, and to make trade-offs for
+latency/throughput using leases.
 \end{abstract}
 
 \section{Introduction}
@@ -103,13 +81,12 @@ non-volatile memory that are orders of magnitude faster than traditional
 spinning media are moving overall performance bottlenecks away from storage
 devices to CPUs and networking, and pressure storage systems to shorten their
 code paths and incorporate new
-optimizations~\cite{gray_tape_2007,gray_flash_2008}. 
-Second, emerging ``big data'' applications demand interface evolution to
-support flexible consistency as well as flexible structured data
-representations.  ~\cite{apache_contributors_parquet_2014}. 
-Finally, production-quality
-scalable storage systems available as open source software have established and
-are continuing to establish new, \emph{de-facto} API standards at a faster pace
+optimizations~\cite{gray_tape_2007,gray_flash_2008}.  Second, emerging ``big
+data'' applications demand interface evolution to support flexible consistency
+as well as flexible structured data representations.
+~\cite{apache_contributors_parquet_2014}.  Finally, production-quality scalable
+storage systems available as open source software have established and are
+continuing to establish new, \emph{de-facto} API standards at a faster pace
 than traditional standards
 bodies~\cite{snia_implementing_2014,linux_foundation_kinetic_2015}.
 
@@ -125,53 +102,41 @@ services, ZLog and Mantle, that sit alongside the traditional user-facing APIs
 (file, block, and object) in the storage stack.  \label{fig:overview}}
 \end{figure}
 
-%These three trends put evolutionary pressure on storage systems and raise the
-%question of whether 
 The evolutionary pressure placed on storage systems by these trends raises the
-question of whether
-there are principles that storage systems designers can follow
-to evolve storage systems efficiently, without jeopardizing years of
-code-hardening and performance optimization efforts.
-% that are important for
-%users to continue to entrust their data to the storage system.
-In this paper we investigate an approach that focuses on 
-%generalizing 
-%and
-%composing 
-identifying and exposing existing
+question of whether there are principles that storage systems designers can
+follow to evolve storage systems efficiently, without jeopardizing years of
+code-hardening and performance optimization efforts.  In this paper we
+investigate an approach that focuses on identifying and exposing existing
 storage system resources, services, and abstractions that in a generalized form
 can be used to \emph{program} new services. By composing higher-level services
-over existing abstraction one can reuse
-subsystems and leverage their optimizations, established correctness,
-robustness, and efficiency. 
+over existing abstraction one can reuse subsystems and leverage their
+optimizations, established correctness, robustness, and efficiency. 
 
-{\it \textbf{We define a programmable storage system}} to be a storage system that facilitates the 
-re-use and extension of existing storage abstractions provided by the underlying software stack,
-to enable the creation of new services via composition.
-A programmable storage system can be realized by exposing existing functionality (such as 
-metadata services and synchronization and monitoring capabilities) as interfaces that can be ``glued together''
-in a variety of ways
-using a high-level language. In contrast to programmable storage, 
-\emph{active storage} differs through its focus on the injection and
-execution of code within a storage system or storage device. Programmable 
-storage differs from \emph{active storage}~\cite{riedel:vldb98} in that the 
-former is applicable to any component of the storage system, while the latter 
-focuses at the data access level (i.e. inject and execute arbitrary code at the 
-I/O access layers). Given this contrast, we can say that active storage is an 
-example of how one internal component (the storage layer) is exposed in a 
+{\it \textbf{We define a programmable storage system}} to be a storage system
+that facilitates the re-use and extension of existing storage abstractions
+provided by the underlying software stack, to enable the creation of new
+services via composition.  A programmable storage system can be realized by
+exposing existing functionality (such as metadata services and synchronization
+and monitoring capabilities) as interfaces that can be ``glued together'' in a
+variety of ways using a high-level language. In contrast to programmable
+storage, \emph{active storage} differs through its focus on the injection and
+execution of code within a storage system or storage device. Programmable
+storage differs from \emph{active storage}~\cite{riedel:vldb98} in that the
+former is applicable to any component of the storage system, while the latter
+focuses at the data access level (i.e. inject and execute arbitrary code at the
+I/O access layers). Given this contrast, we can say that active storage is an
+example of how one internal component (the storage layer) is exposed in a
 programmable storage system.
 
 To illustrate the benefits and challenges of this approach we have designed and
-evaluated Malacology, a programmable storage system 
-that facilitates the construction of
-new
-services by re-purposing existing subsystem abstractions of the storage stack.
-We build Malacology in Ceph, a popular open source software storage stack.
-We choose Ceph to demonstrate the concept of programmable storage because it
-offers a broad spectrum of existing services, including distributed locking and
-caching services provided by metadata servers, durability and object interfaces
-provided by the backend object store, and propagation of consistent
-cluster state provided by the monitoring service (see
+evaluated Malacology, a programmable storage system that facilitates the
+construction of new services by re-purposing existing subsystem abstractions of
+the storage stack.  We build Malacology in Ceph, a popular open source software
+storage stack.  We choose Ceph to demonstrate the concept of programmable
+storage because it offers a broad spectrum of existing services, including
+distributed locking and caching services provided by metadata servers,
+durability and object interfaces provided by the backend object store, and
+propagation of consistent cluster state provided by the monitoring service (see
 Figure~\ref{fig:overview}). As we will show in this paper, Malacology is
 expressive enough to provide the functionality necessary for implementing new
 services. Our contributions are:
@@ -198,10 +163,8 @@ underyling storage stack's object store.
 
 \end{enumerate}
 
-{\it \textbf{We implement two distributed services}} using 
-%programmable storage
-%to demonstrate its feasability:
-Malacology to demonstrate the feasibility of the programmable storage approach:
+{\it \textbf{We implement two distributed services}} using Malacology to
+demonstrate the feasibility of the programmable storage approach:
 
 \begin{enumerate}
 
@@ -220,7 +183,7 @@ subsystems within the underlying storage system that we re-purpose, and briefly
 describe how those system are used within Malacology (\S\ref{sec:malacology}).
 Then we describe the services that we have constructed within the Malacology
 framework (\S\ref{sec:services}), and evaluate our ideas within our prototype
-implementation (\S\ref{evaluation}).  Finally we discuss related work and
+implementation (\S\ref{sec:evaluation}).  Finally we discuss related work and
 conclude.
 
 \section{Application-Specific Storage Stacks}
@@ -228,48 +191,37 @@ conclude.
 
 Building storage stacks from the ground up for a specific purpose results in
 the best performance. For example, HDFS was designed specifically to serve
-Hadoop's jobs, and uses techniques like exposing data locality and relaxing POSIX constraints to
-to achieve application-specific I/O optimizations.~\cite{CITEME}. Alternatively, general-purpose storage
-stacks are built with the flexiblity to serve many applications by providing a
-variety of interfaces and tunable parameters. Unfortunately, managing competing
-forces in these systems is difficult and users
-want more control from the general-purpose storage stacks
-without going as far as building their storage system from the ground up.
-
-% does this belong?
-%Ceph~\cite{weil:osdi2006-ceph,ceph}, the increasingly
-%popular, production-level open-source distributed storage system, was
-%originally built to be an HPC file system. But demands for storage systems that
-%could slide in behind cloud infrastructures, like OpenStack, shifted the focus
-%to Ceph's internal object store as a backend for large cloud block devices,
-%S3-like objects, and file system workloads.  
+Hadoop's jobs, and uses techniques like exposing data locality and relaxing
+POSIX constraints to to achieve application-specific I/O
+optimizations.~\cite{CITEME}. Alternatively, general-purpose storage stacks are
+built with the flexiblity to serve many applications by providing a variety of
+interfaces and tunable parameters. Unfortunately, managing competing forces in
+these systems is difficult and users want more control from the general-purpose
+storage stacks without going as far as building their storage system from the
+ground up.
 
 To demonstrate this trend in storage systems we examine the state of
-programmability in Ceph. Something of a storage swiss army knife, Ceph simultaneously supports file,
-block, and object interfaces on a single
+programmability in Ceph. Something of a storage swiss army knife, Ceph
+simultaneously supports file, block, and object interfaces on a single
 cluster~\cite{ceph_contributors_ceph_2010}. Ceph's Reliable Autonomous
 Distributed Object Storage (RADOS) system is a cluster of storage devices
 (OSDs) that provide Ceph with data durability and integrity using replication,
-erasure-coding, and scrubbing~\cite{weil_rados_2007}. Ceph already 
-%has some
-provides some degree of
-programmability; the OSDs support domain-specific object interfaces that are
-implemented by composing existing low-level storage interfaces that execute
-atomically. These interfaces are
-written in C++ and are statically loaded into the system.
+erasure-coding, and scrubbing~\cite{weil_rados_2007}. Ceph already provides
+some degree of programmability; the OSDs support domain-specific object
+interfaces that are implemented by composing existing low-level storage
+interfaces that execute atomically. These interfaces are written in C++ and are
+statically loaded into the system.
 
-% By introducing programmability concepts into Ceph, we can build new services
-% by carefully exposing internal storage services to applications.
-
-The Ceph community provides empirical evidence that developers are already beginning to embrace
-programmable storage. Figure~\ref{fig:obj-int-dev-growth} shows a dramatic
-growth in the production use of domain-specific interfaces in the Ceph
-community since 2010. In that figure, classes are functional groupings of methods on storage
-objects (e.g. remotely computing and caching the checksum of an object extent).  What is most remarkable is that this trend contradicts the notion
-that API changes are a burden for users.  Rather it appears that a gap in
-existing interfaces are being addressed through ad-hoc approaches to programmability. In fact,
-Table~\ref{table:objclasses} categorizes existing interfaces and we clearly see
-a trend towards reusable services.
+The Ceph community provides empirical evidence that developers are already
+beginning to embrace programmable storage. Figure~\ref{fig:obj-int-dev-growth}
+shows a dramatic growth in the production use of domain-specific interfaces in
+the Ceph community since 2010. In that figure, classes are functional groupings
+of methods on storage objects (e.g. remotely computing and caching the checksum
+of an object extent).  What is most remarkable is that this trend contradicts
+the notion that API changes are a burden for users.  Rather it appears that a
+gap in existing interfaces are being addressed through ad-hoc approaches to
+programmability. In fact, Table~\ref{table:objclasses} categorizes existing
+interfaces and we clearly see a trend towards reusable services.
 
 \begin{figure}[ht]
 \centering
@@ -285,18 +237,12 @@ end-points).}
 \begin{table}[ht]
 \centering
   \begin{tabular}{l|l|l}
-    Category & Specialization& \# \\ \hline
-    \multirow{2}{*}{Locking} & Shared & \multirow{2}{*}{6} \\
-                             & Exclusive & \\ \hdashline
-    \multirow{3}{*}{Logging} & Replica & 3 \\
-                             & State & 4 \\
-                             & Timestamped & 4 \\ \hdashline
-    \multirow{4}{*}{Metadata Managment} 
-                             & RADOS Block Device  & 37 \\
-                             & RADOS Gatway & 27 \\
-                             & User & 5 \\
-                             & Version & 5 \\ \hdashline
-    Garbage Collection       & Reference Counting & 4 \\
+    Category & Example & \# \\ \hline
+    Logging  & Geographically distribute replicas & 11 \\ \hdashline
+    Metadata & Snapshots in the block device OR  & \multirow{2}{*}{74} \\
+    Management & Scan extents for file system repair & \\ \hdashline
+    Locking  & Grants clients exclusive access & 6 \\ \hdashline
+    Other & Garbage collection, reference counting  & 4\\
 \end{tabular}
 \caption{A variety of RADOS object storage classes exist to expose interfaces
     to applications. \# is the number of methods that use these categories.
@@ -307,13 +253,13 @@ end-points).}
 The takeaway from Figure~\ref{fig:obj-int-dev-growth} is that programmers are
 already trying to use programmability because their needs, whether they be
 related to performance, availability, consistency, convenience, etc., are not
-satisfied by the existing default set of interfaces. The popularity of the custom object
-interface facility of Ceph could be due to a number of reasons, such as the
-default algorithms/tunables of the storage system being insufficient for the
-application's performance goals, programmers wanting to exploit
-application-specific semantics, and/or programmers knowing how to manage resources
-to improve performance. A solution based on application-specific object
-interfaces is a way to work around the
+satisfied by the existing default set of interfaces. The popularity of the
+custom object interface facility of Ceph could be due to a number of reasons,
+such as the default algorithms/tunables of the storage system being
+insufficient for the application's performance goals, programmers wanting to
+exploit application-specific semantics, and/or programmers knowing how to
+manage resources to improve performance. A solution based on
+application-specific object interfaces is a way to work around the
 traditionally rigid storage APIs because custom object interfaces give
 programmers the ability to tell the storage system about their application: if
 it is CPU or IO bound, if it has locality, if its size has the potential to
@@ -328,18 +274,6 @@ store or as complicated as a strongly consistent directory service, should be
 used and re-used in many contexts to implement a wide range of services. By
 making programmability a `feature', rather than a `hack' or `workaround', we
 help standardize a development process that now is largely ad-hoc.
-
-%\section{Challenges}
-%\label{sec:challenges}
-%
-%The challenges of introducing programmability into existing storage systems:
-%(1) Programmability while keeping storage system available, (2) Finding and
-%factoring out hard-wired policies and optimizations, (3) Bugs that were hidden
-%because mechanisms were only exercised according to hard-wired policies and
-%not in their full generality they were thought of -- programmability into a
-%storage system turned out to be a great debugging tool, (4) version control
-%and propagation of updates throughout the system without interrupting
-%production workloads, (5) ...
 
 \section{Challenges}
 \label{sec:challenges}
@@ -362,8 +296,8 @@ or trade-offs that cannot be fully explored yet (as they relate to workload or
 hardware). Given these policies and optimizations, decomposition of otherwise
 orthogonal internal abstractions can be difficult or dangerous.
 
-\item Mechanisms that are often only exercised according to hard-wired policies and
-not in their full generality have hidden bugs that are revealed as soon as
+\item Mechanisms that are often only exercised according to hard-wired policies
+and not in their full generality have hidden bugs that are revealed as soon as
 those mechanisms are governed by different policies. In our experience
 introducing programmability into a storage system proved to be a great
 debugging tool.
@@ -377,23 +311,22 @@ of those changes without affecting correctness.
 To address these challenges we present Malacology. Malacology is both a
 prototype for a programmable storage system and a design approach to evolve
 storage systems efficiently and without jeopardizing years of code-hardening
-and performance optimization efforts.  Although Malacology uses
-the internal abstractions of the underlying storage system, including its
-subsystems, components, and implementations, we emphasize that our system
-still addresses the general challenges outlined above.
+and performance optimization efforts.  Although Malacology uses the internal
+abstractions of the underlying storage system, including its subsystems,
+components, and implementations, we emphasize that our system still addresses
+the general challenges outlined above.
 
 The main challenge of designing a programmable storage system is choosing the
 right internal abstractions and picking the correct layers for exposing them.
 In this paper, we do not present an exhaustive list of possible internal
 abstractions nor do we contend that the abstractions we choose provide the best
-trade-offs for all applications.
-For example, if consensus is correctly exposed one could implement
-high-level features like versioning, serialization, or various flavors
-of strongly consistent data management on top; but perhaps a low-level
-consensus interface is suited well for a particular set of applications.
-These questions are not answered in
-this paper and instead we focus on showing the feasibility of building such a
-system, given advances in the quality and robustness of today's storage stacks.
+trade-offs for all applications.  For example, if consensus is correctly
+exposed one could implement high-level features like versioning, serialization,
+or various flavors of strongly consistent data management on top; but perhaps a
+low-level consensus interface is suited well for a particular set of
+applications.  These questions are not answered in this paper and instead we
+focus on showing the feasibility of building such a system, given advances in
+the quality and robustness of today's storage stacks.
 
 Malacology implements and demonstrates the ideas of programmable storage in
 Ceph. We choose Ceph because it is a production quality system and because it
@@ -415,13 +348,13 @@ interfaces.
 \textbf{Example in Ceph}                &
 \textbf{Provided Primitives}            \\ \hline
 {\it Service Metadata}
-  & Zookeeper, Chubby coordination~\cite{hunt_zookeeper_2010,website:chubby}
+  & Zookeeper/Chubby coordination~\cite{hunt_zookeeper_2010,website:chubby}
   & cluster state management~\cite{website:ceph-mon}
   & consensus \& consistency
   \\
 {\it Shared Resource}
   & MPI collective IO, burst
-  & POSIX metadata protocols~\cite{CITEME}
+  & POSIX metadata protocols
   & serialization \& batching
   \\
 {\it Object \& Data}
@@ -436,7 +369,7 @@ Durability
   \\
 Load Balancing
   & VMWare's VM migration~\cite{vmware-drs,gulati:hotcloud2011-cloud-resource-management} 
-  & migration in metadata cluster~\cite{weil:sc2004-dyn-metadata}
+  & migrate POSIX metadata~\cite{weil:sc2004-dyn-metadata}
   & migration \& sampling
   \\
 \end{tabular}
@@ -480,22 +413,16 @@ successful service and a necessary component in order to diagnose and detect
 failures, when they occur. This is further complicated by variable propagation
 delays and heterogenous hardware in highly dynamic environments.
 
-%Thus, system
-%services realized through extensibility should be versioned together as a
-%group, exposing the version to allow introspection and domain-specific
-%treatment of version mismatch scenarios.
-
 In the case of Ceph, a consistent view of cluster state among server daemons
 and clients is critical to provide strong consistency guarantees to clients.
 Ceph maintains cluster state information in per-subsystem data structures
-called ``maps'' that record
-membership and status information.  A Paxos-based monitoring service is
-responsible for integrating state changes into cluster maps, responding to
-requests from out-of-date clients and synchronizing members of the cluster
-whenever there is a change in a map so that they all observe the same system
-state. As a fundamental building block of many system designs, consensus
-abstractions such as Paxos are a common technique for maintaining consistent
-data versions, and are a useful system to expose.
+called ``maps'' that record membership and status information.  A Paxos-based
+monitoring service is responsible for integrating state changes into cluster
+maps, responding to requests from out-of-date clients and synchronizing members
+of the cluster whenever there is a change in a map so that they all observe the
+same system state. As a fundamental building block of many system designs,
+consensus abstractions such as Paxos are a common technique for maintaining
+consistent data versions, and are a useful system to expose.
 
 The default behavior of the monitor can be seen as a Paxos-based notification
 system, similar to the one introduced in~\cite{burrows_chubby_2006}, allowing
@@ -507,9 +434,9 @@ re-uses existing abstractions.  While a key-value service is generally useful,
 it doesn't provide many of the useful services hidden within the monitoring
 framework that would be required for applications with more demanding
 requirements, such as creating arbitrary maps with application-specific
-semantics and interfaces. Since the monitor is intended to be out of high-performance I/O
-paths, a general guideline is to make use of this functionality infrequently
-and to assign small values to maps. 
+semantics and interfaces. Since the monitor is intended to be out of
+high-performance I/O paths, a general guideline is to make use of this
+functionality infrequently and to assign small values to maps. 
 
 \paragraph*{Malacology:} Malacology exposes a strongly-consistent view of
 time-varying service metadata as a service rather than a hidden internal
@@ -549,15 +476,14 @@ may invoke. In the case of Ceph each function is implicitly run within the
 context of an object specified when the function is called. Developers of
 object interfaces express behavior by creating a composition of native
 interfaces or other custom object interfaces, and handle serialization of
-function input and output.
-A wide range of native interfaces are available to developers such as reading
-and write to a byte stream, controlling object snapshots and clones,
-and accessing a sorted key-value database. These native object interfaces
-may be transactionally composed along with application specific logic to
-create interfaces with a rich set of semantics.
-An example is the use of a read-modify-write operation to perform consistent
-object updates across the byte stream and key-value database interfaces
-without relying on complex client-driven concurrency control.
+function input and output.  A wide range of native interfaces are available to
+developers such as reading and write to a byte stream, controlling object
+snapshots and clones, and accessing a sorted key-value database. These native
+object interfaces may be transactionally composed along with application
+specific logic to create interfaces with a rich set of semantics.  An example
+is the use of a read-modify-write operation to perform consistent object
+updates across the byte stream and key-value database interfaces without
+relying on complex client-driven concurrency control.
 
 \begin{figure}[htbp]
 \centering
@@ -612,14 +538,13 @@ application-specific sharding.
 
 Ceph also addresses the challenge of balancing metadata load with a separate
 metadata cluster. This cluster uses load balancing policies to migrate
-directory inodes around the cluster to alleviate overload at single nodes. The policies use metrics
-based on system state (e.g.  CPU and memory utilization) and statistics
-collected by the cluster (e.g. the popularity of an inode). Ceph uses dynamic
-subtree partitioning to move variable sized namespace
-subtrees~\cite{weil:sc2004-dyn-metadata}. These units can
-be shipped anywhere (i.e., to any metadata server of any capacity) at any time
-for any reason. The original balancer was designed with hard-coded policies and
-tunables.
+directory inodes around the cluster to alleviate overload at single nodes. The
+policies use metrics based on system state (e.g.  CPU and memory utilization)
+and statistics collected by the cluster (e.g. the popularity of an inode). Ceph
+uses dynamic subtree partitioning to move variable sized namespace
+subtrees~\cite{weil:sc2004-dyn-metadata}. These units can be shipped anywhere
+(i.e., to any metadata server of any capacity) at any time for any reason. The
+original balancer was designed with hard-coded policies and tunables.
 
 %The metadata cluster moves units of the namespace called directory fragments
 %and assigns them to servers using its own metadata load balancer. It then uses
@@ -647,25 +572,25 @@ releasing resources is largely best-effort, Malacology supports generalized
 policies between metadata servers and clients that can be used to implement 
 fairness or priority.
 
-{\bf File types.} The metadata service manages a POSIX file system hierarchy
-where files and directories are represented as inode data structures and
-expose a POSIX file interface. Application that manage large amounts of
+{\bf File type interface.} The metadata service manages a POSIX file system
+hierarchy where files and directories are represented as inode data structures
+and expose a POSIX file interface. Application that manage large amounts of
 metadata (e.g. users or database snapshots) often require a naming service. We
 allow new inode types to be defined such that applications can create
 domain-specific interfaces to inodes that may modify locking and capability
 policies. We will show this is used in Section~\ref{sec:seq} when we discuss a
 distributed shared-log built on Malacology.
 
-{\bf Load balancing.} Mantle~\cite{sevilla:sc15-mantle}, a programmable
-metadata load balancer, has been implemented on Malacology so that its
-infrastructure can enjoy all the properties of existing internal abstractions.
-The load balancing logic is intact but the infrastructure has been improved to
-safely load, manage, and persist its load balancing policies.  Composing Mantle
-using the service metadata and durability interfaces, Mantle can safely
-version balancer policies, save balancer policies in the backend object store
-and centralize warnings/errors. When combined with file types, load balancing
-policies can express a variety of rules such as multi-tentant and
-multi-application balancing.
+{\bf Load balancing interface.} Mantle~\cite{sevilla:sc15-mantle}, a
+programmable metadata load balancer, has been implemented on Malacology so that
+its infrastructure can enjoy all the properties of existing internal
+abstractions.  The load balancing logic is intact but the infrastructure has
+been improved to safely load, manage, and persist its load balancing policies.
+Composing Mantle using the service metadata and durability interfaces, Mantle
+can safely version balancer policies, save balancer policies in the backend
+object store and centralize warnings/errors. When combined with file types,
+load balancing policies can express a variety of rules such as multi-tentant
+and multi-application balancing.
 
 %{\bf Policy management.} A new interface is added to the metadata service
 %subsystem using the monitoring framework to support management of interfaces.
@@ -749,13 +674,12 @@ multi-application balancing.
 \label{sec:durability}
 
 Ceph provides storage by striping and replicating data across
-RADOS~\cite{weil_rados_2007}, the reliable distributed object store. RADOS
-uses many techniques to ensure that data is not corrupted or lost, such as
-erasure coding, replication, and data scrubbing.
-Furthermore, many of these features are implemented using a peer-to-peer
-protocol that allows object storage devices to operate autonomously without
-a centralized coordinator.
-For example, when the number of placement groups change, the OSDs re-balance and
+RADOS~\cite{weil_rados_2007}, the reliable distributed object store. RADOS uses
+many techniques to ensure that data is not corrupted or lost, such as erasure
+coding, replication, and data scrubbing.  Furthermore, many of these features
+are implemented using a peer-to-peer protocol that allows object storage
+devices to operate autonomously without a centralized coordinator.  For
+example, when the number of placement groups change, the OSDs re-balance and
 re-shard data in the background in a process called placement group splitting
 in which OSDs communicate directly with each other to coverage on a new state.
 In order to reduce load on the monitoring service, Ceph OSDs use a gossip
@@ -782,14 +706,14 @@ synchronized on correct implementations without restarting.
 \textbf{Used to...}           &
 \textbf{Malacology Interface} \\ \hline
 Mantle & load balance metadata     & Load Balancing  \\
-       & agree on current balancer & Versioning      \\ 
+       & agree on current balancer & Service Metadata\\
        & control client write lock & Shared Resource \\
        & persist policy logic      & Durability      \\ \hline
-ZLog   & implement CORFU           & Logical Device  \\ 
-       & install ZLog interfaces   & Versioning      \\
+ZLog   & implement CORFU           & Object \& Data  \\ 
+       & install ZLog interfaces   & Service Metadata\\
        & persist log entries       & Durability      \\ \hline
 ZLog   & load balance sequencers   & Load Balancing  \\
-Seqr.  & guard shared resource     & Shared Resource \\ 
+Seqr.  & manage access to log tail & Shared Resource \\ 
 \end{tabular}
 \caption{Mantle and ZLog are built using Malacology interfaces so they inherit the
 robustness of the subsystems of the underlying stack.}
@@ -824,16 +748,16 @@ Ensuring that the version of the current load balancer is consistent across the
 physical servers in the metadata cluster was ignored in the original
 implementation. The user had to set the version on each individual server and
 it was trivial to make the version inconsistent. Maintaining a consistent
-version is important for balancing policies that are cooperative in which
-local decisions are made assuming properties about other instances of the same
+version is important for balancing policies that are cooperative in which local
+decisions are made assuming properties about other instances of the same
 policy.
 
 With Malacology, Mantle stores the version of the current load balancer in the
-Ceph service metadata interface. The version of the load balancer
-corresponds to an object name in the balancing policy. Using the service
-metadata interface ensures that all metadata servers use the same version of
-the load balancer. As a result, the policy version inherits the
-consistency of Ceph's internal monitor daemons.
+Ceph service metadata interface. The version of the load balancer corresponds
+to an object name in the balancing policy. Using the service metadata interface
+ensures that all metadata servers use the same version of the load balancer. As
+a result, the policy version inherits the consistency of Ceph's internal
+monitor daemons.
 
 The user changes the version of the load balancer using a new CLI command: \\
 
@@ -851,13 +775,13 @@ The user changes the version of the load balancer using a new CLI command: \\
 \subsubsection{Making Balancer Policies Durable}
 
 The load balancer version described above corresponds to the name of an object
-in RADOS that holds the actual Lua balancing code.
-When MDS nodes start balancing load, they first check the latest version from
-the MDS map and compare it to the balancer they have loaded. If the version has
-changed, they dereference the pointer to the balancer version by reading the
-corresponding object in RADOS. This is in contrast to the original balancer
-which stored load balancer code on the local file system -- a technique which
-is unreliable and may result in silent corruption.
+in RADOS that holds the actual Lua balancing code.  When MDS nodes start
+balancing load, they first check the latest version from the MDS map and
+compare it to the balancer they have loaded. If the version has changed, they
+dereference the pointer to the balancer version by reading the corresponding
+object in RADOS. This is in contrast to the original balancer which stored load
+balancer code on the local file system -- a technique which is unreliable and
+may result in silent corruption.
 
 The balancer pulls the Lua code from RADOS synchronously; asynchronous reads
 are not possible because of the architecture of the MDS. The synchronous
@@ -886,13 +810,12 @@ status messages or to debug problems, the user would have to log into each MDS
 individually, look at the logs, and reason about causality and ordering.
 
 With Malacology, Mantle re-usues the centralized logging features of the
-monitoring service. Important errors, warnings, and info messages are
-collected
-by the monitoring subsystem and appear in the monitor cluster log so instead of users
-going to each node, they can watch messages appear at the monitor. Messages are
-logged sparingly, so as not to spam the monitor with frivolous debugging but
-important events, like balancer version changes or failed subsystems show up in the
-centralized log.
+monitoring service. Important errors, warnings, and info messages are collected
+by the monitoring subsystem and appear in the monitor cluster log so instead of
+users going to each node, they can watch messages appear at the monitor.
+Messages are logged sparingly, so as not to spam the monitor with frivolous
+debugging but important events, like balancer version changes or failed
+subsystems show up in the centralized log.
 
 \subsection{ZLog: A Fast Distributed Shared Log}
 \label{sec:zlog}
@@ -954,14 +877,14 @@ metadata service has granted it exclusive access.
 
 While unexpected, this discovery allowed us to explore an implementation
 strategy that we had not previously considered. In particular, for bursty
-clients, and clients that can tolerate increased latency, this mode of operation may
-allow a system to achieve much higher throughput than a system with a
-centralized sequencer service.
-We utilize the programmability of the metadata service to define a new policy
-for handling capabilities that controls the amount of time that clients are
-able to cache the sequencer resource. This allows an administrator or
-application to control the trade-off between latency and throughput beyond the
-standard best-effort policy that is present in Ceph by default. 
+clients, and clients that can tolerate increased latency, this mode of
+operation may allow a system to achieve much higher throughput than a system
+with a centralized sequencer service.  We utilize the programmability of the
+metadata service to define a new policy for handling capabilities that controls
+the amount of time that clients are able to cache the sequencer resource. This
+allows an administrator or application to control the trade-off between latency
+and throughput beyond the standard best-effort policy that is present in Ceph
+by default. 
 
 In Section~\ref{evaluation} we quantify the trade-offs of throughput and
 latency for an approach based on a round-robin batching mode, and compare this
@@ -996,10 +919,10 @@ request a new tail from the sequencer after refreshing state from an auxiliary
 service.  This mechanism forms the basis for sequencer recovery.
 
 In order to repopulate the sequencer state (i.e. the cached, current tail of
-the log) during recovery of a sequencer,
-the maximum position in the log must be obtained. To do this, the storage
-interface exposes an additional \emph{seal} method that atomically installs a
-new epoch value and returns the maximum log position that has been written.
+the log) during recovery of a sequencer, the maximum position in the log must
+be obtained. To do this, the storage interface exposes an additional
+\emph{seal} method that atomically installs a new epoch value and returns the
+maximum log position that has been written.
 
 Since the sequencer servivce does not resume until the recovery process has
 completed, there cannot be a race with clients appending to the log, and the
@@ -1011,7 +934,7 @@ metadata service. Handling the failure of a client that holds the sequencer
 state is similar, although a timeout is used to determine when a client should
 be considered unavailable.
 
-\section{Evaluation}
+\section{DON'T READ THIS!!! Evaluation}
 \label{sec:evaluation} 
 
 We wanted to implement CORFU and we had two choices: build it from the ground
@@ -1094,10 +1017,10 @@ lease before responding to a request for the capability.  At lease times as
 low as 10ms throughput achieve a significant proportion of the locally cached
 throughput.
 
-\textbf{The Malacology Approach:} Re-use the capability management features of the MDS.
-While the batching mechanism can achieve high-throughput, it is not appropriate
-for applications that require predictable latency. The throughput in
-Figure~\ref{fig:captp} labeled $2C,ZLog$ corresponds to a centralized
+\textbf{The Malacology Approach:} Re-use the capability management features of
+the MDS.  While the batching mechanism can achieve high-throughput, it is not
+appropriate for applications that require predictable latency. The throughput
+in Figure~\ref{fig:captp} labeled $2C,ZLog$ corresponds to a centralized
 sequencer implementation. While throughput is lower for two clients (because of
 the synchronous network round-trip required for each request),
 Figure~\ref{fig:capcdf} shows that this approach achieves more predicable
@@ -1241,14 +1164,14 @@ code uses variables exposed by the Mantle API and is executed as a callback by
 Mantle.  ``Server load" lets the administrator control what metric constitutes
 load on a server; ``i" is a variable used by Mantle to iterate over servers and
 ``req\_rate" is a metric based on the exponenential decay of the request rate.
-``When policy" is used by Mantle to set a conditional for kicking off migration;
-in this case, the cluster migrates load if the current server, ``whoami", has
-load (\texttt{>0.1}) and the next server (physical servers have ``ranks") has a
-small amount load (\texttt{<0.1}). Finally, the ``where policy" is used by
-Mantle to determine how much load to shed. The policy fills in a ``targets"
-array to tell the migrator how much load to send to each server; in this case,
-we shed half of the current load to the next server. The unit of load is a
-single sequencer for a ZLog log.
+``When policy" is used by Mantle to set a conditional for kicking off
+migration; in this case, the cluster migrates load if the current server,
+``whoami", has load (\texttt{>0.1}) and the next server (physical servers have
+``ranks") has a small amount load (\texttt{<0.1}). Finally, the ``where policy"
+is used by Mantle to determine how much load to shed. The policy fills in a
+``targets" array to tell the migrator how much load to send to each server; in
+this case, we shed half of the current load to the next server. The unit of
+load is a single sequencer for a ZLog log.
 
 \begin{figure}[]
 \begin{lstlisting}
@@ -1280,27 +1203,28 @@ performance for a guarded resource will not improve with more cores.}
 Figure~\ref{fig:mantle-seq-thruput} shows a performance profile of one of the
 sequencers as the load balancing interface migrates sequencers around the
 cluster to alleviate load.  Each curve shows the throughput (\(y\) axis) over
-time (\(x\) axis).  ``Underloaded (Baseline)'' is the performance of one sequencer
-on one physical server serving 7 clients - there are no other sequencers or
-logs in the system and the curve represents the maximum throughput of a
-sequencer on an underutilized physical server.  ``Overloaded: No Balancing" adds a
-second sequencer of equal load to the same physical server with the intent of
-overloading the single physical server; recall that the throughput for this
-second sequencer is omitted. Compared to the baseline, the overloaded physical
-server with 2 sequencers has more than a 2\(\times\) throughput degradation.
-The stability of throughput curves (i.e. the variation on the \(y\) axis) indicate which sequencers
-are on overloaded physical servers.  ``Underloaded (Baseline)" is the best
-performance for this particular workload because there is no contention.
-Performance is stable and the MDS is under-loaded because we do not see the
-spike at the end like the other curves.  ``Overloaded: No Balancing" shows an
-overloaded sequencer because the performance of the monitored sequencer is low
-and unstable (high variation in performance). 
+time (\(x\) axis).  ``Underloaded (Baseline)'' is the performance of one
+sequencer on one physical server serving 7 clients - there are no other
+sequencers or logs in the system and the curve represents the maximum
+throughput of a sequencer on an underutilized physical server.  ``Overloaded:
+No Balancing" adds a second sequencer of equal load to the same physical server
+with the intent of overloading the single physical server; recall that the
+throughput for this second sequencer is omitted. Compared to the baseline, the
+overloaded physical server with 2 sequencers has more than a 2\(\times\)
+throughput degradation.  The stability of throughput curves (i.e. the variation
+on the \(y\) axis) indicate which sequencers are on overloaded physical
+servers.  ``Underloaded (Baseline)" is the best performance for this particular
+workload because there is no contention.  Performance is stable and the MDS is
+under-loaded because we do not see the spike at the end like the other curves.
+``Overloaded: No Balancing" shows an overloaded sequencer because the
+performance of the monitored sequencer is low and unstable (high variation in
+performance). 
 
 The last two curves of Figure~\ref{fig:mantle-seq-thruput} show the performance
-improvements when sequencers are load balanced across the cluster.
-The load balancing policies differ by the threshold at which they start balancing:
-``Overloaded: Sequencer Policy" starts balancing immediately and ``Overloaded: Conservative
-Policy" waits for 120 seconds before migrating sequencers.
+improvements when sequencers are load balanced across the cluster.  The load
+balancing policies differ by the threshold at which they start balancing:
+``Overloaded: Sequencer Policy" starts balancing immediately and ``Overloaded:
+Conservative Policy" waits for 120 seconds before migrating sequencers.
 
 %Overall, the clients achieve lower performance than the capability experiments
 %#in Figure~\ref{fig:captp} because the sequencer uses a slower metadata
@@ -1362,12 +1286,9 @@ MDS and it maintains the same throughput that it had before the failure.
 %\subsubsection{Experiment: Multi-Client
 %Burstiness}\label{experiment-multi-client-burstiness}
 %
-%\begin{figure}[htbp]
-%\centering
-%\includegraphics{figures/caps-delay-thruput.png}
-%\caption{Forcing the client to drop their capabilities later (delay)
-%improves throughput}
-%\end{figure}
+%\begin{figure}[htbp] \centering
+%\includegraphics{figures/caps-delay-thruput.png} \caption{Forcing the client
+%to drop their capabilities later (delay) improves throughput} \end{figure}
 
 \section{Related Work}
 
@@ -1388,17 +1309,17 @@ control plane from the data plane (see for example~\cite{jain:sigcomm13}). This
 notion of control/data separation was also applied in software-defined storage
 (SDS)~\cite{thereska:sosp13,stefanovici:fast16}. Similarly,
 IOStack~\cite{gracia:internet16} is providing policy-based provisioning and
-filtering in OpenStack Swift. According to a SNIA white 
-paper~\cite{carlson:snia2014}, the primary goal of SDS is to control and 
-facilitate flexible and dynamic provisioning of storage resources of different 
-kinds, including flash memory and disk drives, to create a virtualized mapping 
-between common storage abstractions (e.g. files, objects, and blocks) and 
-storage devices taking data service objectives in terms of protection, 
-availability, performance, and security into account. A programmable storage 
-system exposes internal abstractions so that end users (not necessarily 
-operators) can create new services on top of the storage stack. Thus, our notion 
-of programmable storage differs from ``software-defined storage'' (SDS) in terms 
-of goals and scope, although definitions of SDS are still in flux.
+filtering in OpenStack Swift. According to a SNIA white
+paper~\cite{carlson:snia2014}, the primary goal of SDS is to control and
+facilitate flexible and dynamic provisioning of storage resources of different
+kinds, including flash memory and disk drives, to create a virtualized mapping
+between common storage abstractions (e.g. files, objects, and blocks) and
+storage devices taking data service objectives in terms of protection,
+availability, performance, and security into account. A programmable storage
+system exposes internal abstractions so that end users (not necessarily
+operators) can create new services on top of the storage stack. Thus, our
+notion of programmable storage differs from ``software-defined storage'' (SDS)
+in terms of goals and scope, although definitions of SDS are still in flux.
 
 Another view of programmable storage systems is one of tailoring systems
 resources to applications~\cite{arpaci:sosp01}. Related work includes work
@@ -1410,10 +1331,9 @@ gap between applications and
 storage~\cite{arpaci:sosp01,sivathanu:fast03,mesnier:sosp11}).
 
 Malacology uses the same Active and Typed Storage module presented in
-DataMods~\cite{watkins_datamods_2012}; Asynchronous Service and File
-Manifolds can be implemented with small changes to the Malacology
-framework, namely asynchronous object calls and Lua stubs in the inode,
-respectively.
+DataMods~\cite{watkins_datamods_2012}; Asynchronous Service and File Manifolds
+can be implemented with small changes to the Malacology framework, namely
+asynchronous object calls and Lua stubs in the inode, respectively.
 
 \section{Conclusion and Future Work}\label{conclusion-and-future-work}
 
