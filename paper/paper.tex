@@ -88,8 +88,8 @@ devices to CPUs and networking, and pressure storage systems to shorten their
 code paths and incorporate new
 optimizations~\cite{gray_tape_2007,gray_flash_2008}.  Second, emerging ``big
 data'' applications demand interface evolution to support flexible consistency
-as well as flexible structured data representations.
-~\cite{apache_contributors_parquet_2014}.  Finally, production-quality scalable
+as well as flexible structured data 
+representations.~\cite{apache_contributors_parquet_2014}.  Finally, production-quality scalable
 storage systems available as open source software have established and are
 continuing to establish new, \emph{de-facto} API standards at a faster pace
 than traditional standards
@@ -126,7 +126,9 @@ and monitoring capabilities) as interfaces that can be ``glued together'' in a
 variety of ways using a high-level language. In contrast to programmable
 storage, \emph{active storage} differs through its focus on the injection and
 execution of code within a storage system or storage device. Programmable
-storage differs from \emph{active storage}~\cite{riedel:vldb98} in that the
+storage differs from \emph{active storage}~\cite{riedel:vldb98}---the injection and
+execution of code within a storage system or storage device---in
+that the
 former is applicable to any component of the storage system, while the latter
 focuses at the data access level (i.e. inject and execute arbitrary code at the
 I/O access layers). Given this contrast, we can say that active storage is an
@@ -144,9 +146,12 @@ durability and object interfaces provided by the backend object store, and
 propagation of consistent cluster state provided by the monitoring service (see
 Figure~\ref{fig:overview}). As we will show in this paper, Malacology is
 expressive enough to provide the functionality necessary for implementing new
-services. Our contributions are:
+services. 
+%Our contributions are:
 
-A prototype programmable storage system that includes a non-exhaustive set of
+% prototype programmable storage system that 
+Malacology
+includes a non-exhaustive set of
 interfaces that can be used as building blocks for constructing novel storage
 abstractions, including:
 
@@ -174,7 +179,7 @@ demonstrate the feasibility of the programmable storage approach:
 \begin{enumerate}
 
 \item A high-performance distributed shared log service called ZLog, that is an
-implementation of CORFU~\cite{balakrishnan_corfu_2012}
+implementation of CORFU.~\cite{balakrishnan_corfu_2012}
 
 \item An implementation of Mantle, the programmable load balancing
 service~\cite{sevilla:sc15-mantle}
@@ -188,8 +193,9 @@ subsystems within the underlying storage system that we re-purpose, and briefly
 describe how those system are used within Malacology (\S\ref{sec:malacology}).
 Then we describe the services that we have constructed within the Malacology
 framework (\S\ref{sec:services}), and evaluate our ideas within our prototype
-implementation (\S\ref{sec:evaluation}).  Finally we discuss related work and
-conclude.
+implementation (\S\ref{sec:evaluation}).  We conclude by discussing related and future work.
+% and
+%conclude.
 
 \section{Application-Specific Storage Stacks}
 \label{sec:application-specifc-storage-stacks}
