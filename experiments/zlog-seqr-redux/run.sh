@@ -8,13 +8,13 @@ export CEPH_CONF=/home/nwatkins/src/ceph/build/ceph.conf
 
 runtime=120
 
-capdelay="0.125"
+capdelay="0.25"
 nclients=2
 for quota in 1 10 100 1000 10000 100000 1000000; do
-  prefix="2c_0.125s_increase_quota"
+  prefix="2c_0.25s_increase_quota2"
   perf_file="${prefix}.nc-${nclients}.cd-${capdelay}.qa-${quota}"
   $CEPH_BIN/seq-client --runtime=$runtime --perf_file=${perf_file} \
-    --instances=$nclients --capdelay=$capdelay --quota=${quota}
+    --instances=$nclients --capdelay=$capdelay --quota=${quota} --latcdf
 done
 
 #for nclients in 2 4 8; do
