@@ -946,34 +946,49 @@ be considered unavailable.
 \section{Evaluation}
 \label{sec:evaluation} 
 
-We wanted to implement CORFU and we had two choices: build it from the ground
-up or do it on top of Malacology. To show the feasability of building on
-Malacology our evaluation focuses on the performance of the internal
-abstractions used to construct the Mantle and ZLog services. We also discuss
-latent capabilities we discovered in this process that lets us navigate
+%We wanted to implement CORFU and we had two choices: build it from the ground
+%up or do it on top of Malacology. To show the feasability of building on
+%Malacology our evaluation focuses on the 
+
+Our evaluation demonstrates the feasibility of building new service abstractions
+atop programmable storage, focusing on the
+performance of the internal
+abstractions exposed by Malacology and
+used to construct the Mantle and ZLog services. We also discuss
+latent capabilities we discovered in this process that let us navigate
 different trade-offs within the services themselves. First, we benchmark
-scenarios where contention is at the sequencer by examining the interfaces used
+scenarios 
+%where contention is at the sequencer 
+with high sequencer contention
+by examining the interfaces used
 to map ZLog onto Malacology; specifically, we describe the sequencer
-implementation and the propagation of object \& data interfaces interfaces.
-Next, we benchmark scenarios when there are multiple logs by using Mantle to
+implementation and the propagation of object and data interfaces interfaces.
+Next, we benchmark scenarios in which the storage system manages multiple logs by using Mantle to
 balance sequencers across a cluster.
 
-Detailed system-wide performance measurements and analysis is forthcoming for
-both Mantle and ZLog, as we try to find the best metadata balancing policies
-and physical design implementation trade-offs.  Since this work
+% should save this for future work, otherwise it undercuts the eval.
+%Detailed system-wide performance measurements and analysis is forthcoming for
+%both Mantle and ZLog, as we try to find the best metadata balancing policies
+%and physical design implementation trade-offs.  
+
+Since this work
 focuses on the programmabilty of Malacology, the goal of the benchmarks is to
 show that the components and subsystems that support the Malacology interfaces
-provide reasonable performance.  
+provide reasonable performance, as well as to give examples of the flexibility
+that Malacology provides to programmers.
+%As we search for the best metadata balancing policies
+%and physical design implementation trade-offs,
+%we plan to rel
 
 \subsection{Mapping ZLog onto Malacology}
 \label{sec:mapping-zlog-onto-malacology}
 We evaluate the mapping of ZLog onto Malacology by examining the costs of
-utilizing the metadata service as a sequencer, and propagating interface
+utilizing the metadata service as a sequencer, and of propagating interface
 changes throughout the cluster using the monitoring service. We have omitted
 evaluation of the overhead costs of adding object interfaces themselves due to
 lack of space, and the fact that they are heavily tested and used already in
 production with acceptable performance, introducing a small constant overhead
-per operation but otherwise does not affect scalability.
+per operation without affecting scalability.
 
 \subsubsection{Sequencer Implementation}
 \label{sec:sequencer-implementation}
