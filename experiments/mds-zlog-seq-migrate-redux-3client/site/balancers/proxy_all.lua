@@ -23,6 +23,11 @@ function when()
     return false
   end
 
+  if whoami == 0 then
+    -- get it offf!!! proxy mode can't handle load on the proxy
+    return true
+  end
+
   my_load = mds[whoami]["load"]
   his_load = mds[whoami+1]["load"]
   if my_load > 0.01 and his_load < 0.01 and mds[whoami+1]["programmable"] < 10 then
