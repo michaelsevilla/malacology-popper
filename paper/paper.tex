@@ -1038,7 +1038,7 @@ low as 10ms throughput achieve a significant proportion of the locally cached
 throughput.\\
 
 \noindent\textbf{The Malacology Approach:} Re-use the capability management
-features of the MDS.  While the batching mechanism can achieve high-throughput,
+features of the MDS.  While the batching mechanism can achieve high throughput,
 it is not appropriate for applications that require predictable latency. The
 throughput in Figure~\ref{fig:captp} labeled $2C,ZLog$ corresponds to a
 centralized sequencer implementation. While throughput is lower for two clients
@@ -1049,6 +1049,8 @@ cached mode.\\
 
 \noindent\textbf{Features:} delay and quota parameters control throughput vs.
 latency
+\paa{this should probably be a complete sentence or sentences.  also, I don't recall
+seeing any discussion of quotas}
 
 \subsubsection{Interface Propagation}
 
