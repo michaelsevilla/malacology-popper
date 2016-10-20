@@ -945,22 +945,22 @@ metadata service. Handling the failure of a client that holds the sequencer
 state is similar, although a timeout is used to determine when a client should
 be considered unavailable.
 
-\section{DON'T READ THIS!!! Evaluation}
+\section{Evaluation}
 \label{sec:evaluation} 
 
 We wanted to implement CORFU and we had two choices: build it from the ground
 up or do it on top of Malacology. To show the feasability of building on
 Malacology our evaluation focuses on the performance of the internal
-abstractions when used for to construct the Mantle and ZLog services. First, we
+abstractions when used to construct the Mantle and ZLog services. First, we
 benchmark scenarios where contention is at the sequencer by examining the
-intefaces used to map ZLog onto Malacology; specifically, we describe the
-sequencer implementation and the propogation of object \& data interfaces
+interfaces used to map ZLog onto Malacology; specifically, we describe the
+sequencer implementation and the propagation of object \& data interfaces
 interfaces. Next, we benchmark scenarios when there are multiple logs by using
 Mantle to (1) balance sequencers across a cluster and (2) recover from failure.
 
 Detailed system-wide performance measurements and analysis is forthcoming for
 both Mantle and ZLog, as we try to find the best metadata balancing policies
-and physical design implementation trade-offs respectively.  Since this work
+and physical design implementation trade-offs.  Since this work
 focuses on the programmabilty of Malacology, the goal of the benchmarks is to
 show that the components and subsystems that support the Malacology interfaces
 provide reasonable performance.  
@@ -983,8 +983,9 @@ production with acceptable performance, introducing a small constant overhead
 per operation but otherwise does not affect scalability.
 
 \subsubsection{Sequencer Implementation}
+\label{sec:sequencer-implementation}
 
-We evaluated the performance of the ZLog Sequencer implemented in several
+We evaluate the performance of the ZLog Sequencer implemented in several
 different configurations by showing a trade-off between aggregate throughput
 achieved (shown in Figure~\ref{fig:captp}), and latency distribution (shown in
 Figure~\ref{fig:capcdf}).
@@ -1028,15 +1029,18 @@ lease before responding to a request for the capability.  At lease times as
 low as 10ms throughput achieve a significant proportion of the locally cached
 throughput.
 
-\textbf{The Malacology Approach:} Re-use the capability management features of
-the MDS.  While the batching mechanism can achieve high-throughput, it is not
-appropriate for applications that require predictable latency. The throughput
-in Figure~\ref{fig:captp} labeled $2C,ZLog$ corresponds to a centralized
-sequencer implementation. While throughput is lower for two clients (because of
-the synchronous network round-trip required for each request),
+\noindent\textbf{The Malacology Approach:} Re-use the capability management
+features of the MDS.  While the batching mechanism can achieve high-throughput,
+it is not appropriate for applications that require predictable latency. The
+throughput in Figure~\ref{fig:captp} labeled $2C,ZLog$ corresponds to a
+centralized sequencer implementation. While throughput is lower for two clients
+(because of the synchronous network round-trip required for each request),
 Figure~\ref{fig:capcdf} shows that this approach achieves more predicable
 latency compared to all other approaches except for the single client locally
-cached mode.
+cached mode.\\
+
+\noindent\textbf{Features:} delay and quota parameters control throughput vs.
+latency
 
 \subsubsection{Interface Propagation}
 
@@ -1092,66 +1096,159 @@ a 1 second interval in order to accumulate updates. In a minimum, realistic
 quorum of 3 monitors using HDD-based storage, we were able to decrease this
 interval to an average of 222 ms.
 
-\subsection{ZLog and Mantle in a Multi-tenant Environment}
+\subsection{Load Balancing Multiple ZLog Sequencers with Mantle}
 
 For scenarios with multiple shared logs and many clients, co-locating
 sequencers on the same physical node is not ideal. Unfortunately, building a
 load balancer that can migrate the shared resource (in this case, the resource
 that guards the current token) would require building subsystems for migrating
 resources, monitoring the workloads, monitoring physical nodes, partitioning
-resources, and managing multiple sequencers.
+resources, cache roherence, and managing multiple sequencers.
 
 The following experiments demonstrate the feasibility of using the mechanisms
 of the Malacology load balancing interface (e.g., migrating, monitoring, and
-partitioning load) to (1) alleviate load when multiple sequencers overwhelm a
-physical servers and (2) recover from failure.
+partitioning load) to (1) alleviate load from overloaded servers with multiple
+sequencers and (2) recover from failure.
 
 \begin{figure}[t!]
 \centering
-\includegraphics{figures/mantle-seq-thruput.png}
+\includegraphics{figures/mantle-balancer-behaviors.png}
 \caption{[\href{https://github.com/double-blind-submitter/osdi16}{source}] The
-load balancing interface alleviates load for multiple sequencers in
-resource-constrained environments.  ``Underloaded (Baseline)'' is the
-throughput of one sequencer running alone on a cluster; the other curves show
-how load balancing affects the throughput of one sequencer when sequencers for
-other logs are initially co-located on the same physical server (i.e. an
-"Overloaded" environment).}\label{fig:mantle-seq-thruput}
+load balancing interface alleviates overloaded servers in environments with multiple sequencers in
+}\label{fig:mantle-balancer-behaviors}
 \end{figure}
-
-\subsubsection{Load Balancing Sequencers}
-
-We evaluate the load balancing interface by showing how the cluster of servers
-housing sequencers alleviates load.  The experiments are run on a cluster with
-10 nodes to store objects, one node to monitor the cluster, and 3 nodes that
-can accomodate sequencers. The workload has up to 6 logs each with 2 clients.
-Figure~\ref{CITEME} shows the throughput per sequencer when all seqeuencers are
-co-located of one physical server. Two sequencers on the same server show no
-performance degradation but co-locating 3, 4, 5, or 6 sequencers leads to a
-2x, 3x, 4x, and 5x slowdown, respectively. For the rest of the experiments we
-load balance 3, 4, 5, or 6 sequencers across the cluxter because this is hte
-point at which a single physical server gets overloaded.
-
-Figure~\ref{CITEME} shows the performance profiles of the sequencers as they
-migrate around the cluster. Each graph in that figure shows different ``waves"
-of sequencers, where a ``wave" is a burst of clients trying to append to the
-end of the log. These waves are examples of hotspots and flash crowds; they are
-dynamic and resource constrained because clients access a shared resource. Wave
-1, policy 1 shows how the sequencers initially get distributed poorly. From x
-to x seconds, all seqeuencers are co-located. At x seconds, 3 of the sequencers
-(1, 2, 3) migrate off the first server and onto the second one; this is what we
-want.
 
 \begin{figure}[t!]
 \centering
-\includegraphics{figures/mantle-balancer-profiles.png}
-\caption{[\href{https://github.com/double-blind-submitter/osdi16}{source}] The
-load balancing interface alleviates load for multiple sequencers in
-resource-constrained environments.  ``Underloaded (Baseline)'' is the
-throughput of one sequencer running alone on a cluster; the other curves show
-how load balancing affects the throughput of one sequencer when sequencers for
-other logs are initially co-located on the same physical server (i.e. an
-"Overloaded" environment).}\label{fig:mantle-seq-thruput}
+\includegraphics{figures/mantle-balancer-performance.png}
+\caption{[\href{https://github.com/double-blind-submitter/osdi16}{source}]
+}\label{fig:mantle-balancer-performance}
 \end{figure}
+
+The experiments are run on a cluster with 10 nodes to store objects, one node
+to monitor the cluster, and 3 nodes that can accomodate sequencers. Our first
+experiment co-locates 3 sequencers each with 4 clients on the same physical
+server.  Instead of measuring contention at the clients like we did in
+Section~\ref{sec:sequencer-implementation}, these experiments create contention
+at the sequencers by setting the capability infrastructure to ``round trip
+mode". In this mode clients go to the sequencer for every request. We
+implement this by piggybacking on \texttt{fstat()} and using the shared
+resource interface to force round trips.  Because the sequencer hands out
+positions for the tail of the log, the workload is read-heavy.
+
+Figure~\ref{fig:mantle-balancer-behaviors} shows the throughput (\(y\) axis)
+over time (\(x\) axis) of different load balancers that migrate ZLog sequencers
+acround the cluster; ``No Balancing" keeps all sequencers on one server,
+``CephFS" migrates sequencers using the original algorithms packaged with Ceph,
+and the ``Mantle" curve shows the throughput of a custom load balancer we wrote
+specifically for sequencers. The increased throughput for the ``CephFS" and
+``Mantle" curves between 0 and 60 seconds are a result of migrating the
+sequencer(s) off of overloadeed servers. In addition to showing that migrating
+sequencers improves performance, Figure~\ref{fig:mantle-balancer-behaviors}
+also demonstrates features that we will explore in the rest of this section.
+Section~\ref{sec:feature-balancing-modes} and~\ref{sec:feature-migration-units}
+shows why the performance of Mantle is better than CephFS when the cluster
+stabilizes at time 100 seconds and Section~\ref{sec:feature-backoff} explains
+the slope and location of the rebalancing phase between 0 and 60 seconds by
+comparing the aggressiveness of the CephFS and Mantle balancers.
+
+\subsubsection{Feature: Balancing Modes}
+\label{sec:feature-balancing-modes}
+
+The load balancing service can operate in different balancing modes that stress
+the subsystems that handle client requests or forwarded requests in different
+ways. In Figure~\ref{fig:mantle-balancer-behaviors}, the ``CephFS" curve shows
+the performance of the balancing mode that CephFS uses {\it most of the time}.
+CephFS has 3 modes for balancing load: CPU mode, workload mode, and hybrid
+mode. All three have the same structure for making migration decisions but vary
+based on the metric used to calculate load. For this sequencer workload, the 3
+different modes all have the same performance, as shown in
+Figure~\ref{fig:mantle-balancer-performance}, because the load balancer falls
+into the same mode a majority of the time.  The high variation in performance
+for the ``CephFS CPU Mode" bar reflects the uncertainty of using something as
+dynamic and unpredictable as CPU utilization to make migration decisions. In
+addition to the suboptimal performance and unpredictability, the fact that the
+CephFS balancers all fall into the same mode despite using different balancers
+is a problem as it prevents administrators from properly exploring the
+balancing state space.
+
+Mantle gives the administrator more control over the balancing policies; for
+the ``Mantle" bar in Figure~\ref{fig:mantle-balancer-performance} we use the
+load balancing interface to program logic for balancing read-heavy workload
+into the load balancing service. The resulting performance is more stable and
+performs better because we created our own mode for balancing sequencers.
+
+We have identified two balancing modes that are relevant for making migration
+decisions for sequencers. Using Mantle, the administrator can put the load
+balancing service into ``proxy mode" or ``sequencer mode". In ``proxy mode" one
+server receives all requests and farms off the requests to slave servers.  In
+``sequencer mode" clients go directly to the server that has their sequencer.
+These modes are illustrated in Figure~\ref{fig:mantle-modes}. ``None" is when
+all sequencers are co-located on one physical server -- performance for that
+mode is shown by the ``No Balancing" curve in
+Figure~\ref{fig:mantle-balancer-behaviors}. ``Sequencer" mode in the lower left
+shows how clients for sequencer 2 are re-directed to server B. The two ``Proxy"
+mode diagrams on the right show how clients continue sending reqeusts to server
+A even though sequencer 2 has migrated to server B (the difference between
+``Proxy (Half)" and ``Proxy (Full)" is discussed in the next section).
+
+\begin{figure}[t!]
+\centering
+\includegraphics{figures/mantle-mode-behavior.png}
+\caption{[\href{https://github.com/double-blind-submitter/osdi16}{source}]
+}\label{fig:mantle-mode-behavior}
+\end{figure}
+
+Figure~\ref{fig:mantle-mode-performance} shows the throughput (\(y\) axis) over
+time (\(x\) axis) of the two different modes for an environment with only 2
+sequencers (again 4 clients each) and 2 servers. The curves for both sequencers
+in Figure~\ref{fig:mantle-mode-performance}(a) start at less than 1000
+ops/second and at time 60 seconds Mantle migrates Sequencer 1 to the slave
+server. Performance of Sequencer 2 decreases because it has stayed on the proxy
+which now handles all client requests, processes requests for Sequencer 2, and
+forwards requests for Sequencer 1 to the slave server. Sequencer 1 performance
+improves dramatically because lookups for that sequencer are parallelized with
+the operations on server 1. Cluster throughput improves at the cost of
+decreased throughput and unfair throughput shares for Sequencer 2.
+Figure~\ref{fig:mantle-mode-performance}(b) is set to sequencer mode manually
+(no balancing phase) and shows that performance is worse than proxy mode {\it
+and} unfair amongst sequencers. In this case, the scatter-gather process used
+for cache coherence in the metadata protocols causes strain on the server
+housing Sequencer 2 resulting in uneven performance. 
+
+Intuitively, sequencer mode is a superior balancing mode and should perform
+better; after all, this is the best strategy for distributing POSIX metadata in
+write-heavy workloads~\cite{ren:sc2014-indexfs,
+patil:fast2011-giga,sevilla:sc15-mantle}. But our experiments show that proxy
+mode is superior for the sequencer's read-heavy workload.  In this case,
+separating the handling of the client request and doing the actual operation
+improves performance. Processing client requests and doing the actual operation
+is too heavy weight for one server and sequencers on slave nodes can go faster
+because work is split up; the proxy processes the client request and the slave
+finds the tail of the log and delivers the answer.  This phenomenon is not
+uncommon and has been observed in chain replication~\cite{CITEME}.
+
+\subsubsection{Feature: Migration Units}
+\label{sec:feature-migration-units}
+
+How much load to try and migrate is not a tunable parameter in the original
+CephFS balancers. The most useful way to express how much load to send is as a
+fraction of some other metric such as total load. Expressing this heuristic is
+not easily achievable with outward facing tunable parameters (i.e. system
+knobs) but can be expressed with programmability quite easily. To force the
+load balancer into ``Proxy (Half)" scenario in Figure~\ref{fig:mantle-modes},
+which sets the balancer to proxy mode with migration units of half the load on
+the current server we can use the Mantle policy:\\
+
+\noindent \texttt{ targets[\#mds+1] = mds[whoami]["load"]/2 }\\
+
+This code snippet uses globally defined variables and tables from the Mantle
+API to send half of the load on the current server (whoami) to the next ranked
+server (\#mds + 1); the \texttt{targets} array is a globally defined table that
+the balancer uses to do the migrations. Alternatively, to set the mode to the
+``Proxy (Full)"` setup in Figure~\ref{fig:mantle-modes}, one would use:\\
+
+\noindent \texttt{ targets[\#mds+1] = mds[whoami]["load"] }\\
 
 \begin{figure}[t!]
 \centering
@@ -1162,132 +1259,167 @@ resource-constrained environments.  ``Underloaded (Baseline)'' is the
 throughput of one sequencer running alone on a cluster; the other curves show
 how load balancing affects the throughput of one sequencer when sequencers for
 other logs are initially co-located on the same physical server (i.e. an
-"Overloaded" environment).}\label{fig:mantle-seq-thruput}
+"Overloaded" environment).}\label{fig:mantle-modes}
 \end{figure}
 
 
-We use a balancer policy specifically designed for multiple sequencers. The
-balancer aggressively sheds half its load to the next server as soon as it can.
-It is based off the ``Greedy Spill Even" approach in the
-Mantle~\cite{sevilla:sc15-mantle} paper but is reproduced in
-Figure~\ref{listing:greedy-spill} for the reader's convenience. Each line of
-code uses variables exposed by the Mantle API and is executed as a callback by
-Mantle.  ``Server load" lets the administrator control what metric constitutes
-load on a server; ``i" is a variable used by Mantle to iterate over servers and
-``req\_rate" is a metric based on the exponenential decay of the request rate.
-``When policy" is used by Mantle to set a conditional for kicking off
-migration; in this case, the cluster migrates load if the current server,
-``whoami", has load (\texttt{>0.1}) and the next server (physical servers have
-``ranks") has a small amount load (\texttt{<0.1}). Finally, the ``where policy"
-is used by Mantle to determine how much load to shed. The policy fills in a
-``targets" array to tell the migrator how much load to send to each server; in
-this case, we shed half of the current load to the next server. The unit of
-load is a single sequencer for a ZLog log.
+\begin{figure}[t!]
+\centering
+\includegraphics{figures/mantle-mode-performance.png}
+\caption{[\href{https://github.com/double-blind-submitter/osdi16}{source}]
+}\label{fig:mantle-mode-performance}
+\end{figure}
+
+Figure~\ref{fig:mantle-mode-performance} shows the performance of the modes
+using different migration units. Recall that this setup only has 2 sequencers
+and 2 servers, so performance may be different at scale. Even so, it is clear
+sequencer mode does not perform as well for read-heavy workloads and we even
+see a throughput improvement when migrating all load off the first server,
+leaving the first server to do administrative tasks (this is actually common in
+the metadata cluster because the ``first" server does a lot of the cache
+coherence work) while the second server does all the client work. Proxy Mode
+does the best in both cases and shows large performance gains when completely
+decoupling client request handling and operation processing in Proxy Mode
+(Full). 
+
+The parameter that controls the migration units helps the administrator control
+the sequencer or co-location or distribution across the cluster. This trade-off
+was explored extensively in the Mantle paper and warrants further exploration
+as all our experiments indicate a rich set of states to explore.
+
+\subsubsection{Feature: Backoff Paramters}
+\label{sec:feature-backoff}
+
+The balancing phase from 0 to 60 seconds in
+Figure~\ref{mantle-balancer-behaviors} shows different degrees of
+aggressiveness in making migration decisions; CephFS makes a decision quickly
+and throughput jumps 2.5K ops/second within 10 seconds while Mantle takes a
+more time to stabilize. This conservative behavior is controlled by programming
+the balancer to (1) use different conditions for when to migrate and (2) use a
+threshold for sustained overload. \texttt{when()} is part the Mantle API and
+the callback expects to return a true or false, which corresponds to whether to
+migrate or not. For the Mantle curve in Figure~\ref{mantle-balancer-behaviors}
+we set the \texttt{when()} policy to wait for load on the receiving server to
+reach 0.1. At the beginning of the run the load of the receiving server spikes
+because requests for cache-coherence start as the sequencers are created. It
+takes 60 seconds for this load to drop to an acceptable level. Also, the
+migration phase is a little more conservative in sending load; the Mantle curve
+in Figure~\ref{mantle-balancer-behaviors} takes longer to reach peak throughput
+because we do the first migration and {\it wait to see how it affects the
+system}; seeing that after migration the third server is still underloaded
+allows the balancer to further improve performance by migrating a sequencer to
+the laster server.
+
+The other way to change aggressiveness of the decision making is to program
+into the balancer a policy that waits a certain number of iterations after a
+migration before proceeding. In Mantle, the policy would use the save state
+function to do a countdown after a migation:
 
 \begin{figure}[]
 \begin{lstlisting}
-  -- Server load
-  load = server[i]["req_rate"]
-  
-  -- When policy
-  if server[whoami]["load"]>.01 and 
-    server[whoami+1]["load"]<.01 then
-    
-  -- Where policy
-  targets[whoami+1]=load/2
+  countdown = GET_STATE()
+  if countdown > 0 then
+    -- OK to migrate
+  else
+    PUT_STATE(countdown - 1)
+  end
 \end{lstlisting}
 \caption{The sequencer balancing policy that works best for bursty workloads. 
 \label{listing:greedy-spill}}
 \end{figure}
 
-\begin{figure}[t!]
-\centering
-\includegraphics{figures/mantle-cpu-utilization.png}
-\caption{[\href{https://github.com/double-blind-submitter/osdi16}{source}] The
-CPU utilization for a sequencer in an environment with the ``Conservative
-Policy" load balancer shows that the load balancing service is not
-multi-threaded. The load balancing service is designed this way because the
-performance for a guarded resource will not improve with more cores.}
-\label{fig:mantle-cpu-utilization}
-\end{figure}
+Behavior graphs and performance numbers for this feature is omitted, as the
+throughput graphs are as expected: the more conservative the approach the less
+overall throughput. 
+ 
+%We use a balancer policy specifically designed for multiple sequencers. The
+%balancer aggressively sheds half its load to the next server as soon as it can.
+%It is based off the ``Greedy Spill Even" approach in the
+%Mantle~\cite{sevilla:sc15-mantle} paper but is reproduced in
+%Figure~\ref{listing:greedy-spill} for the reader's convenience. Each line of
+%code uses variables exposed by the Mantle API and is executed as a callback by
+%Mantle.  ``Server load" lets the administrator control what metric constitutes
+%load on a server; ``i" is a variable used by Mantle to iterate over servers and
+%``req\_rate" is a metric based on the exponenential decay of the request rate.
+%``When policy" is used by Mantle to set a conditional for kicking off
+%migration; in this case, the cluster migrates load if the current server,
+%``whoami", has load (\texttt{>0.1}) and the next server (physical servers have
+%``ranks") has a small amount load (\texttt{<0.1}). Finally, the ``where policy"
+%is used by Mantle to determine how much load to shed. The policy fills in a
+%``targets" array to tell the migrator how much load to send to each server; in
+%this case, we shed half of the current load to the next server. The unit of
+%load is a single sequencer for a ZLog log.
+%
+%\begin{figure}[]
+%\begin{lstlisting}
+%  -- Server load
+%  load = server[i]["req_rate"]
+%  
+%  -- When policy
+%  if server[whoami]["load"]>.01 and 
+%    server[whoami+1]["load"]<.01 then
+%    
+%  -- Where policy
+%  targets[whoami+1]=load/2
+%\end{lstlisting}
+%\caption{The sequencer balancing policy that works best for bursty workloads. 
+%\label{listing:greedy-spill}}
+%\end{figure}
+%
+%Figure~\ref{fig:mantle-seq-thruput} shows a performance profile of one of the
+%sequencers as the load balancing interface migrates sequencers around the
+%cluster to alleviate load.  Each curve shows the throughput (\(y\) axis) over
+%time (\(x\) axis).  ``Underloaded (Baseline)'' is the performance of one
+%sequencer on one physical server serving 7 clients - there are no other
+%sequencers or logs in the system and the curve represents the maximum
+%throughput of a sequencer on an underutilized physical server.  ``Overloaded:
+%No Balancing" adds a second sequencer of equal load to the same physical server
+%with the intent of overloading the single physical server; recall that the
+%throughput for this second sequencer is omitted. Compared to the baseline, the
+%overloaded physical server with 2 sequencers has more than a 2\(\times\)
+%throughput degradation.  The stability of throughput curves (i.e. the variation
+%on the \(y\) axis) indicate which sequencers are on overloaded physical
+%servers.  ``Underloaded (Baseline)" is the best performance for this particular
+%workload because there is no contention.  Performance is stable and the MDS is
+%under-loaded because we do not see the spike at the end like the other curves.
+%``Overloaded: No Balancing" shows an overloaded sequencer because the
+%performance of the monitored sequencer is low and unstable (high variation in
+%performance). 
+%
+%The last two curves of Figure~\ref{fig:mantle-seq-thruput} show the performance
+%improvements when sequencers are load balanced across the cluster.  The load
+%balancing policies differ by the threshold at which they start balancing:
+%``Overloaded: Sequencer Policy" starts balancing immediately and ``Overloaded:
+%Conservative Policy" waits for 120 seconds before migrating sequencers.
+%
+%%Overall, the clients achieve lower performance than the capability experiments
+%%#in Figure~\ref{fig:captp} because the sequencer uses a slower metadata
+%%operation to manage the capability.  It appears the bottleneck is somewhere
+%%with the clients -- perhaps it is our 1GBit/s network link.
+%
+%Figure~\ref{fig:mantle-cpu-utilization} shows how load balancing effects the
+%physical servers by plotting the CPU utilization average over 1 minute (\(y\)
+%axis) over time (\(x\) axis).  It shows the ``Conservative Policy" load
+%balancer from the run in Figure~\ref{fig:mantle-seq-thruput}, so recall that
+%resources are constrained during the job by co-locating a second sequencer on
+%the same physical server.  CPU utilization spikes when physical servers receive
+%load (at 2 minutes physical server 1 receives a sequencer from physical server
+%0) but the CPU utilization never eclipses 50\%. The utilization is low because
+%the load balancer interface is not multi-threaded.  Recall the the load
+%balancing interface re-uses the POSIX metadata cluster migration mechanisms;
+%serving file system metadata is single-threaded because it has been shown that
+%metadata performance does not improve with multiple
+%threads~\cite{konstantinos:pdsw2014-lustre-metadata}.
 
-Figure~\ref{fig:mantle-seq-thruput} shows a performance profile of one of the
-sequencers as the load balancing interface migrates sequencers around the
-cluster to alleviate load.  Each curve shows the throughput (\(y\) axis) over
-time (\(x\) axis).  ``Underloaded (Baseline)'' is the performance of one
-sequencer on one physical server serving 7 clients - there are no other
-sequencers or logs in the system and the curve represents the maximum
-throughput of a sequencer on an underutilized physical server.  ``Overloaded:
-No Balancing" adds a second sequencer of equal load to the same physical server
-with the intent of overloading the single physical server; recall that the
-throughput for this second sequencer is omitted. Compared to the baseline, the
-overloaded physical server with 2 sequencers has more than a 2\(\times\)
-throughput degradation.  The stability of throughput curves (i.e. the variation
-on the \(y\) axis) indicate which sequencers are on overloaded physical
-servers.  ``Underloaded (Baseline)" is the best performance for this particular
-workload because there is no contention.  Performance is stable and the MDS is
-under-loaded because we do not see the spike at the end like the other curves.
-``Overloaded: No Balancing" shows an overloaded sequencer because the
-performance of the monitored sequencer is low and unstable (high variation in
-performance). 
+\noindent\textbf{The Malacology Approach:} pull load balancing out of the
+storage system to balance sequencers across a cluster. Compared to putting all
+sequencers on the same server, load balancing a sequencer per physical server
+shows a 1.8\(\times\) throughput improvement.\\
 
-The last two curves of Figure~\ref{fig:mantle-seq-thruput} show the performance
-improvements when sequencers are load balanced across the cluster.  The load
-balancing policies differ by the threshold at which they start balancing:
-``Overloaded: Sequencer Policy" starts balancing immediately and ``Overloaded:
-Conservative Policy" waits for 120 seconds before migrating sequencers.
-
-%Overall, the clients achieve lower performance than the capability experiments
-%#in Figure~\ref{fig:captp} because the sequencer uses a slower metadata
-%operation to manage the capability.  It appears the bottleneck is somewhere
-%with the clients -- perhaps it is our 1GBit/s network link.
-
-Figure~\ref{fig:mantle-cpu-utilization} shows how load balancing effects the
-physical servers by plotting the CPU utilization average over 1 minute (\(y\)
-axis) over time (\(x\) axis).  It shows the ``Conservative Policy" load
-balancer from the run in Figure~\ref{fig:mantle-seq-thruput}, so recall that
-resources are constrained during the job by co-locating a second sequencer on
-the same physical server.  CPU utilization spikes when physical servers receive
-load (at 2 minutes physical server 1 receives a sequencer from physical server
-0) but the CPU utilization never eclipses 50\%. The utilization is low because
-the load balancer interface is not multi-threaded.  Recall the the load
-balancing interface re-uses the POSIX metadata cluster migration mechanisms;
-serving file system metadata is single-threaded because it has been shown that
-metadata performance does not improve with multiple
-threads~\cite{konstantinos:pdsw2014-lustre-metadata}. 
-
-\textbf{The Malacology Approach:} Re-use the Ceph metadata migration, load
-balancing, cache coherence, and capabilities subsystems of the metadata
-cluster. Applying Mantle's load balancing policy shows 2.02\(\times\)
-performance improvement and only a 16\% degradation in performance over the
-baseline, even though the baseline has half as many clients.
-
-\subsubsection{Recovery}
-
-\begin{figure}[t]
-\centering
-\includegraphics{figures/recovery-seq-thruput.png}
-\caption{The sequencer using Mantle also inherits all the recovery protocols of
-the Ceph metadata cluster. The throughput of the sequencer drops when we
-terminal MDS 0. The performance quickly resumes and the sequencer is only down
-for 15 seconds.}
-\label{fig:recovery-seq-thruput}
-\end{figure}
-
-This experiment shows how a sequencer handing out tokens can use the Ceph MDS
-recovery protocols to recover. For this workload, two sequencers are running on
-a metadata cluster {\it without} multiple active MDS nodes. In this cluster,
-MDS 1 and MDS 2 are in ``standby" mode, meaning one of them will step in should
-the head MDS 0 fail. At the 60 second mark, we manually kill MDS 0. 
-
-Figure~\ref{fig:recovery-seq-thruput} shows the sequencer throughput (\(y\)
-axis) over time (\(x\) axis). When MDS 0 dies, the MON cluster notices and
-quickly assigns a new MDS to handle the namespace. This is when MDS 1 takes
-over the sequencer duties and starts handing out tokens.
-
-\textbf{The Malacology Approach:} Re-use the Ceph metadata protocols for
-failure detection and recovery. The sequencer recovers in 15 seconds on a new
-MDS and it maintains the same throughput that it had before the failure.
+\noindent\textbf{Features:} different load balancing modes control forwarding
+vs. client redirection, tuning the backoff parameter controls conservative vs.
+aggressive decision making, and tuning load migration unit parameters controls
+sequencer distribution vs. co-location.\\
 
 %\subsubsection{Experiment: Object Class
 %Programmability}\label{experiment-object-class-programmability}
