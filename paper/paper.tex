@@ -1119,6 +1119,9 @@ interval to an average of 222 ms.
 \subsection{Load Balancing ZLog Sequencers with Mantle}
 
 For scenarios with multiple shared logs and many clients, co-locating
+\paa{you might want a sentence or two of high-level explanation of this use case.
+in practice, a storage system implementing CORFU will support a multiplicity of independent
+totally-ordered logs (eg, one for each application).}
 sequencers on the same physical node is not ideal. Unfortunately, building a
 load balancer that can migrate the shared resource (in this case, the resource
 that mediates access to the tail of the log) would require building subsystems
