@@ -1037,6 +1037,9 @@ lease before responding to a request for the capability.  At lease times as
 low as 10ms throughput achieve a significant proportion of the locally cached
 throughput.\\
 
+\paa{meta point: I am not sure the "The Malacology Approach" thing works, because it
+makes the reader think that we are contrasting with a strawman. I think that if we replace this with (eg)
+``Malacology reuses ....'', ``Malacology pulls'', etc, it reads more smoothly.}
 \noindent\textbf{The Malacology Approach:} Re-use the capability management
 features of the MDS.  While the batching mechanism can achieve high throughput,
 it is not appropriate for applications that require predictable latency. The
@@ -1065,8 +1068,10 @@ membership data structure that is managed by a Paxos instance, and distributed
 using a scalable, peer-to-peer gossip protocol that is built into Ceph. We
 assume an architecture that consists of a light-weight interface that enforces
 the semantics of interface management resulting in one or more interface
-updates that must be consistent across the cluster. The following experiments
-focus on the cost of achieving distribution of consistent a interface version.
+updates that must be consistent across the cluster. \paa{the word ``interface''
+occurs too many times in the last sentence, but I'm not sure how to fix it.}
+The following experiments
+focus on the cost of distributing a consistent interface version.
 
 \begin{figure}[h]
 \centering
@@ -1091,7 +1096,9 @@ bound cost for updates in a large cluster by avoiding disk I/O for storing
 interface updates locally within each OSD.  In the experiment labeled "120 OSD
 (RAM)" a cluster of 120 OSDs (10 OSDs x 12 servers) using an in-memory data
 store were deployed, showing a latency of less than 54 ms with a probability
-of 90\% and a worst case latency of 194 ms. The curve labeled "3 OSD (HDD)" is
+of 90\% and a worst case latency of 194 ms. The curve labeled "3 OSD (HDD)" 
+\paa{DANGER -- didn't we delete this?}
+is
 a smaller cluster where each of the three OSDs uses a spinning disk as the
 object store that saves a copy of the cluster map, and shows a latency of 37
 ms with a 90\% probability and a worst case latency of 255 ms. Since the cost
