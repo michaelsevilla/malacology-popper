@@ -19,19 +19,15 @@ end
 
 -- Shed load when you have load and your neighbor doesn't
 function when()
-  i = whoami + 1
-  while i <= #mds do
-    my_load = mds[whoami]["load"]
-    his_load = mds[i]["load"]
-    his_prog = mds[i]["programmable"]
-    if my_load > 0.01 and his_load < 0.01 and his_prog < 10 then
-      BAL_LOG(0, "when: GO! i="..i.." my_load="..my_load.." hisload="..his_load.." prog="..his_prog)
-      sendto = i
-      return true
-    end
-    BAL_LOG(0, "when: NOPE! i="..i.." my_load="..my_load.." hisload="..his_load.." prog="..his_prog)
-    i = i + 1
+
+  my_load = mds[whoami]["load"]
+  his_load = mds[whoami+1]["load"]
+  if whoami == 0 and my_load > 0.01 and his_load < 0.01 then
+    -- get it offf!!! proxy mode can't handle load on the proxy
+    BAL_LOG(0, "when: GO! I am MDS"..whoami)
+    return true
   end
+  BAL_LOG(0, "when: NOPE! I am MDS"..whoami.."his_load="..his_load)
   return false
 end
 
@@ -43,8 +39,20 @@ function where()
     targets[i] = 0
   end
 
-  BAL_LOG(0, "where: trying to sendto="..sendto)
-  targets[sendto + 1] = mds[whoami]["load"]/3
+  slaves = #mds
+  total = mds[whoami]["load"]
+  BAL_LOG(0, "where: send total/slaves="..total/slaves.." total="..total.." slaves="..slaves)
+
+  for i=2, #mds+1 do
+    BAL_LOG(0, "MDS"..(i-1).." gets load="..total/slaves)
+    targets[i] = total/slaves
+  end
+  BAL_LOG(0, "MDS"..(#mds+1).." gets the rest total="..total)
+  targets[#mds+1] = total
+
+  for i=1, #mds+1 do
+    BAL_LOG(0, "targets["..i.."]="..targets[i])
+  end
   return targets
 end
 
