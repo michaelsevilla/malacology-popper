@@ -1069,62 +1069,77 @@ seeing any discussion of quotas}
 
 \subsubsection{Interface Propagation}
 
-Domain-specific data interfaces (Section~\ref{object-data-interfaces}) allow
-co-design between applications and the storage system. Malacology supports
-custom object interfaces in RADOS that require interface implementations to
-installed on the storage devices in the system, supports the evolution of
-interfaces through automatic system-wide versioning and installation through
-the service metdata interface (Section~\ref{service-metadata}). We evaluate
-the performance of installing a new version of an interface in the cluster,
-which is an important metric for applications that are designed with
-frequently evolving interfaces.
-
-We demonstrate the feasibility of utilizing the Ceph monitoring sub-system by
-evaluating the performance of installing and distributing interface updates.
-Figure~\ref{fig:propdelay} shows the CDF of the latency of interface updates.
-The interfaces are Lua scripts embedded in the cluster map and distributed
-using a peer-to-peer gossip protocol.  The latency is defined as the elapsed
-time following the Paxos proposal for an interface update until each OSD makes
-the update live (the cost of the Paxos proposal is configurable and is
-discussed below). The latency measurements were taken on the nodes running
-Ceph server daemons, and thus exclude the client round-trip cost. In each of
-the experiments 1000 interface updates were observed.
-
-Figure~\ref{fig:propdelay} shows the lower bound cost for updates in a large
-cluster. In the experiment labeled "120 OSD (RAM)" a cluster of 120 OSDs (10
-OSDs x 12 servers) using an in-memory data store were deployed, showing a
-latency of less than 54 ms with a probability of 90\% and a worst case latency
-of 194 ms. These costs demonstrate the penality of distributing the interface
-in a large cluster. In In practice the costs are, in addition to cluster-wide
-propagation of interface updates, includes the network round-trip to the
-interface management service, the Paxos commit protocol, and other factors
-such as system load. By default Paxos proposals occur periodically with a 1
-second interval in order to accumulate updates. In a minimum, realistic quorum
-of 3 monitors using HDD-based storage, we were able to decrease this interval
-to an average of 222 ms.
+In Section~\ref{consistencyversioning-of-cluster-state} we described an
+interface management service that is responsible for the durable and
+consistent cluster-wide distribution of interface versions. We evaluate the
+costs of such a service by embedding interface definitions in a Ceph cluster
+membership data structure that is managed by a Paxos instance, and distributed
+using a scalable, peer-to-peer gossip protocol that is built into Ceph. We
+assume an architecture that consists of a light-weight interface that enforces
+the semantics of interface management resulting in one or more interface
+updates that must be consistent across the cluster. \paa{the word ``interface''
+occurs too many times in the last sentence, but I'm not sure how to fix it.}
+The following experiments
+focus on the cost of distributing a consistent interface version.
 
 \begin{figure}[h]
 \centering
 \includegraphics[trim={1 4 4 1.3cm},clip]{figures/iface-update-delay.pdf}
-\caption{Cluster-wide interface update latency, excluding the Paxos proposal cost for
-interface commit.}
+\caption{[\href{https://github.com/double-blind-submitter/osdi16}{source}]
+Cluster-wide interface update latency, excluding the Paxos proposal cost for
+interface commit. Each of the 120 OSDs used a RAM-based object store, while the
+3 OSDs used an HDD-backed object store.}
 \label{fig:propdelay}
 \end{figure}
 
+Figure~\ref{fig:propdelay} shows the CDF of the latency of installing and
+distributing an interface update on all OSDs in the cluster. The latency is
+defined as the elapsed time following the Paxos proposal for an interface
+update until each OSD makes the update live (the cost of the Paxos proposal is
+configurable and is discussed below). The latency measurements were taken on
+the nodes running Ceph server daemons, and thus exclude the client round-trip
+cost. In each of the experiments 1000 interface updates were observed.
+
+The first experiment shown in Figure~\ref{fig:propdelay} illustrates a lower
+bound cost for updates in a large cluster by avoiding disk I/O for storing
+interface updates locally within each OSD.  In the experiment labeled "120 OSD
+(RAM)" a cluster of 120 OSDs (10 OSDs x 12 servers) using an in-memory data
+store were deployed, showing a latency of less than 54 ms with a probability
+of 90\% and a worst case latency of 194 ms. The curve labeled "3 OSD (HDD)" 
+\paa{DANGER -- didn't we delete this?}
+is
+a smaller cluster where each of the three OSDs uses a spinning disk as the
+object store that saves a copy of the cluster map, and shows a latency of 37
+ms with a 90\% probability and a worst case latency of 255 ms. Since the cost
+of a disk I/O is larger than the same I/O executed against the in-memory
+device, the predominant cost in a lightly loaded cluster appears to be the
+number of OSDs.
+
+\textbf{The Malacology Approach:} Re-use Ceph's Monitor functionality to
+propagate application-specific state that needs to be highly-available and
+strongly consistent.  The real cost of interface management, in addition to
+cluster-wide propagation of interface updates, includes the network round-trip
+to the interface management service, the Paxos commit protocol, and other
+factors such as system load. By default Paxos proposals occur periodically with
+a 1 second interval in order to accumulate updates. In a minimum, realistic
+quorum of 3 monitors using HDD-based storage, we were able to decrease this
+interval to an average of 222 ms.
+
 \subsection{Load Balancing ZLog Sequencers with Mantle}
 
-In practice, a storage system implementing CORFU will support a multiplicity of
-independent totally-ordered logs for each application.  For this scenario
-co-locating sequencers on the same physical node is not ideal. Building a load
-balancer that can migrate the shared resource (in this case, the resource that
-mediates access to the tail of the log) is a time-consuming, non-trivial task
-that requires building subsystems for migrating resources, monitoring the
-workloads, collecting metrics that describe the utilization on the physical
-nodes, partitioning resources, maintaining cache coherence, and managing
-multiple sequencers. The following experiments demonstrate the feasibility of
-using the mechanisms of the Malacology load balancing interface to inherit all
-these features and to alleviate load from overloaded servers housing multiple
-sequencers.
+The traditional view of CORFU focuses on one log per application but in
+practice storage clusters will want to be support some degree of multiplicity.
+For scenarios with multiple shared logs and many clients, co-locating
+sequencers on the same physical node is not ideal. Building a load balancer
+that can migrate the shared resource (in this case, the resource that mediates
+access to the tail of the log) is a time-consuming, non-trivial task that
+requires building subsystems for migrating resources, monitoring the workloads,
+collecting metrics that describe the utilization on the physical nodes,
+partitioning resources, maintaining cache coherence, and managing multiple
+sequencers. The following experiments demonstrate the feasibility of using the
+mechanisms of the Malacology load balancing interface to inherit all these
+features and to alleviate load from overloaded servers with multiple
+sequencers. 
 
 \begin{figure}[t!]
 \centering
