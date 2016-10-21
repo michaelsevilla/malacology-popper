@@ -983,13 +983,15 @@ that Malacology provides to programmers.
 
 \subsection{Mapping ZLog onto Malacology}
 \label{sec:mapping-zlog-onto-malacology}
-We evaluate the mapping of ZLog onto Malacology by examining the costs of
-utilizing the metadata service as a sequencer, and of propagating interface
-changes throughout the cluster using the monitoring service. We have omitted
-evaluation of the overhead costs of adding object interfaces themselves due to
-lack of space, and the fact that they are heavily tested and used already in
-production with acceptable performance, introducing a small constant overhead
-per operation without affecting scalability.
+
+We evaluate Malacology by exploring one possible mapping of the ZLog
+implementation of CORFU onto Ceph in which we re-use (1) the metadata service
+to manage naming and synchronization of the sequencer resource by treating the
+resource as an inode, and (2) the monitoring sub-subsystem to distribute and
+install application-specific I/O interface required of the CORFU protcool. In
+Section~\ref{sec:zlog-balancing} we then demonstrate how the re-use of the inode
+abstraction for implementing the sequencer resource enables load balancing policies
+to migrate the sequencer resource in heavy-load situation.
 
 \subsubsection{Sequencer Implementation}
 \label{sec:sequencer-implementation}
@@ -1117,6 +1119,7 @@ interface commit.}
 \end{figure}
 
 \subsection{Load Balancing ZLog Sequencers with Mantle}
+\label{sec:zlog-balancing}
 
 For scenarios with multiple shared logs and many clients, co-locating
 \paa{you might want a sentence or two of high-level explanation of this use case.
