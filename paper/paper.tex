@@ -991,31 +991,54 @@ to migrate the sequencer resource in heavy-load situation.
 \subsubsection{Sequencer Implementation}
 \label{sec:sequencer-implementation}
 
-We evaluate the performance of the ZLog Sequencer implemented in several
-different configurations by showing a trade-off between aggregate throughput
-achieved (shown in Figure~\ref{fig:captp}), and latency distribution (shown in
-Figure~\ref{fig:capcdf}).
+We evaluate the feasibility of using the metadata service to implement a
+seqeuencer resource that is responsible for maintaining a total ordering of
+the log. Clients contact the sequencer to obtain the tail of the log and then
+independently initiate I/O, thus we measure both the throughput and latency of
+obtaining new tail positions which inherently bound client append performance.
 
-In Figure~\ref{fig:captp} the highest throughput labeled $1C$ shows that a
-single client caching the sequencer resource may obtain new sequences at a rate
-of nearly 6 million positions per second. This is not surprising given that all
-state is cached locally in the client. When this resource is shared between two
-clients, the MDS uses a best-effort approach to granting the sequencer resource
-to each client (value $2C,BE$). This sharing has a large impact on performance,
-as shown by the nearly three orders of magnitude drop off in throughput.
+The sequencer is implemented as a custom file type in which the sequencer
+state (a 64-bit integer) is embedded in the inode of a file representing the
+sequencer. A total ordering of the log is imposed by the re-use of the
+capability service that can be used to grant exclusive access of inode state
+to clients. The metadata service is responsible for maintaining exclusivity
+and granting access. Figure~\ref{fig:capdelay-quota-behavior} (a) shows the
+behavior of the system in which a best-effort policy is used.  The two colors
+represent points in time that the clients were able to access the resource.
+The best-effort policy provides interleaving a high degree of interleaving
+between clients but the system spends a large portion of time re-distributing
+the capability, reducing overall throughput.
+
+In order to control the performance of the system we implement a
+policy that (1) restricts the length of time that a client may maintain
+exclusive access and (2) limits the number of log positions that a client may
+generate without yielding to other clients waiting for access. The behavior of
+these two modes is illustrated in Figures~\ref{fig:capdelay-quota-behavior}
+(b) and (c), respectively.
 
 \begin{figure}[h]
 \centering
 \includegraphics{figures/capdelay-quota-behavior-a.png}
 \includegraphics{figures/capdelay-quota-behavior-b.png}
 \includegraphics{figures/capdelay-quota-behavior-c.png}
-\caption{ Each dot in these graphs is an individual request and they are spread
+\caption{Each dot in these graphs is an individual request and they are spread
 randomly along the \(y\) axis. The default behavior (``None") shows
 unpredictable performance, ``delay" lets each client hold the lease longer, and
 ``quota" gives each client the lease for a certain number of operations. Delay
 improves latency and fairness while quota maximizes throughput.}
 \label{fig:capdelay-quota-behavior}
 \end{figure}
+
+Figure~\ref{fig:captp} demonstrates a configurable trade-off between
+throughput and latency. In the experiment two clients are run each with a
+fixed 0.25 second maximum reservation on the capability, and we vary the size
+of the log position quota running each configuration for two minutes. The
+total operations per second is the combined throughput of the two clients, and
+the average latency is number of microseconds required to obtain a new log
+position. With a small quota more time is spent exchanging exclusive access,
+while a large quota reservation allows clients to experience a much lower
+latency because they uncontended access for a longer period of time.
+
 
 \begin{figure}[h]
 \centering
@@ -1028,46 +1051,31 @@ resource is held, with best-effort performing the worst.}
 \label{fig:captp}
 \end{figure}
 
+To get a better picture of latency, Figure~\ref{fig:capcdf} shows the CDF of
+latency for each client in all experiment configurations. At the 99th
+percentile clients accessed the sequencer is less than a millisecond. The CDF
+is cropped at the 99.999th percentile due to large outliers that we believe
+occur in instances in which the MDS is performing I/O while it is in the
+process of re-distributing the capability to another client.
+
 \begin{figure}[h]
 \centering
 \includegraphics{figures/caps-delay-latency.png}
-\caption{[\href{https://github.com/double-blind-submitter/osdi16}{source}] The
-latency distribution shows that if the clients hold their capabilities longer,
+\caption{
+The latency distribution shows that if the clients hold their capabilities longer,
 performance decreases. Changing the delay via policy can help the sequencer and
 clients strike a balance between throughput and latency.}
 \label{fig:capcdf}
 \end{figure}
 
-While a best-effort approach to sharing capabilities makes sense for a file
-system client, throughput drops significantly with two clients as the majority
-of the time neither client has the capability as it ping-pongs between
-clients. This observation reveals a tuning parameter: how long a client
-maintains its capability lease. In throughput labeled $2C,<time>$ we show
-aggregate throughput as we decrease the amount of time that a client holds its
-lease before responding to a request for the capability.  At lease times as
-low as 10ms throughput achieve a significant proportion of the locally cached
-throughput.\\
-
-\paa{meta point: I am not sure the "The Malacology Approach" thing works, because it
-makes the reader think that we are contrasting with a strawman. I think that if we replace this with (eg)
-``Malacology reuses ....'', ``Malacology pulls'', etc, it reads more smoothly.}
-\noindent\textbf{The Malacology Approach:} Re-use the capability management
-features of the MDS.  While the batching mechanism can achieve high throughput,
-it is not appropriate for applications that require predictable latency. The
-throughput in Figure~\ref{fig:captp} labeled $2C,ZLog$ corresponds to a
-centralized sequencer implementation. While throughput is lower for two clients
-(because of the synchronous network round-trip required for each request),
-Figure~\ref{fig:capcdf} shows that this approach achieves more predicable
-latency compared to all other approaches except for the single client locally
-cached mode.\\
-
-\paa{there should probably be a sum-up sentence here; eg Malacology exposes knobs that
-allow application programmers to tune the storage system to the needs of their application.}
-
-\noindent\textbf{Features:} delay and quota parameters control throughput vs.
-latency
-\paa{this should probably be a complete sentence or sentences.  also, I don't recall
-seeing any discussion of quotas}
+We have shown how exposing the internal capability management service allows
+users to navigate latency and throughput tradeoffs.  Other approaches to
+designing the sequencer service also exist, such as using a centralized
+service in which each access is a network round-trip. In contrast to the
+mechanism we explored which is appropriate for clients with bursty workloads,
+it may be easier to provide predictable performance using a centralized
+service, and we will be exploring in the future how this can be achieved using
+the capability system.
 
 \subsubsection{Interface Propagation}
 
