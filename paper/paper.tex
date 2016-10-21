@@ -978,13 +978,15 @@ give examples of the flexibility that Malacology provides to programmers.
 
 \subsection{Mapping ZLog onto Malacology}
 \label{sec:mapping-zlog-onto-malacology}
-We evaluate the mapping of ZLog onto Malacology by examining the costs of
-utilizing the metadata service as a sequencer, and of propagating interface
-changes throughout the cluster using the monitoring service. We have omitted
-evaluation of the overhead costs of adding object interfaces themselves due to
-lack of space, and the fact that they are heavily tested and used already in
-production with acceptable performance, introducing a small constant overhead
-per operation without affecting scalability.
+
+We evaluate Malacology by exploring one possible mapping of the ZLog
+implementation of CORFU onto Ceph in which we re-use (1) the metadata service
+to manage naming and synchronization of the sequencer resource by treating the
+resource as an inode, and (2) the monitoring sub-subsystem to distribute and
+install application-specific I/O interface required of the CORFU protcool. In
+Section~\ref{sec:zlog-balancing} we then demonstrate how the re-use of the inode
+abstraction for implementing the sequencer resource enables load balancing policies
+to migrate the sequencer resource in heavy-load situation.
 
 \subsubsection{Sequencer Implementation}
 \label{sec:sequencer-implementation}
@@ -1072,7 +1074,7 @@ seeing any discussion of quotas}
 Domain-specific data interfaces (Section~\ref{object-data-interfaces}) allow
 co-design between applications and the storage system. Malacology supports
 custom object interfaces in RADOS that require interface implementations to
-installed on the storage devices in the system, supports the evolution of
+be installed on the storage devices in the system, supporting the evolution of
 interfaces through automatic system-wide versioning and installation through
 the service metdata interface (Section~\ref{service-metadata}). We evaluate
 the performance of installing a new version of an interface in the cluster,
@@ -1095,9 +1097,9 @@ cluster. In the experiment labeled "120 OSD (RAM)" a cluster of 120 OSDs (10
 OSDs x 12 servers) using an in-memory data store were deployed, showing a
 latency of less than 54 ms with a probability of 90\% and a worst case latency
 of 194 ms. These costs demonstrate the penality of distributing the interface
-in a large cluster. In In practice the costs are, in addition to cluster-wide
-propagation of interface updates, includes the network round-trip to the
-interface management service, the Paxos commit protocol, and other factors
+in a large cluster. In practice the costs include, in addition to cluster-wide
+propagation of interface updates, the network round-trip to the
+interface management service, the Paxos commit protocol itself, and other factors
 such as system load. By default Paxos proposals occur periodically with a 1
 second interval in order to accumulate updates. In a minimum, realistic quorum
 of 3 monitors using HDD-based storage, we were able to decrease this interval
@@ -1112,6 +1114,7 @@ interface commit.}
 \end{figure}
 
 \subsection{Load Balancing ZLog Sequencers with Mantle}
+\label{sec:zlog-balancing}
 
 In practice, a storage system implementing CORFU will support a multiplicity of
 independent totally-ordered logs for each application.  For this scenario
