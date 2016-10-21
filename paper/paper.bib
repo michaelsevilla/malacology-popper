@@ -937,11 +937,23 @@
 }
 
 @article{lamport_parttime_1998,
-  title = {The part-time parliament},
-  volume = {16},
-  journaltitle = {ACM Trans. Comput. Syst.},
-  author = {Lamport, Leslie},
-  date = {1998-05}
+ author = {Lamport, Leslie},
+ title = {The Part-time Parliament},
+ journal = {ACM Trans. Comput. Syst.},
+ issue_date = {May 1998},
+ volume = {16},
+ number = {2},
+ month = may,
+ year = {1998},
+ issn = {0734-2071},
+ pages = {133--169},
+ numpages = {37},
+ url = {http://doi.acm.org/10.1145/279227.279229},
+ doi = {10.1145/279227.279229},
+ acmid = {279229},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ keywords = {state machines, three-phase commit, voting},
 }
 
 @article{franklin_transactional_1997,
@@ -18607,10 +18619,9 @@ Parallel\&Distributed Processing},
 
 @misc{apache_contributors_parquet_2014,
 	title = {Parquet {Columnar} {Storage} {Format}},
-	url = {http://parquet.io},
 	urldate = {2016-05-09},
 	author = {{Apache Parquet Contributors}},
-	year = {2014}
+	year = {http://parquet.io}
 }
 
 @misc{snia_implementing_2014,
@@ -18642,32 +18653,34 @@ Parallel\&Distributed Processing},
 
 
 @misc{ceph_contributors_ceph_2010,
-	title = {Ceph {Documentation}},
-	url = {http://docs.ceph.com/docs/master/},
+	title = {Ceph {Architecture}},
 	urldate = {2016-05-09},
-	author = {{Ceph Contributors}},
-	year = {2010},
+	year = {http://docs.ceph.com/docs/master/architecture},
 }
 
 @misc{website:ceph-mon,
-      url = {https://ceph.com/dev-notes/cephs-new-monitor-changes/},
-      title = {Ceph's New Monitor Changes},
-      author = {Ceph Team},
+      title = {Ceph's {New} {Monitor} {Changes}},
+      author = {Joao, Luis},
+      year = {https://ceph.com/dev-notes/cephs-new-monitor-changes}
 }
 
 @misc{website:zerocloud,
-      url = {http://www.zerovm.org/zerocloud.html},
+      author = {Rackspace},
+      year = {http://www.zerovm.org/zerocloud.html},
       title = {ZeroVM and OpenStack Swift},
 }
 
-@misc{website:chubby,
-      url = {https://www.usenix.org/legacy/events/nsdi11/tech/full_papers/Bolosky.pdf},
-      author = {William J. Bolosky},
+@inproceedings{bolosky2011paxos,
+  title={Paxos replicated state machines as the basis of a high-performance data store},
+  author={Bolosky, William J and Bradshaw, Dexter and Haagens, Randolph B and Kusters, Norbert P and Li, Peng},
+  booktitle={Symposium on Networked Systems Design and Implementation (NSDI)},
+  pages={141--154},
+  year={2011}
 }
-% https://www.cs.utexas.edu/users/lorenzo/corsi/cs380d/papers/paper2-1.pdf
 
 @misc{website:cls-lua,
-      url = {http://ceph.com/rados/dynamic-object-interfaces-with-lua/},
+      title = {Dynamic Object Interfaces with Lua},
+      year = {http://ceph.com/rados/dynamic-object-interfaces-with-lua},
       author = {Noah Watkins},
 }
 
@@ -18717,3 +18730,67 @@ Log-Structured Databases}
   title={Software Defined Storage},
   author={Carlson, Mark and Yoder, Alan and Schoeb, Leah and Deel, Don and Pratt, Carlos and Lionetti, Chris and Voigt, Doug}
 }
+
+@inproceedings{chain_rep,
+ author = {van Renesse, Robbert and Schneider, Fred B.},
+ title = {Chain Replication for Supporting High Throughput and Availability},
+ booktitle = {Proceedings of the 6th Conference on Symposium on Opearting Systems Design \& Implementation - Volume 6},
+ series = {OSDI'04},
+ year = {2004},
+ location = {San Francisco, CA},
+ pages = {7--7},
+ numpages = {1},
+ url = {http://dl.acm.org/citation.cfm?id=1251254.1251261},
+ acmid = {1251261},
+ publisher = {USENIX Association},
+ address = {Berkeley, CA, USA},
+} 
+
+@article{ierusalimschy1996lua,
+  title={Lua-an extensible extension language},
+  author={Ierusalimschy, Roberto and De Figueiredo, Luiz Henrique and Celes Filho, Waldemar},
+  journal={Softw., Pract. Exper.},
+  volume={26},
+  number={6},
+  pages={635--652},
+  year={1996},
+  publisher={Citeseer}
+}
+
+@inproceedings{shvachko:msst10,
+	Address = {Incline Village, NV},
+	Author = {Konstantin V. Shvachko and Hairong Kuang and Sanjay Radia and
+bert Chansler},
+	Booktitle = {MSST2010},
+	Month = {May 3-7},
+	Title = {The Hadoop Distributed File System},
+	Year = {2010}}
+
+@inproceedings{ghemawat:sosp03,
+	Address = {Bolton Landing, NY},
+	Author = {Sanjay Ghemawat and Howard Gobioff and Shun-Tak Leung},
+	Booktitle = {SOSP '03},
+	Month = October,
+	Organization = {ACM},
+	Title = {The {Google} File System},
+	Year = 2003}
+
+@inproceedings{renesse:osdi04,
+	Address = {San Francisco, CA},
+	Author = {Robbert van Renesse and Fred B. Schneider},
+	Booktitle = osdi04,
+	Month = dec,
+	Pages = {91--104},
+	Title = {Chain Replication for Supporting High Throughput and
+ailability},
+	Year = 2004}
+
+@inproceedings{maccormick:osdi04,
+	Address = {San Francisco, CA},
+	Author = {John MacCormick and Nick Murphy and Marc Najork and
+andramohan A. Thekkath and Lidong Zhou},
+	Booktitle = osdi04,
+	Month = dec,
+	Title = {{Boxwood}: Abstractions as the Foundation for Storage
+frastructure},
+	Year = 2004}
