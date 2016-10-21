@@ -1,0 +1,9 @@
+---
+- name: start a client in the background
+  shell: >
+         docker run -d \
+           --name=zlog-seq \
+           --entrypoint=seq-client \
+           -v /etc/ceph:/etc/ceph \
+           {{ ceph_client_docker_username }}/{{ ceph_client_docker_imagename }} \
+           --runtime 240 --filename {{ dir }} --op fstat --perf_file /etc/ceph/perf-{{ dir|dirname }} --capdelay 1
