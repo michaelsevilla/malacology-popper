@@ -972,9 +972,9 @@ balance sequencers across a cluster.
 %and physical design implementation trade-offs.  
 
 Since this work
-focuses on the programmabilty of Malacology, the goal of the benchmarks is to
+focuses on the programmabilty of Malacology, the goal of this section is to
 show that the components and subsystems that support the Malacology interfaces
-provide reasonable performance, as well as to give examples of the flexibility
+provide reasonable relative performance, as well as to give examples of the flexibility
 that Malacology provides to programmers.
 %As we search for the best metadata balancing policies
 %and physical design implementation trade-offs,
@@ -1119,12 +1119,12 @@ interval to an average of 222 ms.
 \subsection{Load Balancing ZLog Sequencers with Mantle}
 
 For scenarios with multiple shared logs and many clients, co-locating
-sequencers on the same physical node is not ideal. Unfortunately, building a
+sequencers on the same physical node is not ideal. Building a
 load balancer that can migrate the shared resource (in this case, the resource
-that mediates access to the tail of the log) would require building subsystems
+that mediates access to the tail of the log) is a time-consuming, non-trivial task that requires building subsystems
 for migrating resources, monitoring the workloads, collecting metrics that
 describe the utilization on the physical nodes, partitioning resources,
-maintaining cache coroherence, and managing multiple sequencers.  The following
+maintaining cache coherence, and managing multiple sequencers. The following
 experiments demonstrate the feasibility of using the mechanisms of the
 Malacology load balancing interface to inherit all these features and to
 alleviate load from overloaded servers with multiple sequencers.
@@ -1158,9 +1158,8 @@ to monitor the cluster, and 3 nodes that can accomodate sequencers. Our first
 experiment co-locates 3 sequencers each with 4 clients on the same physical
 server.  Instead of measuring contention at the clients like
 Section~\ref{sec:sequencer-implementation}, these experiments measure
-contention at the sequencers by forcing clients to make round-trips every
-request. We implement this using the shared resource interface to piggyback on
-\texttt{fstat()} and to program a policy into \texttt{getattr()} that forces
+contention at the sequencers by forcing clients to make round-trips for every
+request. We implement this using the shared resource interface that forces
 round-trips.  Because the sequencer's only function is to  hand out positions
 for the tail of the log, the workload is read-heavy.
 
@@ -1168,7 +1167,7 @@ Figure~\ref{fig:mantle-balancer-behaviors} shows the throughput (\(y\) axis)
 over time (\(x\) axis) of different load balancers that migrate ZLog sequencers
 acround the cluster; ``No Balancing" keeps all sequencers on one server,
 ``CephFS" migrates sequencers using the original algorithms packaged with Ceph,
-and the ``Mantle" uses a custom load balancer we wrote specifically for
+and ``Mantle" uses a custom load balancer we wrote specifically for
 sequencers. The increased throughput for the CephFS and Mantle curves between 0
 and 60 seconds are a result of migrating the sequencer(s) off overloadeed
 servers. In addition to showing that migrating sequencers improves performance,
