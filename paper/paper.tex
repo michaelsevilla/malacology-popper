@@ -1025,7 +1025,7 @@ to an average of 222 ms.
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=75mm,trim={1 4 4 1.3cm},clip]{figures/iface-update-delay.pdf}
+\includegraphics[width=60mm,trim={1 4 4 1.3cm},clip]{figures/iface-update-delay.pdf}
 \caption{Cluster-wide interface update latency, excluding the Paxos proposal cost for
 interface commit.}
 \label{fig:propdelay}
@@ -1059,10 +1059,11 @@ Section~\ref{sec:feature-backoff} examines the migration at 0-60 seconds.
 
 \begin{figure}[t!]
 \centering
-\includegraphics{figures/mantle-mode-performance.png}
 \includegraphics{figures/mantle-balancer-performance.png}
-\caption{All CephFS balancing modes have the same performance Mantle uses a
-balancer designed for sequencers.}\label{fig:mantle-balancer-performance}
+\includegraphics{figures/mantle-mode-performance.png}
+\caption{In (a) all CephFS balancing modes have the same performance; Mantle uses a
+balancer designed for sequencers. In (b) the best combination of mode and
+migration units can have up to a 2\(\times\) improvement.}\label{fig:mantle-balancer-performance}
 \end{figure}
 
 The experiments are run on a cluster with 10 nodes to store objects, one node
