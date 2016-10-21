@@ -1149,6 +1149,7 @@ Section~\ref{sec:feature-backoff} examines the migration at 0-60 seconds.
 
 \begin{figure}[t!]
 \centering
+\includegraphics{figures/mantle-mode-performance.png}
 \includegraphics{figures/mantle-balancer-performance.png}
 \caption{All CephFS balancing modes have the same performance Mantle uses a
 balancer designed for sequencers.}\label{fig:mantle-balancer-performance}
@@ -1272,34 +1273,30 @@ housing Sequencer 2 resulting in this uneven performance.
 \label{sec:feature-migration-units}
 
 Another factor that affects performance in this environment is ``how much" load
-is on each server; these experiments quantify that effect by programming
-policies into the load balancing interface to control the amount of load to
-migrate. We define migration unit as the amount of load to try and migrate.
-For example, it is useful to express migration units as a fraction of the total
-load.  Expressing this heuristic is not easily achievable with outward facing
-tunable parameters (i.e. system knobs) and so the original CephFS balancers do
-not have a migration unit tunable.  With Mantle's programmable interface, we
-force the load balancer into the Proxy Mode (Full) scenario in
-Figure~\ref{fig:mantle-modes}, which sets the balancer to proxy mode with
-migration units equal to the entire load on the current server we can use the Mantle
-policy:\\
+is on each server; these experiments quantify that effect by programming the
+load balancing interface to control the amount of load to migrate. We call this
+metric a ``migration unit".  Expressing this heuristic is not easily achievable
+with outward facing tunable parameters (i.e. system knobs) but with Mantle's
+programmable interface, we can force the load balancer to change its migration
+units. To force the balancer into the Proxy Mode (Half) scenario in
+Figure~\ref{fig:mantle-modes}, which uses migration units that are half the
+load on the current server:\\
 
-\noindent \texttt{ targets[\#mds+1] = mds[whoami]["load"] }\\
+\noindent \texttt{ targets[whoami+1] = mds[whoami]["load"]/2 }\\
 
 This code snippet uses globally defined variables and tables from the Mantle
 API to send half of the load on the current server (whoami) to the next ranked
-server (\#mds + 1); the \texttt{targets} array is a globally defined table that
-the balancer uses to do the migrations. Alternatively, to set the mode to the
-``Proxy (Half)"` setup in Figure~\ref{fig:mantle-modes} we can divide the right
-hand side by 2.
+server (whoami + 1); the \texttt{targets} array is a globally defined table that
+the balancer uses to do the migrations. Alternatively, to migrate all load a
+time step, we can remove the division by 2.
 
-\begin{figure}[t!]
-\centering
-\includegraphics{figures/mantle-mode-performance.png}
-\caption{The performance of the different modes using various migration units
-shows almost a 2\(\times\) improvement in the best case.
-}\label{fig:mantle-mode-performance}
-\end{figure}
+%\begin{figure}[t!]
+%\centering
+%\includegraphics{figures/mantle-mode-performance.png}
+%\caption{The performance of the different modes using various migration units
+%shows almost a 2\(\times\) improvement in the best case.
+%}\label{fig:mantle-mode-performance}
+%\end{figure}
 
 Figure~\ref{fig:mantle-mode-performance} shows the performance of the modes
 using different migration units. Recall that this setup only has 2 sequencers
