@@ -1,0 +1,65 @@
+---
+
+- hosts: clients0[0]
+  become: True
+  tasks:
+    - name: remove old clients
+      shell: "docker rm -f zlog-seq0 zlog-seq1 zlog-seq1-run1"
+      ignore_errors: True
+
+    - name: check for old reqs files
+      shell: ls /etc/ceph/reqs*
+      register: results
+
+    - name: remove old reqs files
+      shell: rm {{ item }}
+      with_items:
+      - "{{ results.stdout_lines }}"
+
+    - name: start a client in the background
+      shell: >
+             docker run -d \
+               --name=zlog-seq0 \
+               --entrypoint=seq-client \
+               -v /etc/ceph:/etc/ceph \
+               {{ ceph_client_docker_username }}/{{ ceph_client_docker_imagename }} \
+               --filename dir0/blah0 --reqs_file /etc/ceph/reqs-client0-{{ ansible_hostname }} --capdelay {{ capdelay }}
+# --quota {{ quota }}
+
+#    - name: start the other one to show stuff works
+#      shell: >
+#             docker run \
+#               --name=zlog-seq1-run0 \
+#               --entrypoint=seq-client \
+#               -v /etc/ceph:/etc/ceph \
+#               {{ ceph_client_docker_username }}/{{ ceph_client_docker_imagename }} \
+#               --runtime 15 --filename dir0/blah0 --reqs_file /etc/ceph/reqs-client1-part0-{{ ansible_hostname }} 
+##--capdelay {{ capdelay }} --quota {{ quota }}
+#    - pause: seconds=20
+
+    - name: start a client in the foreground
+      shell: >
+             docker run \
+               --name=zlog-seq1-run1 \
+               --entrypoint=seq-client \
+               -v /etc/ceph:/etc/ceph \
+               {{ ceph_client_docker_username }}/{{ ceph_client_docker_imagename }} \
+               --filename dir0/blah0 --reqs_file /etc/ceph/reqs-client1-{{ ansible_hostname }} --capdelay {{ capdelay }} 
+#--quota {{ quota }}
+      register: results
+
+    - name: parse results
+      connection: local
+      template: src=parse.j2 dest="{{ playbook_dir|dirname }}/results/{{ site }}-foreground-{{ ansible_hostname }}-throughput.csv"
+      with_items: 
+        - "{{ results.stdout_lines }}"
+
+    - name: get the summary results
+      shell: ls /etc/ceph | grep -v ceph
+      ignore_errors: True
+      register: ls
+
+    - name: pull the files
+      fetch: flat=yes src=/etc/ceph/{{ item }} dest="{{ playbook_dir|dirname }}/results/{{ site }}-foreground-{{ ansible_hostname }}-{{ item }}"
+      with_items:
+        - "{{ ls.stdout_lines }}"
