@@ -1320,29 +1320,25 @@ while Mantle takes more time to stabilize. This conservative behavior is
 controlled by programming the balancer to (1) use different conditions for when
 to migrate and (2) using a threshold for sustained overload. 
 
-We control the conditions for migration using \texttt{when()}. \texttt{when()}
-is part the Mantle API and the callback expects a return value of true or
-false, which corresponds to whether to migrate or not. For the Mantle curve in
-Figure~\ref{fig:mantle-balancer-behaviors} we set the \texttt{when()} policy to
-wait for load on the receiving server to fall below a threshold. At the
-beginning of the run the load of the receiving server spikes because requests
-for cache-coherence start as the sequencers are created. It takes 60 seconds
-for this load to drop to an acceptable level and it is at this point that the
-migration starts.  The Mantle curve in
+We control the conditions for when to migrate using \texttt{when()}, a callback
+in the Mantle API.  For the Mantle curve in
+Figure~\ref{fig:mantle-balancer-behaviors} we program \texttt{when()} to wait
+for load on the receiving server to fall below a threshold. This makes the
+balancer more conservative because it takes 60 seconds for cache coherence
+messages to settle.  The Mantle curve in
 Figure~\ref{fig:mantle-balancer-behaviors} also takes longer to reach peak
-throughput.  This conservative decision making is intentional because we want
-the policy wait to see how migrations affect the system before proceeding. The
-Mantle curve in Figure~\ref{fig:mantle-balancer-behaviors} does a migration
-right before 50 seconds, realizes that there is a third underloaded server, and
-does another migration. 
+throughput because we want the policy to wait to see how migrations affect the
+system before proceeding; the balancer does a migration right before 50
+seconds, realizes that there is a third underloaded server, and does another
+migration. 
 
 The other way to change aggressiveness of the decision making is to program
 into the balancer a threshold for sustatined overload. This forces the balancer
 to wait a certain number of iterations after a migration before proceeding. In
 Mantle, the policy would use the save state function to do a countdown after a
 migation.  Behavior graphs and performance numbers for this backoff feature is
-omitted for space considerations, but the throughput graphs are as expected:
-the more conservative the approach the less overall throughput.\\
+omitted for space considerations, but our experiments confirm that the more
+conservative the approach the less overall throughput.\\
  
 \noindent\textbf{Malacology pulls} the load balancing out of the storage system
 to balance sequencers across a cluster. Compared to putting all sequencers on
@@ -1352,7 +1348,6 @@ programmers the ability to explore the different load balancing trade-offs
 including: load balancing modes to control forwarding vs. client redirection,
 load migration units to control sequencer distribution vs. co-location, and
 backoffs to control conservative vs. aggressive decision making.
-
 
 %\subsubsection{Experiment: Object Class
 %Programmability}\label{experiment-object-class-programmability}
