@@ -1,0 +1,7 @@
+---
+- hosts: mdss
+  tasks:
+    - name: dump the logs
+      shell: docker logs ceph-{{ ansible_hostname }}-mds > out 2>&1
+    - name: get those logs
+      fetch: src=out dest={{ playbook_dir|dirname }}/results/{{ site }}-{{ ansible_hostname }}-daemon.log flat=yes
