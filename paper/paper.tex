@@ -38,23 +38,20 @@
 \maketitle
 
 \begin{abstract}
-Storage systems are caught between rapidly changing data processing
-applications and the increasing speed of storage devices. This puts tremendous
-pressure on storage systems to support rapid evolution both in terms of their
+Storage systems are caught between the need to evolve data processing applications efficiently and quickly,
+and the increasing velocity with which storage device technology evolves. This puts tremendous
+pressure on storage systems to support rapid change both in terms of their
 interfaces and their performance. But adapting storage systems can be difficult
 because unprincipled changes might jeopardize years of code-hardening and
 performance optimization efforts that were necessary for users to entrust their
-data to the storage system.  We introduce  Malacology, a prototype programmable
-storage system, to explore how existing abstractions of common storage system services 
-%found in
-%storage systems 
+data to the storage system. In this work, we introduce the concept of a programmable storage system, a system that exposes internal services and abstractions with the goal of re-using and building new services on top of the storage stack. We present Malacology, a prototype implementation of a programmable storage system based on Ceph
+to explore how existing abstractions of common storage system services 
 can be leveraged to 
-%address 
 adapt to the needs of
 new data processing systems and the
-increasing speed of storage devices. This approach allows a large degree of
+increasing speed of storage devices. We show how this approach allows a large degree of
 flexibility for storage systems to evolve without sacrificing the robustness of
-their code-hardened subsystems.  We illustrate the advantages and challenges of
+their code-hardened subsystems. We illustrate the advantages and challenges of
 programmability by composing existing primitives into two new higher-level
 services: a file system metadata load balancer and a high-performance
 distributed shared-log that leverages flash devices. The evaluation
@@ -63,6 +60,18 @@ storage system, including the ability to balance load, efficiently propagate
 cluster metadata, recover from failure, and to navigate trade-offs between
 latency and throughput using leases.
 \end{abstract}
+
+\begin{figure}[tb]
+\centering
+\includegraphics{figures/overview.png}
+\caption{Scalable storage systems have storage daemons which store data,
+monitor daemons (M) that maintain cluster state, and service-specific daemons
+({\it e.g.}, file system metadata servers). Malacology enables the programmability of
+internal abstractions (bold arrows) to re-use and compose
+existing subsystems.  With Malacology, we add new services, ZLog and
+Mantle, that sit alongside traditional user-facing APIs (file, block,
+object).}\label{fig:overview}
+\end{figure}
 
 \section{Introduction}
 \label{introduction}
@@ -94,18 +103,6 @@ storage systems available as open source software have established and are
 continuing to establish new, \emph{de-facto} API standards at a faster pace
 than traditional standards
 bodies~\cite{snia_implementing_2014,linux_foundation_kinetic_2015}.
-
-\begin{figure}[tb]
-\centering
-\includegraphics{figures/overview.png}
-\caption{Scalable storage systems have storage daemons which store data,
-monitor daemons (M) that maintain cluster state, and service-specific daemons
-({\it e.g.}, file system metadata servers). Malacology enables the programmability of
-internal abstractions (bold arrows) to re-use and compose
-existing subsystems.  With Malacology, we add new services, ZLog and
-Mantle, that sit alongside traditional user-facing APIs (file, block,
-object).}\label{fig:overview}
-\end{figure}
 
 The evolutionary pressure placed on storage systems by these trends raises the
 question of whether there are principles that storage systems designers can
@@ -601,84 +598,6 @@ object store and centralize warnings/errors. When combined with file types,
 load balancing policies can express a variety of rules such as multi-tentant
 and multi-application balancing.
 
-%{\bf Policy management.} A new interface is added to the metadata service
-%subsystem using the monitoring framework to support management of interfaces.
-%This ensures that the correct balancer version is consistently distributed and
-%verified on all MDS nodes. Policies are also durably saved with Ceph's
-%replication and redundancy.
-
-%These problems are general, distributed systems load balancing problems and
-%share many of the same properties as the POSIX metadata
-%wall~\cite{alam:pdsw2011-metadata-scaling,ghemawat:sosp2003-gfs,hildebrand:msst2005-pnfs,weil_ceph_2006,welch:fast2008-panasas,shvachko:login2012-hdfs-scalability}.
-%Many distributed file systems decouple metadata and data I/O so that these
-%services can scale independently. Despite this optimization, scaling the
-%metadata services is still difficult because metadata accesses impose small
-%and frequent requests on the underlying storage
-%system~\cite{roselli:atec2000-FS-workloads}. Many techniques for designing the
-%metadata services have been proposed to accommodate this workload:
-%Lustre~\cite{konstantinos:pdsw2014-lustre-metadata},
-%GFS~\cite{ghemawat:sosp2003-gfs}, and
-%HDFS~\cite{shvachko:login2012-hdfs-scalability} keep all metadata on one
-%server; GIGA+~\cite{patil:fast2011-giga}, IndexFS~\cite{ren:sc2014-indexfs},
-%Lazy Hybrid~\cite{brandt:msst2003-lh}, GPFS~\cite{schmuck:fast2002-gpfs}, and
-%pNFS~\cite{hildebrand:supercomputing2006-pNFS} hash the file system namespace
-%across a dedicated cluster and cache metadata;
-%Panasas~\cite{welch:fast2008-panasas} and
-%CephFS~\cite{weil:sc2004-dyn-metadata} use subtree partitioning to carve up
-%the namespace and distribute it across a cluster.
-%
-%Both the object and balancer interfaces define functions and attach them
-%to the core Lua sandbox. For example, the Lua object storage interface
-%class attaches data, extended attribute, object map, and object version
-%functions, to the Lua core functions, as shown in Figure
-%\ref{fig:cls-osd-mds}. The advantages of this is that we avoid
-%duplicating code, we provide a framework for putting Lua code in other
-%parts of the system, and we remove components and APIs that are too
-%integrated with the OSD.
-
-%To facilitate the use of Lua in both the MDS and OSD, we modularize the LuaVM
-%in a core sandbox wrapper and link against it, as shown in
-%Figure~\ref{fig:cls-osd-mds}. This core Lua wrapper contains just the
-%dependencies, symbols, and functions, needed to run the Lua VM and strips away
-%all the functionality inherent to object classes (like placement group
-%filters, cryptography functions, object metadata,  object data, object
-%extended attributes, and object versions). Some functions of Ceph's more
-%helpful subsystems, like the logging facilities for the daemons, were re-used
-%in the MDS.  With this scheme, The OSD will dynamically open the shared
-%library created by Lua object interface shared library while the MDS will
-%dynamically open the Lua balancer interface shared library; both shared
-%libraries will the Lua core.
-
-%{\bf File Types.} We leverage the same active and typed storage module
-%presented in DataMods~\cite{watkins_datamods_2012} to assign state and a set of
-%functions to a file (stored in the inode). This is valuable for
-%metadata load balancing so that certain types of files can have a higher
-%priority when making balancing decisions.
-
-%\begin{figure}[h]
-%\centering
-%\includegraphics{figures/cls-osd-mds.png}
-%\caption{To generalize the LuaVM for use in both the OSD and MDS,
-%Malacology detaches the core functionality into a Lua core module. The
-%VM is dynamically loaded first (1) and then interfaces can execute (2).
-%\label{fig:cls-osd-mds}}
-%\end{figure}
-
-% Straw man example
-%Migrating resources is an important part of load balancing but understanding
-%the effects of different configurations and parameters is difficult. Systems
-%already virtualize and migrate memory; soon systems will be able to migrate
-%other resources, like CPU, disk, and memory. Figuring out how, when, and where
-%to move these resources depends on complex metrics like utilization,
-%configuration, and workload.
-
-%These hooks embed Lua code in the MDS using the OSD subsystems. By re-using
-%the OSD interface classes, the MDS gets the safety and robustness of loading
-%dynamic code (including graceful failures and helpful errors), the ease of
-%transferring state between object interfaces and the OSD internals,
-%integration with testing and correctness suites, and \texttt{struct}s for
-%interface data and handlers. 
-
 \subsection{Durability Interface}
 \label{sec:durability}
 
@@ -700,7 +619,7 @@ discovered.
 interfaces are stored durability within RADOS and managed by storing references
 with the object maps. Since the cluster already propagates a consistent view of
 these data structures, we use this service to automatically install interfaces
-in OSDs, and install policies within the MDS such that clients and daemons are
+in OSDs, and install policies within the metadata server daemon (MDS) such that clients and daemons are
 synchronized on correct implementations without restarting.
 
 \section{Services Built on Malacology}
@@ -771,15 +690,6 @@ monitor daemons.
 The user changes the version of the load balancer using a new CLI command: \\
 
 \noindent \texttt{\$> ceph fs\ set\ lua\_balancer\_class\ \textless{}version\textgreater{}}
-
-%There are Ceph components that are obstacles to this approach, namely the size
-%of the  MDS map, API changes, and security. The Ceph engineers want to avoid
-%using the maps to exchange information; the maps should be lightweight and fast
-%because the MONs need to be able to version MDS cluster state quickly. API
-%changes can also be a burden, especially for the MDS map, since all clients
-%need to have the same version of the CephFS library in order to properly
-%interact with CephFS. Finally, Ceph tries to avoid injecting strings into the
-%cluster because they are insecure and buggy. 
 
 \subsubsection{Making Balancer Policies Durable}
 
