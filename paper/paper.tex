@@ -30,8 +30,8 @@
 \urlstyle{same}  % don't use monospace font for urls
 
 \title{Malacology: A Programmable Storage System}
-\authorinfo{Paper ID: 123}
-           {Total Page: 12}
+\authorinfo{Paper ID: 165}
+           {Total Page: 14}
 \date{}
 \begin{document}
 
@@ -99,7 +99,7 @@ bodies~\cite{snia_implementing_2014,linux_foundation_kinetic_2015}.
 \centering
 \includegraphics{figures/overview.png}
 \caption{Scalable storage systems consist of storage daemons which store data
-fragments, monitor daemons that maintain cluster state, and service-specific
+fragments, monitor daemons (M) that maintain cluster state, and service-specific
 daemons such as file system metadata servers. Malacology enables the
 programmability of internal abstractions (indicated by bold arrows) in order to
 re-use and compose existing subsystems.  With Malacology, we add two new
@@ -253,7 +253,7 @@ end-points).}
     Locking  & Grants clients exclusive access & 6 \\ \hdashline
     Other & Garbage collection, reference counting  & 4\\
 \end{tabular}
-\caption{A variety of RADOS object storage classes exist to expose interfaces
+\caption{A variety of object storage classes exist to expose interfaces
     to applications. \# is the number of methods that use these categories.
 }
 \label{table:objclasses}
@@ -344,7 +344,7 @@ robust and the visibility of the code lets us expose any interface we want. In
 the next section we describe the Ceph components that we expose as Malacology
 interfaces.
 
-\section{Malacology}
+\section{Malacology: A Programmable Storage System}
 \label{sec:malacology}
 
 \begin{table*}
@@ -1008,6 +1008,19 @@ as shown by the nearly three orders of magnitude drop off in throughput.
 
 \begin{figure}[h]
 \centering
+\includegraphics{figures/capdelay-quota-behavior-a.png}
+\includegraphics{figures/capdelay-quota-behavior-b.png}
+\includegraphics{figures/capdelay-quota-behavior-c.png}
+\caption{ Each dot in these graphs is an individual request and they are spread
+randomly along the \(y\) axis. The default behavior (``None") shows
+unpredictable performance, ``delay" lets each client hold the lease longer, and
+``quota" gives each client the lease for a certain number of operations. Delay
+improves latency and fairness while quota maximizes throughput.}
+\label{fig:capdelay-quota-behavior}
+\end{figure}
+
+\begin{figure}[h]
+\centering
 \includegraphics{figures/tradeoff.png}
 \caption{[\href{https://github.com/double-blind-submitter/osdi16}{source}]
 Sequencer throughput by re-using various services.  The highest performance is
@@ -1228,7 +1241,7 @@ discussed in the next section).
 sequencers to alleviate overloaded servers. Client mode migrates the sequencer
 and clients start sending requests to the new server. Proxy mode migrates the
 sequencer but clients continue sending their requests to the first server.
-``Half"/``Full" indicate the size of the migration units (discussed in
+``Half" is the size of the migration units (discussed in
 Section~\ref{sec:feature-migration-units}).}\label{fig:mantle-modes}
 \end{figure}
 
@@ -1433,10 +1446,10 @@ the more conservative the approach the less overall throughput.\\
 %metadata performance does not improve with multiple
 %threads~\cite{konstantinos:pdsw2014-lustre-metadata}.
 
-\noindent\textbf{The Malacology Approach:} pull load balancing out of the
-storage system to balance sequencers across a cluster. Compared to putting all
-sequencers on the same server, load balancing a sequencer using proxy mode
-shows a 1.8\(\times\) throughput improvement.\\
+\noindent\textbf{Malacology pulls} the load balancing out of the storage system
+to balance sequencers across a cluster. Compared to putting all sequencers on
+the same server, load balancing a sequencer using the proxy mode shows a
+1.8\(\times\) throughput improvement.\\
 
 \noindent\textbf{Features:} different load balancing modes control forwarding
 vs. client redirection, tuning the load migration unit parameter controls
@@ -1505,15 +1518,19 @@ asynchronous object calls and Lua stubs in the inode, respectively.
 Programmable storage is a viable method for eliminating duplication of complex
 error prone software that are used as workarounds for storage system
 deficiencies. However, this duplication has real-world problems related to
-reliability. We propose that system expose their services in a safe way
+reliability. We propose that systems expose their services in a safe way
 allowing application developers to customize system behavior to meet their
-needs while not sacrificing correctness.
+needs while not sacrificing correctness. To illustrate the benefits of this
+approach we presented Malacology, a programmable storage system that
+facilitates the construction of new services by re-purposing existing subsystem
+abstractions of the storage stack.
 
-We are intending to pursue this work towards the goal of constructing a set of
-customization points that allow a wide variety of storage system services to be
-configured on-the-fly in existing systems. This work is one point along that
-path in which we have looked at targeting special-purpose storage systems.
-Ultimately we want to utilize declarative methods for expressing new services.
+Future work will focus on constructing more interfaces to support a wide
+variety of storage system services that can be configured on-the-fly in existing
+systems. This work is one point along that path to producing general-purpose
+storage systems that can
+target  special-purpose applications.  Ultimately we want to utilize
+declarative methods for expressing new services.
 
 \bibliography{paper}
 \bibliographystyle{plain}
