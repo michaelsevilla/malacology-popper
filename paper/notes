@@ -1,0 +1,19 @@
+
+
+Widened these APIs
+
+6.1.1 exposing capability management feature allows users to navigate latency and
+tradeoffs
+
+6.1.2 exposing consensus service was a good thing to expose and it was a good
+idea and we could use it -- example of flexible service
+
+
+6.2 evidence that exposing this useful -- giving evidence that there is a rich
+set of choices that the programmer might want to -- not enough to say storage
+systems have a wide range of choices
+
+
+
+
+
