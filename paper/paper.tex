@@ -385,12 +385,24 @@ italicized abstractions} are interfaces discussed in this paper.}
 \label{table:examples}
 \end{table*}
 
-The guiding principle
-is to re-use existing services and extend them so that these services can be
-\emph{programmed}. We accomplish programmability of a service by exporting
-bindings (or ``hooks'') for an interpreted programming language so that
-programming can occur without having to restart the storage system (see also
-below,~\S\ref{sec:durability}). Table~\ref{table:examples} shows the internal services from Ceph that we expose in the Malacology prototype via Lua~\cite{ierusalimschy1996lua} bindings.
+\begin{figure}[tbp]
+\centering
+\includegraphics{figures/implementation-overview.png}
+\caption{Malacology is implemented on the daemons and clients that run in a
+Ceph cluster. The gray callout bubbles show where each interface is in the
+storage stack and the Ceph modules, functions, and/or variables we modified.
+\label{fig:implementation-overview}}
+\end{figure}
+
+The guiding principle is to re-use existing services and extend them so that
+these services can be \emph{programmed}. We accomplish programmability of a
+service by exporting bindings (or ``hooks'') for an interpreted programming
+language so that programming can occur without having to restart the storage
+system (see also below,~\S\ref{sec:durability}). Table~\ref{table:examples}
+shows the internal services from Ceph that we expose in the Malacology
+prototype via Lua~\cite{ierusalimschy1996lua} bindings and
+Figure~\ref{fig:implementation-overview} shows where each interface lives in
+the storage stack.
 
 Lua is a portable embedded scripting language and we choose it as the
 interpreted language for Malacology because it offers superior performance and
