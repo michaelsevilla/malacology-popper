@@ -6,12 +6,23 @@
 \usepackage{listings}
 \usepackage{pifont}
 \usepackage{color}
+\usepackage{comment}
+\includecomment{newcomment}
+\includecomment{oldcomment}
 \newcommand{\cmark}{\ding{51}}%
 \usepackage[font=footnotesize,labelfont=bf]{caption}
 
 \setlength{\belowcaptionskip}{-10pt}
 
 \newcommand{\paa}[1]{{\textcolor{red}{[[#1 -- paa]]}}}
+\usepackage[normalem]{ulem}
+\newcommand{\nc}[1]{{
+  \textcolor{red}{\textbf{#1}}
+}}
+\newcommand{\oc}[1]{{
+  \textcolor{blue}{\textbf{\sout{#1}}}
+}}
+
 \usepackage{pstricks}
 \makeatletter
 \def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
@@ -78,6 +89,23 @@ object).}\label{fig:overview}
 \section{Introduction}
 \label{introduction}
 \label{sec:intro}
+
+\begin{newcomment}
+
+\nc{New changes are in red}
+
+\oc{Old prose is in blue}
+
+%\nc{
+%\begin{enumerate}
+%  \item clarify what was implemented: diagram of interfaces and prose specifying the difference between Malacology and prior work (reviewers B, C, D, E)
+%  \item describe what makes a programmable storage system (reviewers C, D)
+%  \item organize motivation: group interfaces into categories (e.g., core functionality, features, and performance optimizations) and describe other applications we can build with Malacology (reviewers B, C)
+%  \item clarify terminology: service vs. file system metadata, storage vs. file system, dirty vs. clean slate approaches, soft-state caching (reviewers B, C)
+%  \item address security, access control, and how it affects composability/multi-tenancy on correctness (reviewer D)
+%\end{enumerate}
+%}
+\end{newcomment}
 
 A storage system implements abstractions designed to persistently store data
 and must exhibit a high level of correctness to prevent data loss.  Storage
@@ -311,8 +339,14 @@ of those changes without affecting correctness.
 
 \end{itemize}
 
-To address these challenges we present Malacology. Malacology is both a
-prototype for a programmable storage system and a design approach to evolve
+To address these challenges we present Malacology
+\begin{oldcomment}
+\oc{. Malacology is both a prototype for a programmable storage system and a}
+\end{oldcomment}
+\begin{newcomment}
+\nc{, our prototype programmable storage system. It uses the programmable storage}
+\end{newcomment}
+design approach to evolve
 storage systems efficiently and without jeopardizing years of code-hardening
 and performance optimization efforts.  Although Malacology uses the internal
 abstractions of the underlying storage system, including its subsystems,
@@ -346,7 +380,7 @@ interfaces.
 \begin{tabular}{  l | l | l | l }
 %\multicolumn{4}{c}{\Large \textbf{Common Internal Abstractions}} \\
 \multicolumn{4}{c}{} \\
-\textbf{Abstraction}                    &
+\textbf{Interface}                      &
 \textbf{Example in Production Systems}  &
 \textbf{Example in Ceph}                &
 \textbf{Provided Primitives}            \\ \hline
@@ -385,24 +419,28 @@ italicized abstractions} are interfaces discussed in this paper.}
 \label{table:examples}
 \end{table*}
 
-\begin{figure}[tbp]
-\centering
-\includegraphics{figures/implementation-overview.png}
-\caption{Malacology is implemented on the daemons and clients that run in a
-Ceph cluster. The gray callout bubbles show where each interface is in the
-storage stack and the Ceph modules, functions, and/or variables we modified.
-\label{fig:implementation-overview}}
-\end{figure}
-
 The guiding principle is to re-use existing services and extend them so that
 these services can be \emph{programmed}. We accomplish programmability of a
 service by exporting bindings (or ``hooks'') for an interpreted programming
 language so that programming can occur without having to restart the storage
 system (see also below,~\S\ref{sec:durability}). Table~\ref{table:examples}
 shows the internal services from Ceph that we expose in the Malacology
-prototype via Lua~\cite{ierusalimschy1996lua} bindings and
-Figure~\ref{fig:implementation-overview} shows where each interface lives in
-the storage stack.
+prototype via Lua~\cite{ierusalimschy1996lua} bindings
+\begin{newcomment}
+\nc{and Figure~\ref{fig:implementation-overview} compares what was already
+present in Ceph (gray boxes) to the Malacology interfaces we added (blue
+trapezoids); Section~\ref{sec:services} will describe the higher-level
+services (pink arrows) we built with these interfaces.}
+
+\begin{figure}[tbp]
+\centering
+\includegraphics[width=100mm]{figures/implementation-overview.png}
+\caption{\nc{Malacology is implemented on the daemons and clients that run in a
+Ceph cluster. The interfaces expose internal subsystems of the Ceph modules and
+are used as building blocks for higher-level services.}
+\label{fig:implementation-overview}}
+\end{figure}
+\end{newcomment}
 
 Lua is a portable embedded scripting language and we choose it as the
 interpreted language for Malacology because it offers superior performance and
@@ -426,6 +464,9 @@ successful service and a necessary component in order to diagnose and detect
 failures, when they occur. This is further complicated by variable propagation
 delays and heterogeneous hardware in dynamic environments.
 
+\begin{newcomment}
+  \nc{\\ \noindent\it{\textbf{Ceph Implementation: }}}
+\end{newcomment}
 In the case of Ceph, a consistent view of cluster state among server daemons
 and clients is critical to provide strong consistency guarantees to clients.
 Ceph maintains cluster state information in per-subsystem ({\it e.g.} the
@@ -479,6 +520,9 @@ reduce data movement, and transactional interfaces can significantly simplify
 construction of complex storage interfaces that require uncoordinated parallel
 access.
 
+\begin{newcomment}
+  \nc{\\ \noindent\it{\textbf{Ceph Implementation: }}}
+\end{newcomment}
 An object interface is a plugin structured similarly to that of an RPC
 in which a developer creates a named function within the cluster that clients
 may invoke. In the case of Ceph each function is implicitly run within the
@@ -531,10 +575,22 @@ behave as expected.
 \subsection{Distributed Metadata Interfaces}
 \label{malacology:mds}
 
-The distributed metadata service in Ceph provides clients with a POSIX file
-system abstraction~\cite{weil:sc2004-dyn-metadata}. In general, distributed
-file systems protect resources by providing hierarchical indexing and
-distributed locking services.  In Ceph, the locking service implements a
+\begin{oldcomment}
+\oc{The distributed metadata service in Ceph provides clients with a POSIX file
+system abstraction~\cite{weil:sc2004-dyn-metadata}.}
+\end{oldcomment}
+\begin{newcomment}
+\nc{File systems provide clients with the familiar POSIX file abstraction.
+While this guarantees strong consistency it comes at the cost of scalability
+and lower performance.}
+\end{newcomment}
+In general, distributed file systems protect resources by providing
+hierarchical indexing and distributed locking services.  
+
+\begin{newcomment}
+\nc{\\ \noindent\it{\textbf{Ceph Implementation: }}}
+\end{newcomment}
+In Ceph, the locking service implements a
 capability-based system that expresses what data and metadata clients are
 allowed to access as well as what state they may cache and modify locally.
 While designed for the file abstraction, indexing, locking, and caching are
