@@ -10,17 +10,16 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Uncomment for diff
-\includecomment{notes}
-\newcommand{\newcomment}[1]{{\textcolor{red}{\textbf{#1}}}}
-\newcommand{\oldcomment}[1]{{\textcolor{blue}{\textbf{\sout{#1}}}}}
-\newcommand{\addressesissue}[1]{{\textcolor{red}{{\it (Addresses issue(s): {#1})}}}}
+%\includecomment{notes}
+%\newcommand{\newcomment}[1]{{\textcolor{red}{\textbf{#1}}}}
+%\newcommand{\oldcomment}[1]{{\textcolor{blue}{\textbf{\sout{#1}}}}}
+%\newcommand{\addressesissue}[1]{{\textcolor{red}{{\it (Addresses issue(s): {#1})}}}}
 
 % Uncomment for camera-ready
-%\excludecomment{notes}
-%\newcommand{\newcomment}[1]{{\textcolor{black}{#1}}}
-%\newcommand{\oldcomment}[1]{}
-%\newcommand{\addressesissue}[1]{}
-
+\excludecomment{notes}
+\newcommand{\newcomment}[1]{{\textcolor{black}{#1}}}
+\newcommand{\oldcomment}[1]{}
+\newcommand{\addressesissue}[1]{}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \newcommand{\cmark}{\ding{51}}%
@@ -51,8 +50,8 @@
 
 \title{Malacology: A Programmable Storage System}
 %\authorinfo{Paper ID: 165}          {Total Pages: 12}
-\authorinfo{Michael A. Sevilla, Noah Watkins, Ivo Jimenez, Carlos Maltzahn, \\Peter Alvaro, Shel Finkelstein, Jeff LeFevre}
-           {\{msevilla, jayhawk, ivo, cmaltzahn\}@soe.ucsc.edu, \{palvaro, finkelstein, jlefevre\}@ucsc.edu}
+\authorinfo{Michael A. Sevilla, Noah Watkins, Ivo Jimenez, \\Peter Alvaro, Shel Finkelstein, Jeff LeFevre, Carlos Maltzahn}
+           {\{msevilla, jayhawk, ivo\}@soe.ucsc.edu, \{palvaro, shel, jlefevre, carlosm\}@ucsc.edu}
 \date{}
 \begin{document}
 
@@ -60,7 +59,7 @@
 
 \begin{notes}
 \textcolor{red}{
-\noindent Issues raised by reviewers:
+\noindent Issues raised by reviewers, paper augmented as noted inline (red/blue text):
 \begin{enumerate}
   \item clarify what was implemented: diagram of interfaces and prose
   specifying the difference between Malacology and prior work (reviewers B, C,
@@ -372,7 +371,7 @@ the best trade-offs for all applications.}
 exposed, rather a programmable storage system adheres to the design approach of
 choosing interfaces so administrators can have better control of the storage
 system. The interfaces presented in this paper are abstractions that we found
-useful for building ZLog and Mantle, yet they may not provide the best
+useful for building our prototype services ZLog and Mantle, yet they may not provide the best
 trade-offs for all higher-level services.}
 \addressesissue{2}
 For example, if consensus is correctly exposed one could implement
@@ -399,7 +398,7 @@ interfaces.
 %\multicolumn{4}{c}{\Large \textbf{Common Internal Abstractions}} \\
 \multicolumn{4}{c}{} \\
 \textbf{Interface}                      &
-\textbf{Sec}                            &
+\textbf{Section}                        &
 \textbf{Example in Production Systems}  &
 \textbf{Example in Ceph}                &
 \textbf{Provided Primitives}            \\ \hline
@@ -416,19 +415,19 @@ Data I/O
   & transaction/atomicity
   \\
 Shared Resource
-  & \S\ref{sec:distributed-metadata-interfaces}
+  & \S\ref{sec:shared-resource-interface}
   & MPI collective IO, burst
   & POSIX metadata protocols
   & serialization/batching
   \\
 File Type
-  & \S\ref{sec:distributed-metadata-interfaces}
+  & \S\ref{sec:file-type-interface}
   & ?????
   & file striping strategy
   & data/metadata access
   \\
 Load Balancing
-  & \S\ref{sec:distributed-metadata-interfaces}
+  & \S\ref{sec:load-balancing-interface}
   & VMWare's VM migration~\cite{vmware-drs,gulati:hotcloud2011-cloud-resource-management} 
   & migrate POSIX metadata~\cite{weil:sc2004-dyn-metadata}
   & migration/sampling
@@ -502,7 +501,7 @@ successful service and a necessary component in order to diagnose and detect
 failures, when they occur. This is further complicated by variable propagation
 delays and heterogeneous hardware in dynamic environments.
 
-\newcomment{\\ \noindent\it{\textbf{Ceph Implementation: }}}
+\newcomment{\\ \noindent\it{\textbf{Existing Ceph Implementation: }}}
 In the case of Ceph, a consistent view of cluster state among server daemons
 and clients is critical to provide strong consistency guarantees to clients.
 Ceph maintains cluster state information in per-subsystem ({\it e.g.} the
@@ -537,9 +536,9 @@ new object interfaces defined in storage daemons (\S\ref{object-data-interface})
 policies in the load balancer \S\ref{malacology:mds}.  Using this service
 guarantees that interface definitions are not only made durable, but are
 transparently and consistently propagated throughout the cluster so that
-clients are properly synchronized with the latest interfaces.
+clients are properly synchronized with the latest interfaces.\\
 
-\newcomment{\\ \noindent \it{\textbf{Impact: }} provides core functionality
+\noindent\newcomment{{\it{\textbf{Impact: }}} provides core functionality
 because it lets daemons come to consensus on system critical state. Bugs in the
 internal subsystems or ommitting this from services that need this type of
 consistency affects correctness.}
@@ -563,7 +562,7 @@ reduce data movement, and transactional interfaces can significantly simplify
 construction of complex storage interfaces that require uncoordinated parallel
 access.
 
-\newcomment{\\ \noindent\it{\textbf{Ceph Implementation: }}}
+\newcomment{\\ \noindent\it{\textbf{Existing Ceph Implementation: }}}
 An object interface is a plugin structured similarly to that of an RPC
 in which a developer creates a named function within the cluster that clients
 may invoke. In the case of Ceph each function is implicitly run within the
@@ -651,14 +650,15 @@ and load balancing.}
 
 \oldcomment{\noindent Shared resource interface.}
 \subsubsection{Shared Resource Interface}
+\label{sec:shared-resource-interface}
 
 In general, file system metadata servers manages client sessions, allowing
 clients to obtain locks (e.g. file byte ranges), and capabilities (e.g. to
 cache file data). Clients and metadata servers use a cooperative protocol in
 which clients voluntarily release resources back to the metadata service in
-order to implement sharing policies. 
+order to implement sharing policies.
 
-\newcomment{\\ \noindent\it{\textbf{Ceph Implementation: }}}
+\newcomment{\\ \noindent\it{\textbf{Existing Ceph Implementation: }}}
 In Ceph, the locking service implements a capability-based system that
 expresses what data and metadata clients are allowed to access as well as what
 state they may cache and modify locally.  While designed for the file
@@ -679,11 +679,20 @@ performance if the resource in question does not require strong consistency.}
 \addressesissue{3}
 
 \oldcomment{\noindent File type interface.}
-\subsubsection{File Type Interface}
-The metadata service manages a POSIX file system hierarchy where files and
-directories are represented as inode data structures and expose a POSIX file
-interface. Applications that manage large amounts of metadata (e.g. users or
-database snapshots) often require a naming service. We allow new inode types to
+\subsubsection{Malacology: File Type Interface}
+\label{sec:file-type-interface}
+
+Applications that manage large amounts of metadata (e.g. users or database
+snapshots) often require a naming service.  The metadata service manages a
+POSIX file system hierarchy where files and directories are represented as
+inode data structures and expose a POSIX file interface. 
+
+\newcomment{\\ \noindent {\it{\textbf{Existing Ceph Implementation: }}} CephFS
+is the POSIX compliant file system that uses Ceph.  Inodes are quite large (1KB
+for an inode, 400 bytes for a directory entry, and 700 bytes for a directory)
+and contain CephFS-specific policies like how to stripe data across RADOS.}
+
+\newcomment{\\ \noindent {\it{\textbf{Malacology: }}}} We allow new inode types to
 be defined such that applications can create domain-specific interfaces to
 inodes that may modify locking and capability policies. We will show how this
 is used in Section~\ref{sec:seq} when we discuss a distributed shared-log built
@@ -701,12 +710,19 @@ add optimizations for processing specific types of files into the inode itself.}
 
 \oldcomment{\noindent \bf Load balancing interface.} 
 \subsubsection{Load Balancing Interface}
+\label{sec:load-balancing-interface}
 
-Ceph also addresses the challenge of balancing metadata load with a separate
+\newcomment{Many large scale storage systems separate metadata and data IO so
+that the corresponding services can scale independently. Metadata requests
+transfer small amounts of data and they happen relatively frequently so many
+systems employ separate metadata clusters.}
+
+\newcomment{\\ \noindent {\it{\textbf{Existing Ceph Implementation: }}}} Ceph
+also addresses the challenge of balancing metadata load with a separate
 metadata cluster. This cluster uses load balancing policies to migrate
 directory inodes around the cluster to alleviate overload at single
-nodes~\cite{weil:sc2004-dyn-metadata}. The policies use metrics based on system
-state (e.g.  CPU and memory utilization) and statistics collected by the
+nodes~\cite{weil:sc2004-dyn-metadata}.  The policies use metrics based on
+system state (e.g.  CPU and memory utilization) and statistics collected by the
 cluster (e.g. the popularity of an inode). Ceph uses dynamic subtree
 partitioning to move variable sized namespace subtrees. These units can be
 shipped anywhere (i.e., to any metadata server of any capacity) at any time for
@@ -733,17 +749,20 @@ distribute metadata in response to overloaded servers.}
 \subsection{Durability Interface}
 \label{sec:durability}
 
+\newcomment{Object stores protect data using techniques like erasure coding,
+replication, and data scrubbing. For scalability, many of these features are
+implemented using a peer-to-peer protocol that allows object storage devices to
+operate autonomously without a centralized coordinator.\\}
+
+\noindent{\it{\textbf{Existing Ceph Implementation: }}}
 Ceph provides storage by striping and replicating data across
 RADOS~\cite{weil_rados_2007}, the reliable distributed object store. RADOS
-protects data using common techniques such as erasure
-coding, replication, and scrubbing.  Furthermore, many of these features
-are implemented using a peer-to-peer protocol that allows object storage
-devices to operate autonomously without a centralized coordinator.  For
-example, when the number of placement groups change, the OSDs re-balance and
-re-shard data in the background in a process called placement group splitting
-in which OSDs communicate directly with each other to cover a new state.
-In order to reduce load on the monitoring service, Ceph OSDs use a gossip
-protocol to efficiently propagate changes to cluster maps throughout the
+protects data using common techniques such as erasure coding, replication, and
+scrubbing.  example, when the number of placement groups change, the OSDs
+re-balance and re-shard data in the background in a process called placement
+group splitting in which OSDs communicate directly with each other to cover a
+new state.  In order to reduce load on the monitoring service, Ceph OSDs use a
+gossip protocol to efficiently propagate changes to cluster maps throughout the
 system, and autonomously initiate recovery mechanisms when failures are
 discovered.\\
 
@@ -756,7 +775,7 @@ synchronized on correct implementations without restarting.
 
 \newcomment{\\ \noindent {\it{\textbf{Impact: }}} this is a feature because it
 adds data safety and persistence to system metadata; while nice to have it does
-effect correctness.}
+not necessarily effect correctness.}
 \addressesissue{3}
 
 \section{Services Built on Malacology}
