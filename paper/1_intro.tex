@@ -47,9 +47,11 @@ follow to evolve storage systems efficiently, without jeopardizing years of
 code-hardening and performance optimization efforts.  In this paper we
 investigate an approach that focuses on identifying and exposing existing
 storage system resources, services, and abstractions that in a generalized form
-can be used to \emph{program} new services. By composing higher-level services
-over existing abstractions one can reuse subsystems and leverage their
-optimizations, established correctness, robustness, and efficiency. 
+can be used to \emph{program} new services. While this `dirty-slate' approach
+of factoring out useful code is time consuming, it lets programmers reuse
+subsystems and leverage their optimizations, established correctness,
+robustness, and efficiency. `Clean-slate' approaches could be implemented
+faster but they do so at the expense of ``throwing away" proven code.
 
 {\it \textbf{Contribution 1:}} We define a programmable storage system to be a
 storage system that facilitates the re-use and extension of existing storage
@@ -79,7 +81,7 @@ the monitoring service (see Figure~\ref{fig:overview}).  Malacology is
 expressive enough to provide the functionality necessary for implementing new
 services.  \addressesissue{4}
 
-Malacology includes a non-exhaustive set of interfaces that can be used as
+Malacology is a set of interfaces that can be used as
 building blocks for constructing novel storage abstractions, including:
 
 \begin{enumerate}
