@@ -1,0 +1,226 @@
+\section{Services Built on Malacology}
+\label{sec:services}
+\label{services-built-on-malacology}
+
+\label{services}
+%\begin{table}
+%\centering\small
+%\begin{tabular}{  l | l | l }
+%\textbf{Service}              &
+%\textbf{Used to...}           &
+%\textbf{Malacology Interface} \\ \hline
+%Mantle & load balance metadata     & Load Balancing  \\
+%       & agree on current balancer & Service Metadata\\
+%       & control client write lock & Shared Resource \\
+%       & persist policy logic      & Durability      \\ \hline
+%ZLog   & implement CORFU           & Object \& Data  \\ 
+%       & install ZLog interfaces   & Service Metadata\\
+%       & persist log entries       & Durability      \\ \hline
+%ZLog   & load balance sequencers   & Load Balancing  \\
+%Seqr.  & manage access to log tail & Shared Resource \\ 
+%\end{tabular}
+%\caption{Mantle and ZLog are built using Malacology interfaces so they inherit the
+%robustness of the subsystems of the underlying stack.}
+%\label{table:implementation}
+%\end{table}
+
+In this section we describe two services built on top of Malacology. The first
+is Mantle, a framework for dynamically specifying metadata load balancing
+policies. The second system, ZLog, is a high-performance distributed
+shared-log.  In addition to these services, we'll demonstrate how we combine
+ZLog and Mantle to implement service-aware metadata load balancing policies.
+
+\subsection{Mantle: Programmable Load Balancer}
+\label{sec:mantle}
+
+Mantle is a programmable load balancer that separates the metadata balancing
+policies from their mechanisms. Administrators inject code to change how the
+metadata cluster distributes metadata. In ~\cite{sevilla:sc15-mantle} the
+authors showed how using Mantle, one can implement a single node metadata
+service, a distributed metadata service with hashing, and a distributed
+metadata service with dynamic subtree partitioning. 
+
+The original implementation was ``hard-coded" into Ceph and lacked robustness
+(no versioning, durability, or policy distribution).  Re-implemented using
+Malacology, Mantle now enjoys (1) the versioning provided by the metadata
+service interface provided by the monitor daemons and (2) the durability and
+distribution provided by Ceph's reliable object store.  Re-using the internal
+abstractions with Malacology resulted in a 2\(\times\) reduction in source code
+compared to the original implementation.
+
+\subsubsection{Versioning Balancer Policies}
+
+Ensuring that the version of the current load balancer is consistent across the
+physical servers in the metadata cluster was not addressed in the original
+implementation. The user had to set the version on each individual server and
+it was trivial to make the versions inconsistent. Maintaining consistent
+versions is important for balancing policies that are cooperative in which
+local decisions are made assuming properties about other instances of the same
+policy.
+
+With Malacology, Mantle stores the version of the current load balancer in the
+Ceph service metadata interface. The version of the load balancer corresponds
+to an object name in the balancing policy. Using the service metadata interface
+ensures that all metadata servers use the same version of the load balancer. As
+a result, the policy version inherits the consistency of Ceph's internal
+monitor daemons. The user changes the version of the load balancer using a new
+CLI command.
+
+\subsubsection{Making Balancer Policies Durable}
+
+The load balancer version described above corresponds to the name of an object
+in RADOS that holds the actual Lua balancing code.  When MDS nodes start
+balancing load, they first check the latest version from the MDS map and
+compare it to the balancer they have loaded. If the version has changed, they
+dereference the pointer to the balancer version by reading the corresponding
+object in RADOS. This is in contrast to the original balancer which stored load
+balancer code on the local file system -- a technique which is unreliable and
+may result in silent corruption.
+
+The balancer pulls the Lua code from RADOS synchronously; asynchronous reads
+are not possible because of the architecture of the MDS. The synchronous
+behavior is not the default behavior for RADOS operations, so we achieve this
+with a timeout: if the asynchronous read does not come back within half the
+balancing tick interval the operation is canceled and a Connection Timeout
+error is returned. By default, the balancing tick interval is 10 seconds, so
+Mantle will use a 5 second second timeout.
+
+This design allows Mantle to immediately return an error if anything
+RADOS-related goes wrong.  We use this implementation because we do not want to
+do a blocking OSD read from inside the global MDS lock. Doing so would bring
+down the MDS cluster if any of the OSDs are not responsive.
+
+Storing the balancers in RADOS is simplified by the use of an interpreted
+language for writing balancer code. If we used a language that needs to be
+compiled, like the C++ object classes in the OSD, we would need to ensure
+binary compatibility, which is complicated by different operating systems,
+distributions, and compilers.
+
+\subsubsection{Logging, Debugging, and Warnings}
+
+In the original implementation, Mantle would log all errors, warnings, and
+debug messages to a log stored locally on each MDS server. To get the simplest
+status messages or to debug problems, the user would have to log into each MDS
+individually, look at the logs, and reason about causality and ordering.
+
+With Malacology, Mantle re-uses the centralized logging features of the
+monitoring service. Important errors, warnings, and info messages are collected
+by the monitoring subsystem and appear in the monitor cluster log so instead of
+users going to each node, they can watch messages appear at the monitor.
+Messages are logged sparingly, so as not to spam the monitor with frivolous
+debugging but important events, like balancer version changes or failed
+subsystems show up in the centralized log.
+
+\subsection{ZLog: A Fast Distributed Shared Log}
+\label{sec:zlog}
+
+The second service implemented on Malacology is ZLog, a high-performance
+distributed shared-log that is based on the CORFU
+protocol~\cite{balakrishnan_corfu_2012}. The shared-log is a powerful
+abstraction used to construct distributed systems, such as metadata
+management~\cite{balakrishnan:sosp13} and elastic database
+systems~\cite{bernstein:cidr11,bernstein:vldb11,bernstein:sigmod15}.  However,
+existing implementations that rely on consensus algorithms such as Paxos funnel
+I/O through a single point introducing a bottleneck that restricts throughput.
+In contrast, the CORFU protocol is able to achieve high throughput using a
+network counter called a \emph{sequencer}, that decouples log position
+assignment from log I/O.
+
+While a full description of the CORFU system is beyond the scope of this paper,
+we briefly describe the custom storage device interface, sequencer service, and
+recovery protocol, and how these services are instantiated in the Malacology
+framework.
+
+\subsubsection{Sequencer}
+\label{sec:seq}
+
+High-performance in CORFU is achieved using a sequencer service that assigns
+log positions to clients by reading from a volatile, in-memory counter which
+can run at a very high throughput and at low latency. Since the sequencer is
+centralized, ensuring serializability in the common case is trivial.  The
+primary challenge in CORFU is handling the failure of the sequencer in a way
+that preserves correctness. Failure of the sequencer service in CORFU is
+handled by a recovery algorithm that recomputes the new sequencer state using a
+CORFU-specific custom storage interface to discover the tail of the log, while
+simultaneously invalidating stale client requests using an epoch-based
+protocol.
+
+{\bf Sequencer interface.} The sequencer resource supports the ability to
+\emph{read()} the current tail value and get the \emph{next()} position in the
+log which also atomically increments the tail position.  We implement the
+sequencer service in Malacology as an application-specific file type that
+associates a small amount of metadata with the inode state managed by the Ceph
+metadata service.  This approach has the added benefit of allowing the metadata
+service to handle naming, by representing each sequencer instance in the
+standard POSIX hierarchical namespace. The primary challenge in mapping the
+sequencer resource to the metadata service is handling serialization correctly
+to maintain the global ordering provided by the CORFU protocol.
+
+Initially we sought to directly model the sequencer service in Ceph as a
+non-exclusive, non-cacheable resource, forcing clients to perform a round-trip
+access to the resource at the authoritative metadata server for the sequencer
+inode.  Interestingly, we found that the capability system in Ceph uses a
+strategy to reduce metadata service load by allowing clients that open a shared
+file to temporarily obtain an exclusive cached copy of the resource, resulting
+in a round-robin, best-effort batching behavior. When a single client is
+accessing the sequencer resource it is able to increment the sequencer locally.
+Any competing client cannot query the sequencer until the metadata service has
+granted it access.
+
+While unexpected, this discovery allowed us to explore an implementation
+strategy that we had not previously considered. In particular, for bursty
+clients, and clients that can tolerate increased latency, this mode of
+operation may allow a system to achieve much higher throughput than a system
+with a centralized sequencer service.  We utilize the programmability of the
+metadata service to define a new policy for handling capabilities that controls
+the amount of time that clients are able to cache the sequencer resource. This
+allows an administrator or application to control the trade-off between latency
+and throughput beyond the standard best-effort policy that is present in Ceph
+by default. 
+
+In Section~\ref{sec:evaluation} we quantify the trade-offs of throughput and
+latency for an approach based on a round-robin batching mode, and compare this
+mode to one in which the metadata server mediates access to the sequencer state
+when it is being shared among multiple clients. Quantifying these trade-offs
+should provide administrators with guidelines for setting the tunables for
+different ``caching" modes of the sequencer.
+
+{\bf Balancing policies.} As opposed to the batching mode for controlling
+access to the sequencer resource, more predictable latency can be achieved by
+treating the sequencer inode as a shared non-cacheable resource, forcing
+clients to make a round-trip to the metadata service. However, the shared
+nature of the metadata service may prevent the sequencer from achieving maximum
+throughput. To provide a solution to this issue we have taken advantage of the
+programmability of the metadata service load balancing to construct a
+service-specific load balancing policy. As opposed to a balancing policy that
+strives for uniform load distribution, a ZLog-specific policy may utilize
+knowledge of inode types to migrate the sequencer service to provisioned
+hardware during periods of contention or high demand.
+
+\subsubsection{Storage Interface}
+
+The storage interface is a critical component in the CORFU protocol. Clients
+independently map log positions that they have obtained from the sequencer
+service (described in detail in the next section) onto storage devices, while
+storage devices provide an intelligent \emph{write}-once, random \emph{read}
+interface for accessing log entries. The key to correctness in CORFU lies with
+the enforcement of up-to-date epoch tags on client requests; requests tagged
+with out-of-date epoch values are rejected, and clients are expected to request
+a new tail from the sequencer after refreshing state from an auxiliary service.
+This mechanism forms the basis for sequencer recovery.
+
+In order to repopulate the sequencer state (i.e. the cached, current tail of
+the log) during recovery of a sequencer, the maximum position in the log must
+be obtained. To do this, the storage interface exposes an additional
+\emph{seal} method that atomically installs a new epoch value and returns the
+maximum log position that has been written.
+
+Since the sequencer service does not resume until the recovery process has
+completed, there cannot be a race with clients appending to the log, and the
+immutability of the log allow reads to never block during a sequencer failure.
+Recovery of the sequencer process itself may be handled in many ways, such as
+leader election using an auxiliary service such as Paxos. In our
+implementation, the recovery is the same as (and is inherited from) the Ceph
+metadata service. Handling the failure of a client that holds the sequencer
+state is similar, although a timeout is used to determine when a client should
+be considered unavailable.

@@ -1,0 +1,69 @@
+\section{Challenges}
+\label{sec:challenges}
+
+Implementing the infrastructure for programmability into existing services and
+abstractions of distributed storage systems is challenging, even if one assumes
+that the source code of the storage system and the necessary expertise for
+understanding it is available.  Some challenges include:
+
+\begin{itemize}
+
+\item Storage systems are generally required to be highly available so that any
+complete restarts of the storage system to reprogram them is usually
+unacceptable.
+
+\item Policies and optimizations are usually hard-wired into the services and
+one has to be careful when factoring them to avoid introducing additional bugs.
+These policies and optimizations are usually cross-cutting solutions to
+concerns or trade-offs that cannot be fully explored at the time the code is
+written (as they relate to workload or hardware). Given these policies and
+optimizations, decomposition of otherwise orthogonal internal abstractions can
+be difficult or dangerous.
+
+\item Mechanisms that are often only exercised according to hard-wired policies
+and not in their full generality have hidden bugs that are revealed as soon as
+those mechanisms are governed by different policies. In our experience
+introducing programmability into a storage system proved to be a great
+debugging tool.
+
+\item Programmability, especially in live systems, implies changes that need to
+be carefully managed by the system itself, including versioning and propagation
+of those changes without affecting correctness.
+
+\end{itemize}
+
+To address these challenges we present Malacology \oldcomment{. Malacology is
+both a prototype for a programmable storage system and a} \newcomment{, our
+prototype programmable storage system. It uses the programmable storage}
+\addressesissue{2} design approach to evolve storage systems efficiently and
+without jeopardizing years of code-hardening and performance optimization
+efforts.  Although Malacology uses the internal abstractions of the underlying
+storage system, including its subsystems, components, and implementations, we
+emphasize that our system still addresses the general challenges outlined
+above.
+
+The main challenge of designing a programmable storage system is choosing the
+right internal abstractions and picking the correct layers for exposing them.
+\oldcomment{In this paper, we do not present an exhaustive list of possible
+internal abstractions nor do we contend that the abstractions we choose provide
+the best trade-offs for all applications.} \newcomment{A programmable storage
+is not defined by what abstractions are exposed, rather a programmable storage
+system adheres to the design approach of choosing interfaces so administrators
+can have better control of the storage system. The interfaces presented in this
+paper are abstractions that we found useful for building our prototype services
+ZLog and Mantle, yet they may not provide the best trade-offs for all
+higher-level services.} \addressesissue{2} For example, if consensus is
+correctly exposed one could implement high-level features like versioning,
+serialization, or various flavors of strongly consistent data management on
+top; but perhaps a low-level consensus interface is suited well for a
+particular set of applications.  These questions are not answered in this paper
+and instead we focus on showing the feasibility of building such a system,
+given advances in the quality and robustness of today's storage stacks.
+
+The Malacology prototype we present has been implemented on Ceph.  While there
+are other systems on top of which Malacology could be implemented (see
+Table~\ref{table:examples}), we choose Ceph because it is a production quality
+system and because it is open source. The large developer community ensures
+that code is robust and the visibility of the code lets us expose any interface
+we want. In the next section we describe the Ceph components that we expose as
+Malacology interfaces.

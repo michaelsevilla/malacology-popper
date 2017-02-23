@@ -1,0 +1,44 @@
+\begin{notes}
+\textcolor{red}{
+\noindent Issues raised by reviewers, paper augmented as noted inline (red/blue text):
+\begin{enumerate}
+  \item clarify what was implemented: diagram of interfaces and prose
+  specifying the difference between Malacology and prior work (reviewers B, C,
+  D, E)
+  \item describe what makes a programmable storage system (reviewers C, D)
+  \item organize motivation: group interfaces into categories (e.g., core
+  functionality, features, and performance optimizations) and describe other
+  applications we can build with Malacology (reviewers B, C)
+  \item clarify terminology: service vs. file system metadata, storage vs.
+  file system, dirty vs. clean slate approaches, soft-state caching (reviewers
+  B, C)
+  \item address security, access control, and the safety; specify how it
+  affects composability, performance, and multi-tenancy (reviewer D)
+\end{enumerate}
+}
+\end{notes}
+
+\begin{abstract} Storage systems are caught between the need to evolve data
+processing applications efficiently and quickly, and the increasing velocity
+with which storage device technology evolves. This puts tremendous pressure on
+storage systems to support rapid change both in terms of their interfaces and
+their performance. But adapting storage systems can be difficult because
+unprincipled changes might jeopardize years of code-hardening and performance
+optimization efforts that were necessary for users to entrust their data to the
+storage system. We introduce the concept of a programmable storage system, a
+system that exposes internal services and abstractions with the goal of
+re-using and building new services on top of the storage stack. We present
+Malacology, a prototype implementation of a programmable storage system to
+explore how existing abstractions of common storage system services can be
+leveraged to adapt to the needs of new data processing systems and the
+increasing variety of storage devices. We show how this approach allows a large
+degree of flexibility for storage systems to evolve without sacrificing the
+robustness of their code-hardened subsystems. We illustrate the advantages and
+challenges of programmability by composing existing primitives into two new
+higher-level services: a \newcommentone{file system} metadata load balancer and
+a high-performance distributed shared-log. The evaluation demonstrates that our
+services inherit desirable qualities of the back-end storage system, including
+the ability to balance load, efficiently propagate cluster metadata, recover
+from failure, and to navigate trade-offs between latency and throughput using
+leases.  \addressesissue{4}
+\end{abstract}
