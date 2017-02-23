@@ -25,7 +25,7 @@
 %\end{table}
 
 In this section we describe two services built on top of Malacology. The first
-is Mantle, a framework for dynamically specifying metadata load balancing
+is Mantle~\cite{sevilla:sc15-mantle}, a framework for dynamically specifying metadata load balancing
 policies. The second system, ZLog, is a high-performance distributed
 shared-log.  In addition to these services, we'll demonstrate how we combine
 ZLog and Mantle to implement service-aware metadata load balancing policies.
@@ -33,12 +33,14 @@ ZLog and Mantle to implement service-aware metadata load balancing policies.
 \subsection{Mantle: Programmable Load Balancer}
 \label{sec:mantle}
 
-Mantle is a programmable load balancer that separates the metadata balancing
+Mantle~\cite{sevilla:sc15-mantle} is a programmable load balancer that separates the metadata balancing
 policies from their mechanisms. Administrators inject code to change how the
-metadata cluster distributes metadata. In ~\cite{sevilla:sc15-mantle} the
-authors showed how using Mantle, one can implement a single node metadata
+metadata cluster distributes metadata. Our previous work showed how 
+to use Mantle to implement a single node metadata
 service, a distributed metadata service with hashing, and a distributed
 metadata service with dynamic subtree partitioning. 
+We have re-implmented Mantle on Malacology so that Mantle can enjoy the
+properties of existing internal abstractions.
 
 The original implementation was ``hard-coded" into Ceph and lacked robustness
 (no versioning, durability, or policy distribution).  Re-implemented using

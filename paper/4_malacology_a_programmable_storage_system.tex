@@ -10,7 +10,7 @@
 \textbf{Section}                        &
 \textbf{Example in Production Systems}  &
 \textbf{Example in Ceph}                &
-\textbf{Provided Primitives}            \\ \hline
+\textbf{Provided Functionality}            \\ \hline
 Service Metadata
   & \S\ref{sec:service-metadata-interface}
   & Zookeeper/Chubby coordination~\cite{hunt_zookeeper_2010,burrows_chubby_2006}
@@ -340,17 +340,15 @@ be shipped anywhere (i.e., to any metadata server of any capacity) at any time
 for any reason. The original balancer was designed with hard-coded policies and
 tunables.\\
 
-\noindent {\it{\textbf{Malacology: }}} Mantle~\cite{sevilla:sc15-mantle}, a
-programmable \newcomment{file system}metadata load balancer, has been
-implemented on Malacology so that its infrastructure can enjoy all the
-properties of existing internal abstractions.  The load balancing logic is
-intact but the infrastructure has been improved to safely load, manage, and
-persist its load balancing policies.  Composing Mantle with the service
-metadata and durability interfaces, Mantle can safely version balancer
-policies, save balancer policies in the backend object store and centralize
-warnings/errors. When combined with file types, load balancing policies can
-express a variety of rules such as multi-tenant and multi-application
-balancing.
+\noindent {\it{\textbf{Malacology: }}} the existing load balancing mechanisms
+are exposed through an API and programmers can customize the behavior through a
+domain specific language. These mechanisms include the ability to migrate,
+partition, and measure load. Using the Service Metadata and Durability
+interfaces, this Load Balancing interface can safely version balancer policies,
+save balancer policies in the back-end object store and centralize
+warnings/errors. When combined with the File Type interface, load balancing
+policies can express a variety of rules for handling multi-tenant and
+workloads.
 
 \newcomment{\\ \noindent {\it{\textbf{Impact: }}} helps applications optimize
 performance by allowing them to specify how to partition, replicate, and

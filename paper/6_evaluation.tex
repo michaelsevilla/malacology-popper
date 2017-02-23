@@ -222,7 +222,7 @@ the cluster; ``No Balancing" keeps all sequencers on one server, ``CephFS"
 migrates sequencers using the CephFS load balancers, and ``Mantle" uses a
 custom load balancer we wrote specifically for sequencers. The CephFS load
 balancers are hard-coded into Ceph while Mantle is an API for balancing load
-presented in~Mantle~\cite{sevilla:sc15-mantle} and re-implemented on top of
+presented in~Mantle and re-implemented on top of
 Malacology in this paper.  The increased throughput for the CephFS and Mantle
 curves between 0 and 60 seconds are a result of migrating the sequencer(s) off
 overloaded servers.
@@ -247,7 +247,7 @@ load balancer service uses and how they stress the subsystems that receive and
 forward client requests in different ways. In
 Figure~\ref{fig:mantle-balancer-behaviors}, the CephFS curve shows the
 performance of the balancing mode that CephFS falls into {\it most of the
-time}.  CephFS has 3 modes for balancing load: CPU mode, workload mode, and
+time}.  CephFS currently has 3 modes for balancing load: CPU mode, workload mode, and
 hybrid mode. All three have the same structure for making migration decisions
 but vary based on the metric used to calculate load. For this sequencer
 workload the 3 different modes all have the same performance, shown in
@@ -369,7 +369,7 @@ Tuning the aggressiveness of the load balancer decision making is also a
 trade-off that administrators can control and explore. The balancing phase from
 0 to 60 seconds in Figure~\ref{fig:mantle-balancer-behaviors} shows different
 degrees of aggressiveness in making migration decisions; CephFS makes a
-decision quickly and throughput jumps to 2500 ops/second within 10 seconds
+decision 10 seconds into the run and throughput jumps to 2500 ops/second within 10 seconds
 while Mantle takes more time to stabilize. This conservative behavior is
 controlled by programming the balancer to (1) use different conditions for when
 to migrate and (2) using a threshold for sustained overload. 

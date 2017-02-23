@@ -25,20 +25,16 @@ storage systems to support rapid change both in terms of their interfaces and
 their performance. But adapting storage systems can be difficult because
 unprincipled changes might jeopardize years of code-hardening and performance
 optimization efforts that were necessary for users to entrust their data to the
-storage system. We introduce the concept of a programmable storage system, a
-system that exposes internal services and abstractions with the goal of
-re-using and building new services on top of the storage stack. We present
-Malacology, a prototype implementation of a programmable storage system to
-explore how existing abstractions of common storage system services can be
-leveraged to adapt to the needs of new data processing systems and the
-increasing variety of storage devices. We show how this approach allows a large
-degree of flexibility for storage systems to evolve without sacrificing the
-robustness of their code-hardened subsystems. We illustrate the advantages and
-challenges of programmability by composing existing primitives into two new
-higher-level services: a \newcommentone{file system} metadata load balancer and
-a high-performance distributed shared-log. The evaluation demonstrates that our
-services inherit desirable qualities of the back-end storage system, including
-the ability to balance load, efficiently propagate cluster metadata, recover
-from failure, and to navigate trade-offs between latency and throughput using
-leases.  \addressesissue{4}
+storage system. We introduce the programmable storage approach, which exposes
+internal services and abstractions of the storage stack as building blocks for
+higher-level services. We also build a prototype to explore how existing
+abstractions of common storage system services can be leveraged to adapt to the
+needs of new data processing systems and the increasing variety of storage
+devices.  We illustrate the advantages and challenges of this approach by
+composing existing internal abstractions into two new higher-level services: a
+\newcommentone{file system} metadata load balancer and a high-performance
+distributed shared-log.  The evaluation demonstrates that our services inherit
+desirable qualities of the back-end storage system, including the ability to
+balance load, efficiently propagate service metadata, recover from failure, and
+to navigate trade-offs between latency and throughput using leases.
 \end{abstract}
