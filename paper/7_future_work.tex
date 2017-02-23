@@ -1,52 +1,103 @@
 \section{Future Work}
-
-\newcommentone{This work is one point along the path towards producing
-general-purpose storage systems that can target special-purpose applications.
-Continuing to expore existing storage system functionality as reusable building
-blocks will enable the proliferation of storage-centric APIs, allowing
-developers to custom-fit their applications to take advantage of the
-capabilities of the underlying system. When adding new interfaces and composing
-them together, careful consideration should be made to address security, access
-control, and safety. Correctness and performance will surely be affected if
-interfaces are combined poorly and these drawbacks will be quantified.}
-\addressesissue{5}
-
-\newcommentone{The next higher-level services we plan to build using the
+ 
+\newcommentone{Malacology is a first step towards showing how general-purpose
+storage systems can be adapted to target special-purpose applications.  By
+encapsulating storage system functionality as reusable building blocks, we
+enable application developers to leverage storage capabilities based on
+interfaces that are proven and understandable.  However, creation and
+composition of interfaces is complex; constructs must be combined safely in
+order to provide correctness, performance and security. We will study
+additional Malacology-based services in order to learn techniques that support
+safe composition.}\addressesissue{5}
+ 
+\newcommentone{Some higher-level services that we plan to build using the
 interfaces in Table~\ref{table:examples} are: an elastic cloud database, a data
-layout manager, and a data processing engine. Some cloud databases aggressively
-cache data to hide the overheads and weaker consistency semantics of the
-distributed file systems they sit on~\cite{pavlo:sigmod16} but using Malacology
-we could build a database that works well because of the storage system not in
-spite of it. We plan to use the data IO interface for push down predicates, the
-file type interface for maintaining indices and stats, and the durability
-interface internals for ingest and data movement. The data layout manager would
-be similar to DRepl~\cite{ionkov:msst2013} and would use the file type,
-durability, and data I/O interface to manage different views of data. Finally,
-the data processing engine would be similar to MapReduce and would use the data
-I/O, shared resource, and load balancing interface to implement the resource
-manager, computation engine, and storage platform in the Hadoop ecosystem.}
-
-\newcommentone{ Our experience with Zlog and Mantle illustrates that the labor
-of wrapping existing services in interfaces is justified by the power and
-flexibility they afford to programmers.  In exchange for this flexibility,
-however, programmable storage systems force programmers to forfeit the
-\emph{protection from change} afforded by narrow storage interfaces like the
-POSIX API.  To implement applications built atop systems such as Malacology,
-programmers must navigate a complex design space, simultaneously addressing
-often orthogonal concerns including functional correctness, performance and
-fault tolerance. Worse still, these compositions can be sensitive to changes in
-the underlying environment (such as hardware upgrades, software version changes
-and evolving workloads).  For example, a major version change in Ceph required
-us to rewrite significant parts of Zlog to maintain acceptable performance --
-each such evolution costs developer time and risks introducing bugs.}
-
+processing engine, and a data layout manager.  The elastic database could use
+the data I/O interface to push down predicates, the file type interface to
+maintain access paths and statistics efficiently, and the durability interface
+to manage ingestion and movement.  The data processing engine would be similar
+to MapReduce, using the data I/O interface to send computation to the data, the
+load balancing interface as a proxy for farming off work, and the durability
+interface for persisting to input or output sinks.  Finally, the data layout
+manager would be similar to DRepl~\cite{ionkov:msst2013}, using the file type,
+durability, and data I/O interfaces to provide multiple views of data.}
+ 
+\newcommentone{ Our experience with ZLog and Mantle demonstrates that the labor
+of wrapping existing services in reusable interfaces is justified by the power
+and flexibility that this encapsulation affords to programmers.  In exchange
+for this flexibility, however, programmers may forfeit the \emph{protection
+from change} afforded by narrow storage interfaces such as the POSIX API.  To
+implement applications on programmable storage systems such as Malacology,
+programmers must find solutions by navigating a complex design space,
+simultaneously addressing functional correctness, performance and fault
+tolerance. Worse still, their solutions may be sensitive to changes in the
+underlying environment, such as hardware upgrades, software version changes and
+evolving workloads.  For example, a major version change in Ceph required us to
+rewrite significant parts of ZLog to maintain acceptable performance. Each such
+evolution costs developer time and risks introducing bugs.}
+ 
 \newcommentone{We are actively exploring the use of high-level
 \emph{declarative} languages based on Datalog~\cite{alvaro:cidr11} to program
-storage APIs.  In this way, a programmer can specify the functional behavior of
-a storage interface once in a relational (or algebraic) language, allowing an
-optimizer to model search the space of functionally equivalent physical
-implementations, and re-optimizing when characteristics change.  Much like
-query planning and optimization in database systems~\cite{hellerstein:cidr15},
-this approach will separate the concerns of correctness and performance, and
-protect applications (which evolve slowly) against changes in highly dynamic
-storage system.} \addressesissue{3}
+data access and storage APIs.  Using this approach, a systems programmer can
+specify the functional behavior in a relational (or algebraic) language,
+allowing an optimizer to search through the space of functionally equivalent
+physical implementations and select a good execution plan, re-optimizing when
+storage characteristics or statistics change.  Much like query planning and
+optimization in database systems~\cite{hellerstein:cidr15}, this approach will
+separate the concerns of correctness and performance, protecting applications
+(which usually evolve slowly) against changes in more dynamic storage system.}
+\addressesissue{3}
+
+
+%\section{Future Work}
+%
+%\newcommentone{This work is one point along the path towards producing
+%general-purpose storage systems that can target special-purpose applications.
+%Continuing to expore existing storage system functionality as reusable building
+%blocks will enable the proliferation of storage-centric APIs, allowing
+%developers to custom-fit their applications to take advantage of the
+%capabilities of the underlying system. When adding new interfaces and composing
+%them together, careful consideration should be made to address security, access
+%control, and safety. Correctness and performance will surely be affected if
+%interfaces are combined poorly and these drawbacks will be quantified.}
+%\addressesissue{5}
+%
+%\newcommentone{The next higher-level services we plan to build using the
+%interfaces in Table~\ref{table:examples} are: an elastic cloud database, a data
+%layout manager, and a data processing engine. Some cloud databases aggressively
+%cache data to hide the overheads and weaker consistency semantics of the
+%distributed file systems they sit on~\cite{pavlo:sigmod16} but using Malacology
+%we could build a database that works well because of the storage system not in
+%spite of it. We plan to use the data IO interface for push down predicates, the
+%file type interface for maintaining indices and stats, and the durability
+%interface internals for ingest and data movement. The data layout manager would
+%be similar to DRepl~\cite{ionkov:msst2013} and would use the file type,
+%durability, and data I/O interface to manage different views of data. Finally,
+%the data processing engine would be similar to MapReduce and would use the data
+%I/O, shared resource, and load balancing interface to implement the resource
+%manager, computation engine, and storage platform in the Hadoop ecosystem.}
+%
+%\newcommentone{ Our experience with Zlog and Mantle illustrates that the labor
+%of wrapping existing services in interfaces is justified by the power and
+%flexibility they afford to programmers.  In exchange for this flexibility,
+%however, programmable storage systems force programmers to forfeit the
+%\emph{protection from change} afforded by narrow storage interfaces like the
+%POSIX API.  To implement applications built atop systems such as Malacology,
+%programmers must navigate a complex design space, simultaneously addressing
+%often orthogonal concerns including functional correctness, performance and
+%fault tolerance. Worse still, these compositions can be sensitive to changes in
+%the underlying environment (such as hardware upgrades, software version changes
+%and evolving workloads).  For example, a major version change in Ceph required
+%us to rewrite significant parts of Zlog to maintain acceptable performance --
+%each such evolution costs developer time and risks introducing bugs.}
+%
+%\newcommentone{We are actively exploring the use of high-level
+%\emph{declarative} languages based on Datalog~\cite{alvaro:cidr11} to program
+%storage APIs.  In this way, a programmer can specify the functional behavior of
+%a storage interface once in a relational (or algebraic) language, allowing an
+%optimizer to model search the space of functionally equivalent physical
+%implementations, and re-optimizing when characteristics change.  Much like
+%query planning and optimization in database systems~\cite{hellerstein:cidr15},
+%this approach will separate the concerns of correctness and performance, and
+%protect applications (which evolve slowly) against changes in highly dynamic
+%storage system.} \addressesissue{3}

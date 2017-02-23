@@ -108,8 +108,9 @@ delays and heterogeneous hardware in dynamic environments.
 and includes membership details, hardware layout ({\it e.g.}, racks, power
 supplies, etc.), data layout, and daemon state/configuration. It differs from
 traditional file system metadata which is information about files. For the rest
-of the paper when we refer to metadata server or service, we mean a daemon that
-manages file system metadata.} \addressesissue{4}
+of the paper when we use the phrase ``metadata server" or ``metadata service",
+we are referring to the daemon(s) that manages file system metadata.}
+\addressesissue{4}
 
 \newcomment{\\ \noindent\it{\textbf{Existing Ceph Implementation: }}} In the
 case of Ceph, a consistent view of cluster state among server daemons and
@@ -379,7 +380,7 @@ storage interfaces are stored durability within RADOS and managed by storing
 references with the object maps. Since the cluster already propagates a
 consistent view of these data structures, we use this service to automatically
 install interfaces in OSDs, and install policies within the metadata server
-daemon \oldcommentone{(MDS)} such that clients and daemons are synchronized on
+daemon (MDS) such that clients and daemons are synchronized on
 correct implementations without restarting.
 
 \newcomment{\\ \noindent {\it{\textbf{Impact: }}} this is a feature because it
