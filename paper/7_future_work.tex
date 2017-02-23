@@ -12,15 +12,12 @@ safe composition.}\addressesissue{5}
  
 \newcommentone{Some higher-level services that we plan to build using the
 interfaces in Table~\ref{table:examples} are: an elastic cloud database, a data
-processing engine, and a data layout manager.  The elastic database could use
-the data I/O interface to push down predicates, the file type interface to
-maintain access paths and statistics efficiently, and the durability interface
-to manage ingestion and movement.  The data processing engine would be similar
-to MapReduce, using the data I/O interface to send computation to the data, the
-load balancing interface as a proxy for farming off work, and the durability
-interface for persisting to input or output sinks.  Finally, the data layout
-manager would be similar to DRepl~\cite{ionkov:msst2013}, using the file type,
-durability, and data I/O interfaces to provide multiple views of data.}
+processing engine, and a data layout manager. Approaches proposed so far use
+the data I/O interface to push down predicates and computation, the file type
+interface to maintain access paths and metadata efficiently, and the durability
+interface to manage ingestion and movement. Using the programmable storage
+approach helps us build higher-level services that work well with the storage
+system not in spite of it.}
  
 \newcommentone{ Our experience with ZLog and Mantle demonstrates that the labor
 of wrapping existing services in reusable interfaces is justified by the power
