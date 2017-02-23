@@ -1,10 +1,5 @@
 \section{Related Work}
 
-% IOStack: Software-Defined Object Storage
-% sRoute: Treating the Storage Stack Like a Network
-   % - lots of good refs to check out
-% Information and control in gray-box systems
-
 Programmability of operating systems and networking resources, including
 distributed storage systems is not new, but we are not aware of work that makes
 generalization of existing services into programmable resources a key principle
@@ -20,7 +15,7 @@ IOStack~\cite{gracia:internet16} is providing policy-based provisioning and
 filtering in OpenStack Swift. According to a SNIA white
 paper~\cite{carlson:snia2014}, the primary goal of SDS is to control and
 facilitate flexible and dynamic provisioning of storage resources of different
-kinds, including flash memory and disk drives, to create a virtualized mapping
+kinds, including flash memory and disk drives, to create a virtual mapping
 between common storage abstractions (e.g. files, objects, and blocks) and
 storage devices taking data service objectives in terms of protection,
 availability, performance, and security into account. A programmable storage
@@ -34,7 +29,7 @@ resources to applications~\cite{arpaci:sosp01}. Related efforts include the
 Exokernel~\cite{engler:sosp95}, SPIN~\cite{bershad:sosp95} and
 Vino~\cite{seltzer:osdi96} projects; the latter two addressed the ability of
 injecting code into the kernel to specialize resource management. Another
-approach is to pass hints between the different layers of the IO stack to
+approach is to pass hints between the different layers of the I/O stack to
 bridge the semantic gap between applications and
 storage~\cite{arpaci:sosp01,sivathanu:fast03,mesnier:sosp11}.
 

@@ -19,9 +19,9 @@ we examine the state of programmability in Ceph. Something of a storage Swiss
 army knife, Ceph simultaneously supports file, block, and object interfaces on
 a single cluster~\cite{ceph_contributors_ceph_2010}. Ceph's Reliable Autonomous
 Distributed Object Storage (RADOS) system is a cluster of object storage
-devices (OSDs) that provide Ceph with data durability and integrity using
+devices that provide Ceph with data durability and integrity using
 replication, erasure-coding, and scrubbing~\cite{weil_rados_2007}. Ceph already
-provides some degree of programmability; the OSDs support domain-specific
+provides some degree of programmability; the object storage daemons support domain-specific
 object interfaces that are implemented by composing existing low-level storage
 interfaces that execute atomically. These interfaces are written in C++ and are
 statically loaded into the system.
@@ -75,7 +75,7 @@ manage resources to improve performance. A solution based on
 application-specific object interfaces is a way to work around the
 traditionally rigid storage APIs because custom object interfaces give
 programmers the ability to tell the storage system about their application: if
-the application is CPU or IO bound, if it has locality, if its size has the
+the application is CPU or I/O bound, if it has locality, if its size has the
 potential to overload a single node, etc.  Programmers often know what the
 problem is and how to solve it, but until the ability to modify object
 interfaces, they had no way to express to the storage system how to handle

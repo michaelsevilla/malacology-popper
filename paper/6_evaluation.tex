@@ -51,8 +51,8 @@ log. Clients contact the sequencer to obtain the tail of the log and then
 independently initiate I/O, thus we measure both the throughput and latency of
 obtaining new tail positions which bounds client append performance.
 
-The sequencer is implemented as a custom file type in which the sequencer state
-(a 64-bit integer) is embedded in the inode of a file representing the
+The sequencer is implemented using the File Type interface so that the sequencer state
+(a 64-bit integer) is embedded in the inode of a file; this file represents the
 sequencer. A total ordering of the log is imposed by the re-use of the
 capability service that can be used to grant exclusive access of inode state to
 clients. The metadata service is responsible for maintaining exclusivity and
@@ -89,7 +89,7 @@ per second is the combined throughput of the two clients, and the average
 latency is number of microseconds required to obtain a new log position. With a
 small quota more time is spent exchanging exclusive access, while a large quota
 reservation allows clients to experience a much lower latency because they
-experience uncontended access for a longer period of time.
+experience isolated access for a longer period of time.
 
 \begin{figure}[tbp]
 \centering
@@ -105,7 +105,7 @@ To get a better picture of latency, Figure~\ref{fig:capcdf} shows the CDF of
 latency for each client in all experiment configurations. At the 99th
 percentile clients accessed the sequencer is less than a millisecond. The CDF
 is cropped at the 99.999th percentile due to large outliers that we believe
-occur in instances in which the MDS is performing I/O while it is in the
+occur in instances in which the metadata server is performing I/O while it is in the
 process of re-distributing the capability to another client.
 
 \begin{figure}[tbp]
@@ -143,15 +143,15 @@ evaluating the performance of installing and distributing interface updates.
 Figure~\ref{fig:propdelay} shows the CDF of the latency of interface updates.
 The interfaces are Lua scripts embedded in the cluster map and distributed
 using a peer-to-peer gossip protocol.  The latency is defined as the elapsed
-time following the Paxos proposal for an interface update until each OSD makes
+time following the Paxos proposal for an interface update until each object storage daemon makes
 the update live (the cost of the Paxos proposal is configurable and is
 discussed below). The latency measurements were taken on the nodes running Ceph
 server daemons, and thus exclude the client round-trip cost. In each of the
 experiments 1000 interface updates were observed.
 
 Figure~\ref{fig:propdelay} shows the lower bound cost for updates in a large
-cluster. In the experiment labeled ``120 OSD (RAM)" a cluster of 120 OSDs (10
-OSDs x 12 servers) using an in-memory data store were deployed, showing a
+cluster. In the experiment labeled ``120 OSD (RAM)" a cluster of 120 object storage daemons (OSDs)
+using an in-memory data store were deployed, showing a
 latency of less than 54 ms with a probability of 90\% and a worst case latency
 of 194 ms. These costs demonstrate the penalty of distributing the interface in
 a large cluster. In practice the costs include, in addition to cluster-wide
@@ -159,7 +159,7 @@ propagation of interface updates, the network round-trip to the interface
 management service, the Paxos commit protocol itself, and other factors such as
 system load. By default Paxos proposals occur periodically with a 1 second
 interval in order to accumulate updates. In a minimum, realistic quorum of 3
-monitors using HDD-based storage, we were able to decrease this interval to an
+monitors using hard drive-based storage, we were able to decrease this interval to an
 average of 222 ms.
 
 \begin{figure}[tbp]
@@ -182,7 +182,7 @@ task.  It requires building subsystems for migrating resources, monitoring the
 workloads, collecting metrics that describe the utilization on the physical
 nodes, partitioning resources, maintaining cache coherence, and managing
 multiple sequencers. The following experiments demonstrate the feasibility of
-using the mechanisms of the Malacology load balancing interface to inherit
+using the mechanisms of the Malacology Load Balancing interface to inherit
 these features and to alleviate load from overloaded servers.
 
 \begin{figure}[t!]
@@ -210,12 +210,12 @@ to monitor the cluster, and 3 nodes that can accommodate sequencers.  Instead
 of measuring contention at the clients like
 Section~\ref{sec:sequencer-implementation}, these experiments measure
 contention at the sequencers by forcing clients to make round-trips for every
-request. We implement this using the shared resource interface that forces
+request. We implement this using the Shared Resource interface that forces
 round-trips.  Because the sequencer's only function is to  hand out positions
 for the tail of the log, the workload is read-heavy.
 
 First, we show how the ZLog service can orchestrate multiple sequencers using
-the Malacology load balancing interface.
+the Malacology Load Balancing interface.
 Figure~\ref{fig:mantle-balancer-behaviors} shows the throughput over time of
 different load balancers as they migrate 3 sequencers (with 4 clients) around
 the cluster; ``No Balancing" keeps all sequencers on one server, ``CephFS"
@@ -234,7 +234,7 @@ Sections~\ref{sec:feature-balancing-modes}
 and~\ref{sec:feature-migration-units} quantify the differences in performance
 when the cluster stabilizes at time 100 seconds and
 Section~\ref{sec:feature-backoff} examines the slope and start time of the
-rebalancing phase between 0 and 60 seconds by comparing the aggressiveness of
+re-balancing phase between 0 and 60 seconds by comparing the aggressiveness of
 the balancers.
 
 \subsubsection{Feature: Balancing Modes}
@@ -267,7 +267,7 @@ resulting in better throughput and stability.  When we did this we also
 identified two balancing modes relevant for making migration decisions for
 sequencers. 
 
-Using Mantle, the administrator can put the load balancing service into ``proxy
+Using Mantle, the administrator can put the load balancer into ``proxy
 mode" or ``client mode". In proxy mode one server receives all requests and
 farms off the requests to slave servers; the slaves servers do the actual tail
 finding operation. In client mode, clients interact directly with the server
@@ -326,7 +326,7 @@ Another factor that affects performance in this environment is how much load is
 on each server; these experiments quantify that effect by programming the load
 balancing interface to control the amount of load to migrate. We call this
 metric a ``migration unit".  Expressing this heuristic is not easily achievable
-with outward facing tunable parameters (i.e. system knobs) but with Mantle's
+with outward facing tunable parameters ({\it i.e.} system knobs) but with Mantle's
 programmable interface, we can force the load balancer to change its migration
 units. To force the balancer into the Proxy Mode (Half) scenario in
 Figure~\ref{fig:mantle-modes}, which uses migration units equal to half the
