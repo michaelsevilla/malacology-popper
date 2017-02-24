@@ -25,7 +25,10 @@ cluster.
 Since this work focuses on the programmability of Malacology, the goal of this
 section is to show that the components and subsystems that support the
 Malacology interfaces provide reasonable relative performance, as well as to
-give examples of the flexibility that Malacology provides to programmers.
+give examples of the flexibility that Malacology provides to programmers.  
+This section uses a principled approach for evaluating tunables of the
+interfaces and the trade-offs we discuss should be acknowledged when building
+higher-level services.
 
 %As we search for the best metadata balancing policies and physical design
 %implementation trade-offs, we plan to rel
@@ -37,7 +40,7 @@ We evaluate Malacology by exploring one possible mapping of the ZLog
 implementation of CORFU onto Ceph in which we re-use (1) the metadata service
 to manage naming and synchronization of the sequencer resource by treating the
 resource as an inode, and (2) the monitoring sub-subsystem to distribute and
-install application-specific I/O interface required of the CORFU protocol. In
+install application-specific I/O interfaces required of the CORFU protocol. In
 Section~\ref{sec:zlog-balancing} we then demonstrate how the re-use of the
 inode abstraction for implementing the sequencer resource enables load
 balancing policies to migrate the sequencer resource in heavy-load situation.
@@ -52,8 +55,8 @@ independently initiate I/O, thus we measure both the throughput and latency of
 obtaining new tail positions which bounds client append performance.
 
 The sequencer is implemented using the File Type interface so that the sequencer state
-(a 64-bit integer) is embedded in the inode of a file; this file represents the
-sequencer. A total ordering of the log is imposed by the re-use of the
+(a 64-bit integer) is embedded in the inode of a file.
+A total ordering of the log is imposed by the re-use of the
 capability service that can be used to grant exclusive access of inode state to
 clients. The metadata service is responsible for maintaining exclusivity and
 granting access. Figure~\ref{fig:capdelay-quota-behavior} (a) shows the
@@ -86,7 +89,7 @@ and latency. In the experiment two clients are run each with a fixed 0.25
 second maximum reservation on the capability, and we vary the size of the log
 position quota running each configuration for two minutes. The total operations
 per second is the combined throughput of the two clients, and the average
-latency is number of microseconds required to obtain a new log position. With a
+latency is the number of microseconds required to obtain a new log position. With a
 small quota more time is spent exchanging exclusive access, while a large quota
 reservation allows clients to experience a much lower latency because they
 experience isolated access for a longer period of time.
@@ -103,7 +106,7 @@ amount of time the resource is held, with best-effort performing the worst.}
 
 To get a better picture of latency, Figure~\ref{fig:capcdf} shows the CDF of
 latency for each client in all experiment configurations. At the 99th
-percentile clients accessed the sequencer is less than a millisecond. The CDF
+percentile clients accessed the sequencer in less than a millisecond. The CDF
 is cropped at the 99.999th percentile due to large outliers that we believe
 occur in instances in which the metadata server is performing I/O while it is in the
 process of re-distributing the capability to another client.
@@ -145,7 +148,7 @@ The interfaces are Lua scripts embedded in the cluster map and distributed
 using a peer-to-peer gossip protocol.  The latency is defined as the elapsed
 time following the Paxos proposal for an interface update until each object storage daemon makes
 the update live (the cost of the Paxos proposal is configurable and is
-discussed below). The latency measurements were taken on the nodes running Ceph
+discussed below). The latency measurements were taken on the nodes running object
 server daemons, and thus exclude the client round-trip cost. In each of the
 experiments 1000 interface updates were observed.
 
@@ -176,7 +179,7 @@ interface commit.}
 In practice, a storage system implementing CORFU will support a multiplicity of
 independent totally-ordered logs for each application.  For this scenario
 co-locating sequencers on the same physical node is not ideal but building a
-load balancer that can migrate the shared resource ({\it e.g.,}, the resource
+load balancer that can migrate the shared resource (e.g., the resource
 that mediates access to the tail of the log) is a time-consuming, non-trivial
 task.  It requires building subsystems for migrating resources, monitoring the
 workloads, collecting metrics that describe the utilization on the physical
@@ -219,11 +222,9 @@ the Malacology Load Balancing interface.
 Figure~\ref{fig:mantle-balancer-behaviors} shows the throughput over time of
 different load balancers as they migrate 3 sequencers (with 4 clients) around
 the cluster; ``No Balancing" keeps all sequencers on one server, ``CephFS"
-migrates sequencers using the CephFS load balancers, and ``Mantle" uses a
-custom load balancer we wrote specifically for sequencers. The CephFS load
-balancers are hard-coded into Ceph while Mantle is an API for balancing load
-presented in~Mantle and re-implemented on top of
-Malacology in this paper.  The increased throughput for the CephFS and Mantle
+migrates sequencers using the hard-coded CephFS load balancers, and ``Mantle" uses a
+custom load balancer we wrote specifically for sequencers. 
+The increased throughput for the CephFS and Mantle
 curves between 0 and 60 seconds are a result of migrating the sequencer(s) off
 overloaded servers.
 
@@ -255,30 +256,36 @@ Figure~\ref{fig:mantle-balancer-performance} (a), because the load balancer
 falls into the same mode a majority of the time.  The high variation in
 performance for the CephFS CPU Mode bar reflects the uncertainty of using
 something as dynamic and unpredictable as CPU utilization to make migration
-decisions. In addition to the suboptimal performance and unpredictability,
-because CephFS balancers all fall into the same mode despite using different
-balancers is a problem because it prevents administrators from properly
+decisions. 
+In addition to the suboptimal performance and unpredictability,
+another problem is that all the CephFS balancers behave the same. This
+prevents administrators from properly
 exploring the balancing state space.
 
 Mantle gives the administrator more control over balancing policies; for the
-Mantle bar in Figure~\ref{fig:mantle-balancer-performance} (a) we use the load
-balancing interface to program logic for balancing read-heavy workloads,
+Mantle bar in Figure~\ref{fig:mantle-balancer-performance} (a) we use the Load
+Balancing interface to program logic for balancing read-heavy workloads,
 resulting in better throughput and stability.  When we did this we also
 identified two balancing modes relevant for making migration decisions for
 sequencers. 
 
-Using Mantle, the administrator can put the load balancer into ``proxy
-mode" or ``client mode". In proxy mode one server receives all requests and
-farms off the requests to slave servers; the slaves servers do the actual tail
-finding operation. In client mode, clients interact directly with the server
-that has their sequencer.  These modes are illustrated in
-Figure~\ref{fig:mantle-modes}: ``No balancing" is when all sequencers are
-co-located on one physical server -- performance for that mode is shown by the
-No Balancing curve in Figure~\ref{fig:mantle-balancer-behaviors}.  ``Client
-Mode" in the lower left shows how clients for sequencer 2 are re-directed to
-server B. The two ``Proxy mode" diagrams on the right show how clients continue
-sending requests to server A even though sequencer 2 has migrated to server B
-(the meaning of ``(Half)" is discussed in the next section).
+Using Mantle, the administrator can put the load balancer into ``proxy mode" or
+``client mode". In proxy mode one server receives all requests and farms off
+the requests to slave servers; the slave servers do the actual tail finding
+operation. In client mode, clients interact directly with the server that has
+their sequencer.  These modes are illustrated in Figure~\ref{fig:mantle-modes}.
+``No Balancing" is when all sequencers are co-located on one physical server --
+performance for that mode is shown by the ``No Balancing" curve in
+Figure~\ref{fig:mantle-balancer-behaviors}. In ``Proxy Mode", clients continue
+sending requests to server A even though some of the sequencers have been
+migrated to another server. Server A redirects client requests for sequencer 2
+to server B.  ``Proxy Mode (Half)" is shown in
+Figure~\ref{fig:mantle-balancer-beahviors}; in this scenario, half of the
+sequencers have migrated off the first server. Alternatively, ``Proxy Mode
+(Full)", which is not pictured, is when all the sequencers migrate off the
+first server.  ``Client Mode", shown on the far right of
+Figure~\ref{fig:mantle-modes}, shows how clients for sequencer 2 contact server
+B without a redirect from server A.
 
 \begin{figure}[t!]
 \centering
@@ -303,7 +310,7 @@ each) and 2 servers. The curves for both sequencers in
 Figure~\ref{fig:mantle-mode-behavior}(a) start at less than 1000 ops/second and
 at time 60 seconds Mantle migrates Sequencer 1 to the slave server.
 Performance of Sequencer 2 decreases because it stayed on the proxy which now
-handles all client requests, processes requests for Sequencer 2, and forwards
+processes requests for Sequencer 2, and forwards
 requests for Sequencer 1. The performance of Sequencer 1 improves dramatically
 because distributing the sequencers in this way separates (1) the handling of
 the client requests and (2) finding the tail of the log and responding to
@@ -315,7 +322,7 @@ Cluster throughput improves at the cost of decreased throughput for Sequencer
 2.  Figure~\ref{fig:mantle-mode-behavior}(b) is set to sequencer mode manually
 (no balancing phase) and shows that the cluster throughput is worse than the
 cluster throughput of proxy mode. That graph also shows that Sequencer 2 has
-less throughput than Sequencer 2. In this case, the scatter-gather process used
+less throughput than Sequencer 1. In this case, the scatter-gather process used
 for cache coherence in the metadata protocols causes strain on the server
 housing Sequencer 2 resulting in this uneven performance. 
 
@@ -323,8 +330,8 @@ housing Sequencer 2 resulting in this uneven performance.
 \label{sec:feature-migration-units}
 
 Another factor that affects performance in this environment is how much load is
-on each server; these experiments quantify that effect by programming the load
-balancing interface to control the amount of load to migrate. We call this
+on each server; these experiments quantify that effect by programming the Load
+Balancing interface to control the amount of load to migrate. We call this
 metric a ``migration unit".  Expressing this heuristic is not easily achievable
 with outward facing tunable parameters ({\it i.e.} system knobs) but with Mantle's
 programmable interface, we can force the load balancer to change its migration
@@ -334,7 +341,7 @@ load on the current server, we can use: \texttt{ targets[whoami+1] =
 mds[whoami]["load"]/2 }.
 
 This code snippet uses globally defined variables and tables from the Mantle
-API to send half of the load on the current server (whoami) to the next ranked
+API~\ref{sevilla:sc15-mantle} to send half of the load on the current server (whoami) to the next ranked
 server (whoami + 1); the \texttt{targets} array is a globally defined table
 that the balancer uses to do the migrations. Alternatively, to migrate all load
 a time step, we can remove the division by 2.
@@ -354,7 +361,7 @@ is clear that client mode does not perform as well for read-heavy workloads. We
 even see a throughput improvement when migrating all load off the first server,
 leaving the first server to do administrative tasks (this is common in the
 metadata cluster because the first server does a lot of the cache coherence
-work) while the second server does all the client work. Proxy mode does the
+work) while the second server does all the processing. Proxy mode does the
 best in both cases and shows large performance gains when completely decoupling
 client request handling and operation processing in Proxy Mode (Full).  The
 parameter that controls the migration units helps the administrator control the
@@ -369,7 +376,7 @@ Tuning the aggressiveness of the load balancer decision making is also a
 trade-off that administrators can control and explore. The balancing phase from
 0 to 60 seconds in Figure~\ref{fig:mantle-balancer-behaviors} shows different
 degrees of aggressiveness in making migration decisions; CephFS makes a
-decision 10 seconds into the run and throughput jumps to 2500 ops/second within 10 seconds
+decision 10 seconds into the run and throughput jumps to 2500 ops/second 
 while Mantle takes more time to stabilize. This conservative behavior is
 controlled by programming the balancer to (1) use different conditions for when
 to migrate and (2) using a threshold for sustained overload. 

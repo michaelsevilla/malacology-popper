@@ -25,9 +25,9 @@
 %\end{table}
 
 In this section we describe two services built on top of Malacology. The first
-is Mantle~\cite{sevilla:sc15-mantle}, a framework for dynamically specifying file system metadata load balancing
+is Mantle, a framework for dynamically specifying file system metadata load balancing
 policies. The second system, ZLog, is a high-performance distributed
-shared-log.  In addition to these services, we'll demonstrate how we combine
+shared-log.  In addition to these services, we will demonstrate how we combine
 ZLog and Mantle to implement service-aware metadata load balancing policies.
 
 \subsection{Mantle: Programmable Load Balancer}
@@ -39,13 +39,10 @@ metadata cluster distributes metadata. Our previous work showed how
 to use Mantle to implement a single node metadata
 service, a distributed metadata service with hashing, and a distributed
 metadata service with dynamic subtree partitioning. 
-We have re-implemented Mantle on Malacology so that Mantle can enjoy the
-properties of existing internal abstractions.
 
 The original implementation was ``hard-coded" into Ceph and lacked robustness
 (no versioning, durability, or policy distribution).  Re-implemented using
-Malacology, Mantle now enjoys (1) the versioning provided by the metadata
-service interface provided by the monitor daemons and (2) the durability and
+Malacology, Mantle now enjoys (1) the versioning provided by Ceph's monitor daemons and (2) the durability and
 distribution provided by Ceph's reliable object store.  Re-using the internal
 abstractions with Malacology resulted in a 2\(\times\) reduction in source code
 compared to the original implementation.
@@ -56,15 +53,13 @@ Ensuring that the version of the current load balancer is consistent across the
 physical servers in the metadata cluster was not addressed in the original
 implementation. The user had to set the version on each individual server and
 it was trivial to make the versions inconsistent. Maintaining consistent
-versions is important for balancing policies that are cooperative in which
-local decisions are made assuming properties about other instances of the same
-policy.
+versions is important for cooperative balancing policies, where
+local decisions are made assuming properties about other instances in the cluster.
 
 With Malacology, Mantle stores the version of the current load balancer in the
 Service Metadata interface. The version of the load balancer corresponds
 to an object name in the balancing policy. Using the Service Metadata interface
-ensures that all metadata servers use the same version of the load balancer. As
-a result, the policy version inherits the consistency of Ceph's internal
+means Mantle inherits the consistency of Ceph's internal
 monitor daemons. The user changes the version of the load balancer using a new
 CLI command.
 
@@ -75,7 +70,7 @@ in RADOS that holds the actual Lua balancing code.  When metadata server nodes s
 balancing load, they first check the latest version from the metadata server map and
 compare it to the balancer they have loaded. If the version has changed, they
 dereference the pointer to the balancer version by reading the corresponding
-object in RADOS. This is in contrast to the original balancer which stored load
+object in RADOS. This is in contrast to the original Mantle implementation which stored load
 balancer code on the local file system -- a technique which is unreliable and
 may result in silent corruption.
 
@@ -108,10 +103,10 @@ individually, look at the logs, and reason about causality and ordering.
 With Malacology, Mantle re-uses the centralized logging features of the
 monitoring service. Important errors, warnings, and info messages are collected
 by the monitoring subsystem and appear in the monitor cluster log so instead of
-users going to each node, they can watch messages appear at the monitor.
+users going to each node, they can watch messages appear at the monitor daemon.
 Messages are logged sparingly, so as not to overload the monitor with frivolous
 debugging but important events, like balancer version changes or failed
-subsystems show up in the centralized log.
+subsystems, show up in the centralized log.
 
 \subsection{ZLog: A Fast Distributed Shared Log}
 \label{sec:zlog}
@@ -160,8 +155,8 @@ to maintain the global ordering provided by the CORFU protocol.
 Initially we sought to directly model the sequencer service in Ceph as a
 non-exclusive, non-cacheable resource, forcing clients to perform a round-trip
 access to the resource at the authoritative metadata server for the sequencer
-inode.  Interestingly, we found that the capability system in Ceph uses a
-strategy to reduce metadata service load by allowing clients that open a shared
+inode.  Interestingly, we found that the capability system in Ceph 
+reduces metadata service load by allowing clients that open a shared
 file to temporarily obtain an exclusive cached copy of the resource, resulting
 in a round-robin, best-effort batching behavior. When a single client is
 accessing the sequencer resource it is able to increment the sequencer locally.
@@ -219,8 +214,8 @@ Since the sequencer service does not resume until the recovery process has
 completed, there cannot be a race with clients appending to the log, and the
 immutability of the log allow reads to never block during a sequencer failure.
 Recovery of the sequencer process itself may be handled in many ways, such as
-leader election using an auxiliary service such as Paxos. In our
-implementation, the recovery is the same as (and is inherited from) the Ceph
+leader election using an auxiliary service like Paxos. In our
+implementation, the recovery is the same as (and is inherited from) the CephFS
 metadata service. Handling the failure of a client that holds the sequencer
 state is similar, although a timeout is used to determine when a client should
 be considered unavailable.

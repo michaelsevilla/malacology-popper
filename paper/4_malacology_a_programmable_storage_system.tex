@@ -31,7 +31,7 @@ Shared Resource
   \\
 File Type
   & \S\ref{sec:file-type-interface}
-  & ?????
+  & MPI supports architecture-specific code~\cite{thakur:iopads1999}
   & file striping strategy
   & data/metadata access
   \\
@@ -48,7 +48,7 @@ Durability
   & persistence/safety
   \\
 \end{tabular}
-\caption{Common internal abstractions. The same ``internal abstractions" common
+\caption{Common internal abstractions. The same ``internal abstractions" are common
 across large-scale systems because they provide functionality that solves general
 distributed systems problems.  Here we list examples of what these internal
 abstractions are used for in ``production systems" and in Ceph.  Malacology
@@ -65,7 +65,7 @@ The guiding principle is to re-use existing services and compose them so that
 these services can be \emph{programmed}. We accomplish programmability of a
 service by exporting bindings for an interpreted programming
 language so that programming can occur without having to restart the storage
-system (see also below,~\S\ref{sec:durability}). Table~\ref{table:examples}
+system (see also below, Section~\ref{sec:durability}). Table~\ref{table:examples}
 shows the internal services from Ceph that we expose in the Malacology
 prototype via Lua~\cite{ierusalimschy1996lua} bindings\oldcomment{.}
 \newcomment{and Figure~\ref{fig:implementation-overview} compares what was
@@ -92,7 +92,7 @@ storage systems where it has been effectively used both on
 and off \cite{sevilla:sc15-mantle} the performance critical path. Finally, the
 flexibility of the runtime allows execution sandboxing in order to address
 security and performance concerns. We will now discuss the common subsystems
-used to manage storage system and how Malacology makes them programmable.
+used to manage storage systems and how Malacology makes them programmable.
 
 \subsection{Service Metadata Interface}
 \label{sec:mon}
@@ -105,11 +105,11 @@ successful service and a necessary component in order to diagnose and detect
 failures, when they occur. This is further complicated by variable propagation
 delays and heterogeneous hardware in dynamic environments.
 \newcommentone{Service metadata is information about the daemons in the system
-and includes membership details, hardware layout ({\it e.g.}, racks, power
-supplies, etc.), data layout, and daemon state/configuration. It differs from
+and includes membership details, hardware layout (e.g., racks, power
+supplies, etc.), data layout, and daemon state and configuration. It differs from
 traditional file system metadata which is information about files. For the rest
 of the paper when we use the phrase ``metadata server" or ``metadata service",
-we are referring to the daemon(s) that manages file system metadata.}
+we are referring to the daemon(s) that manages file system metadata (not service metadata).}
 \addressesissue{4}
 
 \newcomment{\\ \noindent\it{\textbf{Existing Ceph Implementation: }}} 
@@ -137,22 +137,24 @@ functionality infrequently and to assign small values to maps.\\
 
 \noindent{\it{\textbf{Malacology: }}} we expose a strongly-consistent
 view of time-varying service metadata as an interface rather than a hidden
-internal component. Malacology provides a generic API for adding arbitrary
+internal component. This is shown in Figure~\ref{fig:implementation}, 
+where object interfaces and load balancer policies use the Service Metadata
+interface.
+Malacology provides a generic API for adding arbitrary
 values to existing subsystem cluster maps. As a consequence of this,
 applications can define simple but useful service-specific logic to the
 strongly-consistent interface, such as authorization control (just specific
 clients can write new values) or triggering actions based on specific values
-(e.g. sanitize values).  The higher-level services we implement in
-\S\ref{sec:services} make use of this functionality to register, version and
+(e.g. sanitize values).  The higher-level services we implement in Section~\ref{sec:services} make use of this functionality to register, version and
 propagate dynamic code (Lua scripts) for new object interfaces defined in
-storage daemons (\S\ref{object-data-interface}) and policies in the load
-balancer \S\ref{malacology:mds}.  Using this service guarantees that interface
+storage daemons (Section~\ref{object-data-interface}) and policies in the load
+balancer (Section~\ref{malacology:mds}).  Using this service guarantees that interface
 definitions are not only made durable, but are transparently and consistently
 propagated throughout the cluster so that clients are properly synchronized
 with the latest interfaces.\\
 
 \noindent\newcomment{{\it{\textbf{Impact: }}} provides core functionality
-because it lets daemons come to consensus on system critical state. Bugs in the
+because it lets daemons come to a consensus on system critical state. Bugs in the
 internal subsystems or omitting this from services that need this type of
 consistency affects correctness.} \addressesissue{3, 5}
 
@@ -214,7 +216,7 @@ To address these concerns, Malacology takes advantage of Lua extensions
 contributed by the Ceph community. This allows new object interfaces to be
 dynamically loaded into the system and modified at runtime, resulting in a
 object storage API with economy of expression, which at the same time provides
-the full set of features of the base object class. New object interfaces that
+the full set of features of the original object interface implementation. New object interfaces that
 are expressed in thousands of lines of code can be implemented in approximately
 an order of magnitude less code~\cite{geambasu_comet_2010}. While the use of
 Lua does not prevent deployment of malicious code, certain types of coding
@@ -263,7 +265,7 @@ resources, defining new file types, and load balancing.}
 \subsubsection{Shared Resource Interface}
 \label{sec:shared-resource-interface}
 
-In general, file system metadata servers manages client sessions, allowing
+File system metadata servers manage client sessions, allowing
 clients to obtain locks (e.g. file byte ranges), and capabilities (e.g. to
 cache file data). Clients and metadata servers use a cooperative protocol in
 which clients voluntarily release resources back to the \newcommentone{file
@@ -294,9 +296,8 @@ performance if the resource in question does not require strong consistency.}
 
 Applications that manage large amounts of \newcommentone{file system} metadata
 (e.g. users or database snapshots) often require a naming service.  The
-metadata service manages a POSIX file system hierarchy where files and
-directories are represented as inode data structures and expose a POSIX file
-interface. 
+metadata service exposes a POSIX file system hierarchy where files and
+directories are represented as inode data structures.
 
 \newcomment{\\ \noindent {\it{\textbf{Existing Ceph Implementation: }}} CephFS
 is the POSIX compliant file system that uses Ceph.  Inodes are quite large (1KB
@@ -331,8 +332,7 @@ so many systems employ separate file system metadata clusters.}
 \newcomment{\\ \noindent {\it{\textbf{Existing Ceph Implementation: }}}} 
 addresses the challenge of balancing \newcommentone{file system} metadata
 load with a separate metadata cluster. This cluster uses load balancing
-policies to migrate directory inodes around the cluster to alleviate overload
-at single nodes~\cite{weil:sc2004-dyn-metadata}.  The policies use metrics
+policies to migrate directory inodes around the cluster to alleviate overloaded servers~\cite{weil:sc2004-dyn-metadata}.  The policies use metrics
 based on system state (e.g.  CPU and memory utilization) and statistics
 collected by the cluster (e.g. the popularity of an inode). Ceph uses dynamic
 subtree partitioning to move variable sized namespace subtrees. These units can
@@ -359,7 +359,7 @@ distribute metadata in response to overloaded servers.} \addressesissue{3}
 
 \newcomment{Object stores protect data using techniques like erasure coding,
 replication, and data scrubbing. For scalability, many of these features are
-implemented using a peer-to-peer protocol that allows object storage devices to
+implemented using a peer-to-peer protocol that allows object storage daemons to
 operate autonomously without a centralized coordinator.\\}
 
 \noindent{\it{\textbf{Existing Ceph Implementation: }}} provides storage
@@ -367,18 +367,18 @@ by striping and replicating data across RADOS~\cite{weil_rados_2007}, the
 reliable distributed object store. RADOS protects data using common techniques
 such as erasure coding, replication, and scrubbing. For example, when the number
 of placement groups change, the object storage daemons re-balance and re-shard data in the
-background in a process called placement group splitting in which object storage daemons
-communicate directly with each other to cover a new state.  In order to reduce
+background in a process called placement group splitting. During placement group splitting, object storage daemons
+communicate directly with each other to converge on a new data layout.  In order to reduce
 load on the monitoring service, the object storage daemons use a gossip protocol to efficiently
 propagate changes to cluster maps throughout the system, and autonomously
 initiate recovery mechanisms when failures are discovered.\\
 
 \noindent {\it{\textbf{Malacology: }}} metadata service policies and object
-storage interfaces are stored durability within RADOS and managed by storing
-references with the object maps. Since the cluster already propagates a
+storage interfaces are stored durability within RADOS and are managed by storing
+references in the object server daemon maps. Since the cluster already propagates a
 consistent view of these data structures, we use this service to automatically
 install interfaces in object storage daemons, and install policies within the metadata server
-daemon such that clients and daemons are synchronized on
+daemons such that clients and daemons are synchronized on
 correct implementations without restarting.
 
 \newcomment{\\ \noindent {\it{\textbf{Impact: }}} this is a feature because it

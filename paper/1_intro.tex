@@ -7,9 +7,9 @@
 \includegraphics{figures/overview.png}
 \caption{Scalable storage systems have storage daemons which store data,
 monitor daemons (M) that maintain cluster state, and service-specific daemons
-({\it e.g.}, file system metadata servers). Malacology enables the programmability of
+(e.g., file system metadata servers). Malacology enables the programmability of
 internal abstractions (bold arrows) to re-use and compose
-existing subsystems.  With Malacology, we add new services, ZLog and
+existing subsystems.  With Malacology, we built new higher-level services, ZLog and
 Mantle, that sit alongside traditional user-facing APIs (file, block,
 object).}\label{fig:overview}
 \end{figure}
@@ -47,9 +47,9 @@ follow to evolve storage systems efficiently, without jeopardizing years of
 code-hardening and performance optimization efforts.  In this paper we
 investigate an approach that focuses on identifying and exposing existing
 storage system resources, services, and abstractions that in a generalized form
-can be used to \emph{program} new services. While this `dirty-slate' approach
-of factoring out useful code is time consuming, it lets programmers reuse
-subsystems and leverage their optimizations, established correctness,
+can be used to \emph{program} new services. This `dirty-slate' approach of
+factoring out useful code lets programmers re-use subsystems of the back-end
+storage system, thus inheriting their optimizations, established correctness,
 robustness, and efficiency. `Clean-slate' approaches could be implemented
 faster but they do so at the expense of ``throwing away" proven code.
 
@@ -81,7 +81,7 @@ the monitoring service (see Figure~\ref{fig:overview}).  Malacology is
 expressive enough to provide the functionality necessary for implementing new
 services.  \addressesissue{4}
 
-Malacology is a set of interfaces that can be used as
+Malacology includes a set of interfaces that can be used as
 building blocks for constructing novel storage abstractions, including:
 
 \begin{enumerate}
@@ -90,7 +90,7 @@ building blocks for constructing novel storage abstractions, including:
 metadata}.
 
 \item An interface for installing and evolving domain-specific, cluster-wide
-\textbf{data interfaces}.
+\textbf{data I/O} functionality.
 
 \item An interface for managing access to \textbf{shared resources} using a
 variety of optimization strategies.
@@ -120,7 +120,7 @@ motivate the need for programmable storage by describing current practices in
 the open source software community. Next we describe Malacology by presenting
 the subsystems within the underlying storage system that we re-purpose, and
 briefly describe how those system are used within Malacology
-(\S\ref{sec:malacology}).  Then we describe the services that we have
-constructed within the Malacology framework (\S\ref{sec:services}), and
+(Section~\ref{sec:malacology}).  Then we describe the services that we have
+constructed in the Malacology framework (Section~\ref{sec:services}), and
 evaluate our ideas within our prototype implementation
-(\S\ref{sec:evaluation}).  We conclude by discussing related and future work.
+(Section~\ref{sec:evaluation}).  We conclude by discussing future and related work.
