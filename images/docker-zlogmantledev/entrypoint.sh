@@ -27,14 +27,7 @@ if [ "$INSTALL_HEADERS" = "true" ] ; then
   cp -L /ceph/src/include/rados/* /ceph/build/install/usr/include/rados/
 fi
 
-cd /ceph/src/zlog
-make
-cp seq-client /ceph/build/install/usr/bin
-
-apt-get update
-apt-get install -y gdb valgrind
-rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* debian/
-
+cp /ceph/build/bin/seq-client /ceph/build/install/usr/bin
 
 export CEPH_INSTALL_PATH=/ceph/build/install
 . generate_daemon_image
