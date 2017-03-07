@@ -4,6 +4,8 @@ set -ex
 
 ANSIBLE="ansible-playbook --forks 50 --skip-tags with_pkg"
 
+# check if the user grabbed the correct images
+
 cd site
 
 export ANSIBLE_LOG_PATH="../logs/setup.log"
