@@ -78,9 +78,11 @@ respectively.
 \includegraphics{figures/capdelay-quota-behavior-a.png}
 \includegraphics{figures/capdelay-quota-behavior-b.png}
 \includegraphics{figures/capdelay-quota-behavior-c.png}
-\caption{Each dot is an individual request, spread randomly along the \(y\)
-axis. The default behavior is unpredictable, ``delay" lets clients hold the
-lease longer, and ``quota" gives clients the lease for a number of operations.}
+\caption{
+[\href{https://github.com/michaelsevilla/malacology-popper/blob/v2.1/experiments/mds-zlog-seq-thruput-v-latency/results-reqdots-kill0-sameclient-capdelay-100-quota-100000/visualize.ipynb}{source}]
+Each dot is an individual request, spread randomly along the \(y\) axis. The
+default behavior is unpredictable, ``delay" lets clients hold the lease longer,
+and ``quota" gives clients the lease for a number of operations.}
 \label{fig:capdelay-quota-behavior}
 \end{figure}
 
@@ -97,10 +99,12 @@ experience isolated access for a longer period of time.
 \begin{figure}[tbp]
 \centering
 \includegraphics{figures/tradeoff.png}
-\caption{Sequencer throughput by re-using various services.  The highest
-performance is achieved using a single client with exclusive, cacheable
-privilege. Round-robin sharing of the sequencer resource is affected by the
-amount of time the resource is held, with best-effort performing the worst.}
+\caption{
+[\href{https://github.com/michaelsevilla/malacology-popper/blob/v2.1/experiments/zlog-seqr-redux/viz.ipynb}{source}]
+Sequencer throughput by re-using various services.  The highest performance is
+achieved using a single client with exclusive, cacheable privilege. Round-robin
+sharing of the sequencer resource is affected by the amount of time the
+resource is held, with best-effort performing the worst.}
 \label{fig:captp}
 \end{figure}
 
@@ -114,9 +118,11 @@ process of re-distributing the capability to another client.
 \begin{figure}[tbp]
 \centering
 \includegraphics{figures/caps-delay-latency.png}
-\caption{ The latency distribution shows that if the clients hold their
-capabilities longer, performance decreases. Changing the delay can help the
-sequencer and clients strike a balance between throughput and latency.}
+\caption{
+[\href{https://github.com/michaelsevilla/malacology-popper/blob/v2.1/experiments/zlog-seqr-redux/viz.ipynb}{source}]
+The latency distribution shows that if the clients hold their capabilities
+longer, performance decreases. Changing the delay can help the sequencer and
+clients strike a balance between throughput and latency.}
 \label{fig:capcdf}
 \end{figure}
 
@@ -168,7 +174,9 @@ average of 222 ms.
 \begin{figure}[tbp]
 \centering
 \includegraphics[width=60mm,trim={1 4 4 1.3cm},clip]{figures/iface-update-delay.pdf}
-\caption{Cluster-wide interface update latency, excluding the Paxos proposal cost for
+\caption{
+[\href{https://github.com/michaelsevilla/malacology-popper/tree/v2.1/experiments/mon-paxos-update/viz.py}{source}]
+Cluster-wide interface update latency, excluding the Paxos proposal cost for
 interface commit.}
 \label{fig:propdelay}
 \end{figure}
@@ -191,8 +199,10 @@ these features and to alleviate load from overloaded servers.
 \begin{figure}[t!]
 \centering
 \includegraphics{figures/mantle-balancer-behaviors.png}
-\caption{CephFS/Mantle load balancing have better throughput than co-locating
-all sequencers on the same server.  Sections~\ref{sec:feature-balancing-modes}
+\caption{
+[\href{https://github.com/michaelsevilla/malacology-popper/blob/v2.1/experiments/mds-zlog-seq-migrate-redux-3client/results-mantle-runs/visualize.ipynb}{source}]
+CephFS/Mantle load balancing have better throughput than co-locating all
+sequencers on the same server.  Sections~\ref{sec:feature-balancing-modes}
 and~\ref{sec:feature-migration-units} quantify this improvement;
 Section~\ref{sec:feature-backoff} examines the migration at 0-60 seconds.
 }\label{fig:mantle-balancer-behaviors}
@@ -202,9 +212,12 @@ Section~\ref{sec:feature-backoff} examines the migration at 0-60 seconds.
 \centering
 \includegraphics{figures/mantle-balancer-performance.png}
 \includegraphics{figures/mantle-mode-performance.png}
-\caption{In (a) all CephFS balancing modes have the same performance; Mantle
-uses a balancer designed for sequencers. In (b) the best combination of mode
-and migration units can have up to a 2\(\times\)
+\caption{
+[\href{https://github.com/michaelsevilla/malacology-popper/blob/v2.1/experiments/mds-zlog-seq-migrate-redux-3client/results-mantle-runs/visualize.ipynb}{source},
+\href{https://github.com/michaelsevilla/malacology-popper/blob/v2.1/experiments/mds-zlog-seq-migrate-redux-waves/results-paper/visualize.ipynb}{source}]
+In (a) all CephFS balancing modes have the same performance; Mantle uses a
+balancer designed for sequencers. In (b) the best combination of mode and
+migration units can have up to a 2\(\times\)
 improvement.}\label{fig:mantle-balancer-performance}
 \end{figure}
 
@@ -280,7 +293,7 @@ Figure~\ref{fig:mantle-balancer-behaviors}. In ``Proxy Mode", clients continue
 sending requests to server A even though some of the sequencers have been
 migrated to another server. Server A redirects client requests for sequencer 2
 to server B.  ``Proxy Mode (Half)" is shown in
-Figure~\ref{fig:mantle-balancer-beahviors}; in this scenario, half of the
+Figure~\ref{fig:mantle-balancer-behaviors}; in this scenario, half of the
 sequencers have migrated off the first server. Alternatively, ``Proxy Mode
 (Full)", which is not pictured, is when all the sequencers migrate off the
 first server.  ``Client Mode", shown on the far right of
@@ -298,10 +311,11 @@ first server.  }\label{fig:mantle-modes}
 \begin{figure}[t!]
 \centering
 \includegraphics{figures/mantle-mode-behavior.png}
-\caption{The performance of proxy mode achieves the highest throughput but at
-the cost of lower throughput for one of the sequencers. Client mode is more
-fair but results in lower cluster throughput.
-}\label{fig:mantle-mode-behavior}
+\caption{
+[\href{https://github.com/michaelsevilla/malacology-popper/blob/v2.1/experiments/mds-zlog-seq-migrate-redux-waves/results-paper/visualize.ipynb}{source}]
+The performance of proxy mode achieves the highest throughput but at the cost
+of lower throughput for one of the sequencers. Client mode is more fair but
+results in lower cluster throughput.  }\label{fig:mantle-mode-behavior}
 \end{figure}
 
 Figure~\ref{fig:mantle-mode-behavior} shows the throughput over time of the two
@@ -341,7 +355,7 @@ load on the current server, we can use: \texttt{ targets[whoami+1] =
 mds[whoami]["load"]/2 }.
 
 This code snippet uses globally defined variables and tables from the Mantle
-API~\ref{sevilla:sc15-mantle} to send half of the load on the current server (whoami) to the next ranked
+API~\cite{sevilla:sc15-mantle} to send half of the load on the current server (whoami) to the next ranked
 server (whoami + 1); the \texttt{targets} array is a globally defined table
 that the balancer uses to do the migrations. Alternatively, to migrate all load
 a time step, we can remove the division by 2.
