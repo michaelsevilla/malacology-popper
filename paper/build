@@ -1,5 +1,5 @@
 #!/bin/bash
-set -ex
+set -x
 
 # Copy figures to the right place
 cp ../experiments/figure1/cls_xattr-vs-data.png figures/

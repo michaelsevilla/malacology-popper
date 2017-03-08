@@ -1,4 +1,35 @@
-\documentclass[preprint]{sigplanconf-eurosys}
+%-----------------------------------------------------------------------------
+%
+%               Template for sigplanconf LaTeX Class
+%
+% Name:         sigplanconf-template.tex
+%
+% Purpose:      A template for sigplanconf.cls, which is a LaTeX 2e class
+%               file for SIGPLAN conference proceedings.
+%
+% Guide:        Refer to "Author's Guide to the ACM SIGPLAN Class,"
+%               sigplanconf-guide.pdf
+%
+% Author:       Paul C. Anagnostopoulos
+%               Windfall Software
+%               978 371-2316
+%               paul@windfall.com
+%
+% Created:      15 February 2005
+% Source:       http://www.sigplan.org/Resources/Author/
+%-----------------------------------------------------------------------------
+
+\documentclass[numbers]{sigplanconf}
+
+% The following \documentclass options may be useful:
+
+% preprint       Remove this option only once the paper is in final form.
+%  9pt           Set paper in  9-point type (instead of default 10-point)
+% 11pt           Set paper in 11-point type (instead of default 10-point).
+% numbers        Produce numeric citations with natbib (instead of default author/year).
+% authorversion  Prepare an author version, with appropriate copyright-space text.
+
+\usepackage{amsmath}
 \usepackage{multirow}
 \usepackage{arydshln}
 \usepackage{amsmath}
@@ -58,27 +89,89 @@
             pdfborder={0 0 0}}
 \urlstyle{same}  % don't use monospace font for urls
 
-\title{Malacology: A Programmable Storage System}
-%\authorinfo{Paper ID: 165}          {Total Pages: 12}
-\authorinfo{Michael A. Sevilla, Noah Watkins, Ivo Jimenez, \\Peter Alvaro, Shel Finkelstein, Jeff LeFevre, Carlos Maltzahn}
-           {\{msevilla, jayhawk, ivo\}@soe.ucsc.edu, \{palvaro, shel, jlefevre, carlosm\}@ucsc.edu}
-\date{}
+
+\newcommand{\cL}{{\cal L}}
+
 \begin{document}
 
-  \maketitle
+\special{papersize=8.5in,11in}
+\setlength{\pdfpageheight}{\paperheight}
+\setlength{\pdfpagewidth}{\paperwidth}
 
-  \input{./0_abstract}
-  \input{./1_intro}
-  \input{./2_application_specific_storage_stacks}
-  \input{./3_challenges}
-  \input{./4_malacology_a_programmable_storage_system}
-  \input{./5_services_built_on_malacology}
-  \input{./6_evaluation}
-  \input{./7_future_work}
-  \input{./8_related_work}
-  \input{./9_conclusion}
+\conferenceinfo{CONF'yy}{Month d--d, 20yy, City, ST, Country}
+\copyrightyear{20yy}
+\copyrightdata{978-1-nnnn-nnnn-n/yy/mm}\reprintprice{\$15.00}
+\copyrightdoi{nnnnnnn.nnnnnnn}
 
+% For compatibility with auto-generated ACM eRights management
+% instructions, the following alternate commands are also supported.
+%\CopyrightYear{2016}
+%\conferenceinfo{CONF'yy,}{Month d--d, 20yy, City, ST, Country}
+%\isbn{978-1-nnnn-nnnn-n/yy/mm}\acmPrice{\$15.00}
+%\doi{http://dx.doi.org/10.1145/nnnnnnn.nnnnnnn}
+
+% Uncomment the publication rights used.
+%\setcopyright{acmcopyright}
+\setcopyright{acmlicensed}  % default
+%\setcopyright{rightsretained}
+
+\titlebanner{This is a draft!}        % These are ignored unless
+\preprintfooter{short description of paper}   % 'preprint' option specified.
+
+\title{Malacology: A Programmable Storage System}
+
+\authorinfo{Michael A. Sevilla, Noah Watkins, Ivo Jimenez, \\Peter Alvaro, Shel Finkelstein, Jeff LeFevre, Carlos Maltzahn}
+           {University of California, Santa Cruz}
+           {\{msevilla, jayhawk, ivo\}@soe.ucsc.edu, \{palvaro, shel\}@ucsc.edu, \{jlefevre, carlosm\}@soe.ucsc.edu}
+
+\maketitle
+
+\input{./0_abstract}
+
+% 2012 ACM Computing Classification System (CSS) concepts
+% Generate at 'http://dl.acm.org/ccs/ccs.cfm'.
+\begin{CCSXML}
+<ccs2012>
+<concept>
+<concept_id>10011007.10011006.10011008</concept_id>
+<concept_desc>Software and its engineering~General programming languages</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+<concept>
+<concept_id>10003752.10010124.10010138.10010143</concept_id>
+<concept_desc>Theory of computation~Program analysis</concept_desc>
+<concept_significance>300</concept_significance>
+</concept>
+</ccs2012>
+\end{CCSXML}
+
+\ccsdesc[500]{Software and its engineering~General programming languages}
+\ccsdesc[300]{Theory of computation~Program analysis}
+% end generated code
+
+% Legacy 1998 ACM Computing Classification System categories are also
+% supported, but not recommended.
+%\category{CR-number}{subcategory}{third-level}[fourth-level]
+%\category{D.3.0}{Programming Languages}{General}
+%\category{F.3.2}{Logics and Meanings of Programs}{Semantics of Programming Languages}[Program analysis]
+
+\keywords
+keyword1, keyword2
+
+\input{./1_intro}
+\input{./2_application_specific_storage_stacks}
+\input{./3_challenges}
+\input{./4_malacology_a_programmable_storage_system}
+\input{./5_services_built_on_malacology}
+\input{./6_evaluation}
+\input{./7_future_work}
+\input{./8_related_work}
+\input{./9_conclusion}
+
+% The 'abbrvnat' bibliography style is recommended.
+\bibliographystyle{abbrvnat}
+
+% The bibliography should be embedded for final submission.
 \bibliography{paper}
-\bibliographystyle{plain}
 
 \end{document}
