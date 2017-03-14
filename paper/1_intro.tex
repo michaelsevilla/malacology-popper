@@ -8,9 +8,9 @@
 \caption{Scalable storage systems have storage daemons which store data,
 monitor daemons (M) that maintain cluster state, and service-specific daemons
 (e.g., file system metadata servers). Malacology enables the programmability of
-internal abstractions (bold arrows) to re-use and compose
-existing subsystems.  With Malacology, we built new higher-level services, ZLog and
-Mantle, that sit alongside traditional user-facing APIs (file, block,
+internal abstractions (bold arrows) to re-use and compose existing subsystems.
+With Malacology, we built new higher-level services, ZLog and Mantle, that sit
+alongside traditional user-facing APIs (file, block,
 object).}\label{fig:overview}
 \end{figure}
 
@@ -86,8 +86,8 @@ building blocks for constructing novel storage abstractions, including:
 
 \begin{enumerate}
 
-\item An interface for managing strongly-consistent time-varying \textbf{service
-metadata}.
+\item An interface for managing strongly-consistent time-varying
+\textbf{service metadata}.
 
 \item An interface for installing and evolving domain-specific, cluster-wide
 \textbf{data I/O} functionality.
@@ -123,4 +123,5 @@ briefly describe how those system are used within Malacology
 (Section~\ref{sec:malacology}).  Then we describe the services that we have
 constructed in the Malacology framework (Section~\ref{sec:services}), and
 evaluate our ideas within our prototype implementation
-(Section~\ref{sec:evaluation}).  We conclude by discussing future and related work.
+(Section~\ref{sec:evaluation}).  We conclude by discussing future and related
+work.

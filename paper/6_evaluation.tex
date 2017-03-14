@@ -54,17 +54,17 @@ log. Clients contact the sequencer to obtain the tail of the log and then
 independently initiate I/O, thus we measure both the throughput and latency of
 obtaining new tail positions which bounds client append performance.
 
-The sequencer is implemented using the File Type interface so that the sequencer state
-(a 64-bit integer) is embedded in the inode of a file.
-A total ordering of the log is imposed by the re-use of the
-capability service that can be used to grant exclusive access of inode state to
-clients. The metadata service is responsible for maintaining exclusivity and
-granting access. Figure~\ref{fig:capdelay-quota-behavior} (a) shows the
-behavior of the system in which a best-effort policy is used.  The two colors
-represent points in time that the clients were able to access the resource.
-The best-effort policy shows a high degree of interleaving between clients but
-the system spends a large portion of time re-distributing the capability,
-reducing overall throughput.
+The sequencer is implemented using the File Type interface so that the
+sequencer state (a 64-bit integer) is embedded in the inode of a file.  A total
+ordering of the log is imposed by the re-use of the capability service that can
+be used to grant exclusive access of inode state to clients. The metadata
+service is responsible for maintaining exclusivity and granting access.
+Figure~\ref{fig:capdelay-quota-behavior} (a) shows the behavior of the system
+in which a best-effort policy is used.  The two colors represent points in time
+that the clients were able to access the resource.  The best-effort policy
+shows a high degree of interleaving between clients but the system spends a
+large portion of time re-distributing the capability, reducing overall
+throughput.
 
 In order to control the performance of the system we implement a policy that
 (1) restricts the length of time that a client may maintain exclusive access
@@ -152,15 +152,15 @@ evaluating the performance of installing and distributing interface updates.
 Figure~\ref{fig:propdelay} shows the CDF of the latency of interface updates.
 The interfaces are Lua scripts embedded in the cluster map and distributed
 using a peer-to-peer gossip protocol.  The latency is defined as the elapsed
-time following the Paxos proposal for an interface update until each object storage daemon makes
-the update live (the cost of the Paxos proposal is configurable and is
-discussed below). The latency measurements were taken on the nodes running object
-server daemons, and thus exclude the client round-trip cost. In each of the
-experiments 1000 interface updates were observed.
+time following the Paxos proposal for an interface update until each object
+storage daemon makes the update live (the cost of the Paxos proposal is
+configurable and is discussed below). The latency measurements were taken on
+the nodes running object server daemons, and thus exclude the client round-trip
+cost. In each of the experiments 1000 interface updates were observed.
 
 Figure~\ref{fig:propdelay} shows the lower bound cost for updates in a large
-cluster. In the experiment labeled ``120 OSD (RAM)" a cluster of 120 object storage daemons (OSDs)
-using an in-memory data store were deployed, showing a
+cluster. In the experiment labeled ``120 OSD (RAM)" a cluster of 120 object
+storage daemons (OSDs) using an in-memory data store were deployed, showing a
 latency of less than 54 ms with a probability of 90\% and a worst case latency
 of 194 ms. These costs demonstrate the penalty of distributing the interface in
 a large cluster. In practice the costs include, in addition to cluster-wide
@@ -168,8 +168,8 @@ propagation of interface updates, the network round-trip to the interface
 management service, the Paxos commit protocol itself, and other factors such as
 system load. By default Paxos proposals occur periodically with a 1 second
 interval in order to accumulate updates. In a minimum, realistic quorum of 3
-monitors using hard drive-based storage, we were able to decrease this interval to an
-average of 222 ms.
+monitors using hard drive-based storage, we were able to decrease this interval
+to an average of 222 ms.
 
 \begin{figure}[tbp]
 \centering
@@ -235,11 +235,10 @@ the Malacology Load Balancing interface.
 Figure~\ref{fig:mantle-balancer-behaviors} shows the throughput over time of
 different load balancers as they migrate 3 sequencers (with 4 clients) around
 the cluster; ``No Balancing" keeps all sequencers on one server, ``CephFS"
-migrates sequencers using the hard-coded CephFS load balancers, and ``Mantle" uses a
-custom load balancer we wrote specifically for sequencers. 
-The increased throughput for the CephFS and Mantle
-curves between 0 and 60 seconds are a result of migrating the sequencer(s) off
-overloaded servers.
+migrates sequencers using the hard-coded CephFS load balancers, and ``Mantle"
+uses a custom load balancer we wrote specifically for sequencers.  The
+increased throughput for the CephFS and Mantle curves between 0 and 60 seconds
+are a result of migrating the sequencer(s) off overloaded servers.
 
 In addition to showing that migrating sequencers improves performance,
 Figure~\ref{fig:mantle-balancer-behaviors} also demonstrates features that we
@@ -261,19 +260,17 @@ load balancer service uses and how they stress the subsystems that receive and
 forward client requests in different ways. In
 Figure~\ref{fig:mantle-balancer-behaviors}, the CephFS curve shows the
 performance of the balancing mode that CephFS falls into {\it most of the
-time}.  CephFS currently has 3 modes for balancing load: CPU mode, workload mode, and
-hybrid mode. All three have the same structure for making migration decisions
-but vary based on the metric used to calculate load. For this sequencer
-workload the 3 different modes all have the same performance, shown in
-Figure~\ref{fig:mantle-balancer-performance} (a), because the load balancer
+time}.  CephFS currently has 3 modes for balancing load: CPU mode, workload
+mode, and hybrid mode. All three have the same structure for making migration
+decisions but vary based on the metric used to calculate load. For this
+sequencer workload the 3 different modes all have the same performance, shown
+in Figure~\ref{fig:mantle-balancer-performance} (a), because the load balancer
 falls into the same mode a majority of the time.  The high variation in
 performance for the CephFS CPU Mode bar reflects the uncertainty of using
 something as dynamic and unpredictable as CPU utilization to make migration
-decisions. 
-In addition to the suboptimal performance and unpredictability,
-another problem is that all the CephFS balancers behave the same. This
-prevents administrators from properly
-exploring the balancing state space.
+decisions.  In addition to the suboptimal performance and unpredictability,
+another problem is that all the CephFS balancers behave the same. This prevents
+administrators from properly exploring the balancing state space.
 
 Mantle gives the administrator more control over balancing policies; for the
 Mantle bar in Figure~\ref{fig:mantle-balancer-performance} (a) we use the Load
@@ -324,13 +321,13 @@ each) and 2 servers. The curves for both sequencers in
 Figure~\ref{fig:mantle-mode-behavior}(a) start at less than 1000 ops/second and
 at time 60 seconds Mantle migrates Sequencer 1 to the slave server.
 Performance of Sequencer 2 decreases because it stayed on the proxy which now
-processes requests for Sequencer 2, and forwards
-requests for Sequencer 1. The performance of Sequencer 1 improves dramatically
-because distributing the sequencers in this way separates (1) the handling of
-the client requests and (2) finding the tail of the log and responding to
-clients.  Doing both steps is too heavy weight for one server and sequencers on
-slave nodes can go faster if work is split up; this phenomenon is not uncommon
-and has been observed in chain replication~\cite{chain_rep}.
+processes requests for Sequencer 2, and forwards requests for Sequencer 1. The
+performance of Sequencer 1 improves dramatically because distributing the
+sequencers in this way separates (1) the handling of the client requests and
+(2) finding the tail of the log and responding to clients.  Doing both steps is
+too heavy weight for one server and sequencers on slave nodes can go faster if
+work is split up; this phenomenon is not uncommon and has been observed in
+chain replication~\cite{chain_rep}.
 
 Cluster throughput improves at the cost of decreased throughput for Sequencer
 2.  Figure~\ref{fig:mantle-mode-behavior}(b) is set to sequencer mode manually
@@ -355,10 +352,11 @@ load on the current server, we can use: \texttt{ targets[whoami+1] =
 mds[whoami]["load"]/2 }.
 
 This code snippet uses globally defined variables and tables from the Mantle
-API~\cite{sevilla:sc15-mantle} to send half of the load on the current server (whoami) to the next ranked
-server (whoami + 1); the \texttt{targets} array is a globally defined table
-that the balancer uses to do the migrations. Alternatively, to migrate all load
-a time step, we can remove the division by 2.
+API~\cite{sevilla:sc15-mantle} to send half of the load on the current server
+(whoami) to the next ranked server (whoami + 1); the \texttt{targets} array is
+a globally defined table that the balancer uses to do the migrations.
+Alternatively, to migrate all load a time step, we can remove the division by
+2.
 
 %\begin{figure}[t!]
 %\centering

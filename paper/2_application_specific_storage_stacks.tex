@@ -19,13 +19,13 @@ we examine the state of programmability in Ceph. Something of a storage Swiss
 army knife, Ceph simultaneously supports file, block, and object interfaces on
 a single cluster~\cite{ceph_contributors_ceph_2010}. Ceph's Reliable Autonomous
 Distributed Object Storage (RADOS) system is a cluster of object storage
-daemons that provide Ceph with data durability and integrity using
-replication, erasure-coding, and scrubbing~\cite{weil_rados_2007}. Ceph already
-provides some degree of programmability; the object storage daemons support domain-specific
-code that can manipulate objects on the server that has the data local. 
-These ``interfaces" are implemented by composing existing low-level storage
-abstractions that execute atomically. They are written in C++ and are
-statically loaded into the system.
+daemons that provide Ceph with data durability and integrity using replication,
+erasure-coding, and scrubbing~\cite{weil_rados_2007}. Ceph already provides
+some degree of programmability; the object storage daemons support
+domain-specific code that can manipulate objects on the server that has the
+data local.  These ``interfaces" are implemented by composing existing
+low-level storage abstractions that execute atomically. They are written in C++
+and are statically loaded into the system.
 
 The Ceph community provides empirical evidence that developers are already
 beginning to embrace programmable storage. Figure~\ref{fig:obj-int-dev-growth}

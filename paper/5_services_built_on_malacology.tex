@@ -25,27 +25,27 @@
 %\end{table}
 
 In this section we describe two services built on top of Malacology. The first
-is Mantle, a framework for dynamically specifying file system metadata load balancing
-policies. The second system, ZLog, is a high-performance distributed
+is Mantle, a framework for dynamically specifying file system metadata load
+balancing policies. The second system, ZLog, is a high-performance distributed
 shared-log.  In addition to these services, we will demonstrate how we combine
 ZLog and Mantle to implement service-aware metadata load balancing policies.
 
 \subsection{Mantle: Programmable Load Balancer}
 \label{sec:mantle}
 
-Mantle~\cite{sevilla:sc15-mantle} is a programmable load balancer that separates the metadata balancing
-policies from their mechanisms. Administrators inject code to change how the
-metadata cluster distributes metadata. Our previous work showed how 
-to use Mantle to implement a single node metadata
+Mantle~\cite{sevilla:sc15-mantle} is a programmable load balancer that
+separates the metadata balancing policies from their mechanisms. Administrators
+inject code to change how the metadata cluster distributes metadata. Our
+previous work showed how to use Mantle to implement a single node metadata
 service, a distributed metadata service with hashing, and a distributed
 metadata service with dynamic subtree partitioning. 
 
 The original implementation was ``hard-coded" into Ceph and lacked robustness
 (no versioning, durability, or policy distribution).  Re-implemented using
-Malacology, Mantle now enjoys (1) the versioning provided by Ceph's monitor daemons and (2) the durability and
-distribution provided by Ceph's reliable object store.  Re-using the internal
-abstractions with Malacology resulted in a 2\(\times\) reduction in source code
-compared to the original implementation.
+Malacology, Mantle now enjoys (1) the versioning provided by Ceph's monitor
+daemons and (2) the durability and distribution provided by Ceph's reliable
+object store.  Re-using the internal abstractions with Malacology resulted in a
+2\(\times\) reduction in source code compared to the original implementation.
 
 \subsubsection{Versioning Balancer Policies}
 
@@ -53,52 +53,53 @@ Ensuring that the version of the current load balancer is consistent across the
 physical servers in the metadata cluster was not addressed in the original
 implementation. The user had to set the version on each individual server and
 it was trivial to make the versions inconsistent. Maintaining consistent
-versions is important for cooperative balancing policies, where
-local decisions are made assuming properties about other instances in the cluster.
+versions is important for cooperative balancing policies, where local decisions
+are made assuming properties about other instances in the cluster.
 
 With Malacology, Mantle stores the version of the current load balancer in the
-Service Metadata interface. The version of the load balancer corresponds
-to an object name in the balancing policy. Using the Service Metadata interface
-means Mantle inherits the consistency of Ceph's internal
-monitor daemons. The user changes the version of the load balancer using a new
-CLI command.
+Service Metadata interface. The version of the load balancer corresponds to an
+object name in the balancing policy. Using the Service Metadata interface means
+Mantle inherits the consistency of Ceph's internal monitor daemons. The user
+changes the version of the load balancer using a new CLI command.
 
 \subsubsection{Making Balancer Policies Durable}
 
 The load balancer version described above corresponds to the name of an object
-in RADOS that holds the actual Lua balancing code.  When metadata server nodes start
-balancing load, they first check the latest version from the metadata server map and
-compare it to the balancer they have loaded. If the version has changed, they
-dereference the pointer to the balancer version by reading the corresponding
-object in RADOS. This is in contrast to the original Mantle implementation which stored load
-balancer code on the local file system -- a technique which is unreliable and
-may result in silent corruption.
+in RADOS that holds the actual Lua balancing code.  When metadata server nodes
+start balancing load, they first check the latest version from the metadata
+server map and compare it to the balancer they have loaded. If the version has
+changed, they dereference the pointer to the balancer version by reading the
+corresponding object in RADOS. This is in contrast to the original Mantle
+implementation which stored load balancer code on the local file system -- a
+technique which is unreliable and may result in silent corruption.
 
 The balancer pulls the Lua code from RADOS synchronously; asynchronous reads
-are not possible because of the architecture of the metadata server. The synchronous
-behavior is not the default behavior for RADOS operations, so we achieve this
-with a timeout: if the asynchronous read does not come back within half the
-balancing tick interval the operation is canceled and a Connection Timeout
-error is returned. By default, the balancing tick interval is 10 seconds, so
-Mantle will use a 5 second second timeout.
+are not possible because of the architecture of the metadata server. The
+synchronous behavior is not the default behavior for RADOS operations, so we
+achieve this with a timeout: if the asynchronous read does not come back within
+half the balancing tick interval the operation is canceled and a Connection
+Timeout error is returned. By default, the balancing tick interval is 10
+seconds, so Mantle will use a 5 second second timeout.
 
 This design allows Mantle to immediately return an error if anything
 RADOS-related goes wrong.  We use this implementation because we do not want to
-do a blocking object storage daemon read from inside the global metadata server lock. Doing so would bring
-down the metadata server cluster if any of the object storage daemons are not responsive.
+do a blocking object storage daemon read from inside the global metadata server
+lock. Doing so would bring down the metadata server cluster if any of the
+object storage daemons are not responsive.
 
 Storing the balancers in RADOS is simplified by the use of an interpreted
 language for writing balancer code. If we used a language that needs to be
-compiled, like the C++ object classes in the object storage daemon, we would need to ensure
-binary compatibility, which is complicated by different operating systems,
-distributions, and compilers.
+compiled, like the C++ object classes in the object storage daemon, we would
+need to ensure binary compatibility, which is complicated by different
+operating systems, distributions, and compilers.
 
 \subsubsection{Logging, Debugging, and Warnings}
 
 In the original implementation, Mantle would log all errors, warnings, and
-debug messages to a log stored locally on each metadata server. To get the simplest
-status messages or to debug problems, the user would have to log into each metadata server
-individually, look at the logs, and reason about causality and ordering.
+debug messages to a log stored locally on each metadata server. To get the
+simplest status messages or to debug problems, the user would have to log into
+each metadata server individually, look at the logs, and reason about causality
+and ordering.
 
 With Malacology, Mantle re-uses the centralized logging features of the
 monitoring service. Important errors, warnings, and info messages are collected
@@ -186,11 +187,11 @@ access to the sequencer resource, more predictable latency can be achieved by
 treating the sequencer inode as a shared non-cacheable resource, forcing
 clients to make a round-trip to the metadata service. However, the shared
 nature of the metadata service may prevent the sequencer from achieving maximum
-throughput. To address this issue we use the Load Balancing interface to construct a
-service-specific load balancing policy. As opposed to a balancing policy that
-strives for uniform load distribution, a ZLog-specific policy may utilize
-knowledge of inode types to migrate the sequencer service to provisioned
-hardware during periods of contention or high demand.
+throughput. To address this issue we use the Load Balancing interface to
+construct a service-specific load balancing policy. As opposed to a balancing
+policy that strives for uniform load distribution, a ZLog-specific policy may
+utilize knowledge of inode types to migrate the sequencer service to
+provisioned hardware during periods of contention or high demand.
 
 \subsubsection{Storage Interface}
 
@@ -204,9 +205,9 @@ with out-of-date epoch values are rejected, and clients are expected to request
 a new tail from the sequencer after refreshing state from an auxiliary service.
 This mechanism forms the basis for sequencer recovery.
 
-In order to repopulate the sequencer state ({\it i.e.} the cached, current tail of
-the log) during recovery of a sequencer, the maximum position in the log must
-be obtained. To do this, the storage interface exposes an additional
+In order to repopulate the sequencer state ({\it i.e.} the cached, current tail
+of the log) during recovery of a sequencer, the maximum position in the log
+must be obtained. To do this, the storage interface exposes an additional
 \emph{seal} method that atomically installs a new epoch value and returns the
 maximum log position that has been written.
 
