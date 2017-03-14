@@ -135,20 +135,20 @@ top of the consensus engine. Since the monitor is intended to be out of the
 high-performance I/O path, a general guideline is to make use of this
 functionality infrequently and to assign small values to maps.\\
 
-\noindent{\it{\textbf{Malacology: }}} we expose a strongly-consistent
-view of time-varying service metadata as an interface rather than a hidden
-internal component. This is shown in Figure~\ref{fig:implementation}, 
-where object interfaces and load balancer policies use the Service Metadata
-interface.
-Malacology provides a generic API for adding arbitrary
-values to existing subsystem cluster maps. As a consequence of this,
-applications can define simple but useful service-specific logic to the
-strongly-consistent interface, such as authorization control (just specific
-clients can write new values) or triggering actions based on specific values
-(e.g. sanitize values).  The higher-level services we implement in Section~\ref{sec:services} make use of this functionality to register, version and
-propagate dynamic code (Lua scripts) for new object interfaces defined in
-storage daemons (Section~\ref{object-data-interface}) and policies in the load
-balancer (Section~\ref{malacology:mds}).  Using this service guarantees that interface
+\noindent{\it{\textbf{Malacology: }}} we expose a strongly-consistent view of
+time-varying service metadata as an interface rather than a hidden internal
+component. This is shown in Figure~\ref{fig:implementation}, where object
+interfaces and load balancer policies use the Service Metadata interface.
+Malacology provides a generic API for adding arbitrary values to existing
+subsystem cluster maps. As a consequence of this, applications can define
+simple but useful service-specific logic to the strongly-consistent interface,
+such as authorization control (just specific clients can write new values) or
+triggering actions based on specific values (e.g. sanitize values).  The
+higher-level services we implement in Section~\ref{sec:services} make use of
+this functionality to register, version and propagate dynamic code (Lua
+scripts) for new object interfaces defined in storage daemons
+(Section~\ref{object-data-interface}) and policies in the load balancer
+(Section~\ref{malacology:mds}).  Using this service guarantees that interface
 definitions are not only made durable, but are transparently and consistently
 propagated throughout the cluster so that clients are properly synchronized
 with the latest interfaces.\\
@@ -165,7 +165,7 @@ consistency affects correctness.} \addressesissue{3, 5}
 %all components of a system service must be kept to the same standards of
 %protection as data in the system itself.
 
-\oldcomment{\noindent 4.2 Object I/O Interfrace}
+\oldcomment{\noindent 4.2 Object I/O Interface}
 \subsection{Data I/O Interface}
 \label{sec:data-io-interface}
 \label{object-data-interface}

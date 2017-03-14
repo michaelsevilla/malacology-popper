@@ -98,10 +98,16 @@
 \setlength{\pdfpageheight}{\paperheight}
 \setlength{\pdfpagewidth}{\paperwidth}
 
-\conferenceinfo{CONF'yy}{Month d--d, 20yy, City, ST, Country}
-\copyrightyear{20yy}
-\copyrightdata{978-1-nnnn-nnnn-n/yy/mm}\reprintprice{\$15.00}
-\copyrightdoi{nnnnnnn.nnnnnnn}
+\CopyrightYear{2017} 
+\setcopyright{acmcopyright}
+\conferenceinfo{EuroSys '17,}{April 23-26, 2017, Belgrade, Serbia}
+\isbn{978-1-4503-4938-3/17/04}\acmPrice{\$15.00}
+\doi{http://dx.doi.org/10.1145/3064176.3064208}
+
+%\conferenceinfo{CONF'yy}{Month d--d, 20yy, City, ST, Country}
+%\copyrightyear{20yy}
+%\copyrightdata{978-1-nnnn-nnnn-n/yy/mm}\reprintprice{\$15.00}
+%\copyrightdoi{nnnnnnn.nnnnnnn}
 
 % For compatibility with auto-generated ACM eRights management
 % instructions, the following alternate commands are also supported.
@@ -112,7 +118,7 @@
 
 % Uncomment the publication rights used.
 %\setcopyright{acmcopyright}
-\setcopyright{acmlicensed}  % default
+%\setcopyright{acmlicensed}  % default
 %\setcopyright{rightsretained}
 
 \titlebanner{This is a draft!}        % These are ignored unless
@@ -124,6 +130,7 @@
            {University of California, Santa Cruz}
            {\{msevilla, jayhawk, ivo\}@soe.ucsc.edu, \{palvaro, shel\}@ucsc.edu, \{jlefevre, carlosm\}@soe.ucsc.edu}
 
+
 \maketitle
 
 \input{./0_abstract}
@@ -133,20 +140,26 @@
 \begin{CCSXML}
 <ccs2012>
 <concept>
-<concept_id>10011007.10011006.10011008</concept_id>
-<concept_desc>Software and its engineering~General programming languages</concept_desc>
+<concept_id>10002951.10003152.10003517.10003519</concept_id>
+<concept_desc>Information systems~Distributed storage</concept_desc>
 <concept_significance>500</concept_significance>
 </concept>
 <concept>
-<concept_id>10003752.10010124.10010138.10010143</concept_id>
-<concept_desc>Theory of computation~Program analysis</concept_desc>
+<concept_id>10011007.10010940.10010941.10010949.10003512</concept_id>
+<concept_desc>Software and its engineering~File systems management</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+<concept>
+<concept_id>10011007.10010940.10010992</concept_id>
+<concept_desc>Software and its engineering~Software functional properties</concept_desc>
 <concept_significance>300</concept_significance>
 </concept>
 </ccs2012>
 \end{CCSXML}
 
-\ccsdesc[500]{Software and its engineering~General programming languages}
-\ccsdesc[300]{Theory of computation~Program analysis}
+\ccsdesc[500]{Information systems~Distributed storage}
+\ccsdesc[500]{Software and its engineering~File systems management}
+\ccsdesc[300]{Software and its engineering~Software functional properties}
 % end generated code
 
 % Legacy 1998 ACM Computing Classification System categories are also
@@ -156,7 +169,7 @@
 %\category{F.3.2}{Logics and Meanings of Programs}{Semantics of Programming Languages}[Program analysis]
 
 \keywords
-keyword1, keyword2
+Distributed Storage, Programmability, Ceph
 
 \input{./1_intro}
 \input{./2_application_specific_storage_stacks}
