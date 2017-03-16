@@ -14,13 +14,14 @@ alongside traditional user-facing APIs (file, block,
 object).}\label{fig:overview}
 \end{figure}
 
-A storage system implements abstractions designed to persistently store data
-and must exhibit a high level of correctness to prevent data loss.  Storage
-systems have evolved around storage devices that often were orders of magnitude
-slower than CPU and memory, and therefore could dominate overall performance if
-not used carefully. Over the last few decades members of the storage systems
-community have developed clever strategies to meet correctness requirements
-while somewhat hiding the latency of traditional storage
+A{\let\thefootnote\relax\footnote{$^{\dag}$ These authors contributed equally to
+this work.}} storage system implements abstractions designed to persistently
+store data and must exhibit a high level of correctness to prevent data loss.
+Storage systems have evolved around storage devices that often were orders of
+magnitude slower than CPU and memory, and therefore could dominate overall
+performance if not used carefully. Over the last few decades members of the
+storage systems community have developed clever strategies to meet correctness
+requirements while somewhat hiding the latency of traditional storage
 media~\cite{brewer_disks_2016}. To avoid lock-in by a particular vendor, users
 of storage systems have preferred systems with highly standardized APIs and
 lowest common denominator abstract data types such as blocks of bytes and byte
@@ -108,7 +109,7 @@ Malacology to demonstrate the feasibility of the programmable storage approach:
 \begin{enumerate}
 
 \item A high-performance distributed shared log service called ZLog, that is an
-implementation of CORFU.~\cite{balakrishnan_corfu_2012}
+implementation of CORFU~\cite{balakrishnan_corfu_2012}
 
 \item An implementation of Mantle, the programmable load balancing
 service~\cite{sevilla:sc15-mantle}
